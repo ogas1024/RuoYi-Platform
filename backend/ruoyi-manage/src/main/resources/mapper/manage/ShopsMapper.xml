@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.ShopsMapper">
+    
+    <resultMap type="Shops" id="ShopsResult">
+        <result property="id"    column="id"    />
+        <result property="shopName"    column="shop_name"    />
+        <result property="contactPerson"    column="contact_person"    />
+        <result property="categoryId"    column="category_id"    />
+        <result property="contactPhone"    column="contact_phone"    />
+        <result property="userName"    column="user_name"    />
+    </resultMap>
+
+    <sql id="selectShopsVo">
+        select tb_shops.id,user_name, shop_name, contact_person,category_name, category_id, contact_phone from tb_shops
+        left join tb_category on tb_shops.category_id = tb_category.id
+        left join sys_user on tb_shops.id = sys_user.user_id
+    </sql>
+
+    <select id="selectShopsList" parameterType="Shops" resultMap="ShopsResult">
+        <include refid="selectShopsVo"/>
+        <where>  
+            <if test="shopName != null  and shopName != ''"> and shop_name like concat('%', #{shopName}, '%')</if>
+            <if test="categoryId != null "> and category_id = #{categoryId}</if>
+        </where>
+    </select>
+    
+    <select id="selectShopsById" parameterType="Long" resultMap="ShopsResult">
+        <include refid="selectShopsVo"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insertShops" parameterType="Shops">
+        insert into tb_shops
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="shopName != null">shop_name,</if>
+            <if test="contactPerson != null">contact_person,</if>
+            <if test="categoryId != null">category_id,</if>
+            <if test="contactPhone != null">contact_phone,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="shopName != null">#{shopName},</if>
+            <if test="contactPerson != null">#{contactPerson},</if>
+            <if test="categoryId != null">#{categoryId},</if>
+            <if test="contactPhone != null">#{contactPhone},</if>
+         </trim>
+    </insert>
+
+    <update id="updateShops" parameterType="Shops">
+        update tb_shops
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="shopName != null">shop_name = #{shopName},</if>
+            <if test="contactPerson != null">contact_person = #{contactPerson},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="contactPhone != null">contact_phone = #{contactPhone},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteShopsById" parameterType="Long">
+        delete from tb_shops where id = #{id}
+    </delete>
+
+    <delete id="deleteShopsByIds" parameterType="String">
+        delete from tb_shops where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>;
+
+        delete from sys_user where user_id in
+        <foreach item="userId" collection="array" open="(" separator="," close=")">
+            #{userId}
+        </foreach>
+    </delete>
+</mapper>
