@@ -223,3 +223,6 @@ application-*.properties
 
 # Application specific
 # Add any project-specific ignores here
+
+.*/
+.*
