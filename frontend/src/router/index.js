@@ -37,6 +37,44 @@ export const constantRoutes = [
       }
     ]
   },
+  // 门户（普通用户）常量路由：使用独立布局，不依赖后台菜单
+  {
+    path: '/p',
+    component: () => import('@/layout/portal/PortalLayout.vue'),
+    hidden: true,
+    children: [
+      {
+        path: '',
+        name: 'PortalMajor',
+        component: () => import('@/views/portal/courseResource/index.vue'),
+        meta: { title: '课程资源' }
+      },
+      {
+        path: 'course',
+        name: 'PortalCourse',
+        component: () => import('@/views/portal/courseResource/course.vue'),
+        meta: { title: '课程' }
+      },
+      {
+        path: 'list',
+        name: 'PortalResourceList',
+        component: () => import('@/views/portal/courseResource/list.vue'),
+        meta: { title: '资源列表' }
+      },
+      {
+        path: 'my',
+        name: 'PortalMyResource',
+        component: () => import('@/views/portal/courseResource/my.vue'),
+        meta: { title: '我上传的' }
+      },
+      {
+        path: 'top',
+        name: 'PortalTop',
+        component: () => import('@/views/portal/courseResource/top.vue'),
+        meta: { title: '排行榜' }
+      }
+    ]
+  },
   {
     path: '/login',
     component: () => import('@/views/login'),
@@ -60,7 +98,7 @@ export const constantRoutes = [
   {
     path: '',
     component: Layout,
-    redirect: '/index',
+    redirect: '/p',
     children: [
       {
         path: '/index',

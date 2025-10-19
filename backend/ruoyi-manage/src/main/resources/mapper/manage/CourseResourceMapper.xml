@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.CourseResourceMapper">
+
+    <resultMap id="CourseResourceResult" type="com.ruoyi.manage.domain.CourseResource">
+        <result property="id" column="id"/>
+        <result property="majorId" column="major_id"/>
+        <result property="courseId" column="course_id"/>
+        <result property="resourceName" column="resource_name"/>
+        <result property="resourceType" column="resource_type"/>
+        <result property="fileUrl" column="file_url"/>
+        <result property="fileHash" column="file_hash"/>
+        <result property="fileSize" column="file_size"/>
+        <result property="linkUrl" column="link_url"/>
+        <result property="description" column="description"/>
+        <result property="status" column="status"/>
+        <result property="auditBy" column="audit_by"/>
+        <result property="auditTime" column="audit_time"/>
+        <result property="auditReason" column="audit_reason"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="downloadCount" column="download_count"/>
+        <result property="lastDownloadTime" column="last_download_time"/>
+        <result property="uploaderId" column="uploader_id"/>
+        <result property="uploaderName" column="uploader_name"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="majorName" column="major_name"/>
+        <result property="courseName" column="course_name"/>
+    </resultMap>
+
+    <sql id="baseSelect">
+        select r.id, r.major_id, r.course_id, r.resource_name, r.resource_type, r.file_url, r.file_hash, r.file_size, r.link_url,
+               r.description, r.status, r.audit_by, r.audit_time, r.audit_reason, r.publish_time, r.download_count, r.last_download_time,
+               r.uploader_id, r.uploader_name, r.create_by, r.create_time, r.update_by, r.update_time, r.del_flag,
+               m.major_name, c.course_name
+        from tb_course_resource r
+        left join tb_major m on r.major_id = m.id
+        left join tb_course c on r.course_id = c.id
+    </sql>
+
+    <select id="selectList" parameterType="com.ruoyi.manage.domain.CourseResource" resultMap="CourseResourceResult">
+        <include refid="baseSelect"/>
+        <where>
+            r.del_flag = '0'
+            <if test="majorId != null"> and r.major_id = #{majorId}</if>
+            <if test="courseId != null"> and r.course_id = #{courseId}</if>
+            <if test="status != null"> and r.status = #{status}</if>
+            <if test="uploaderId != null"> and r.uploader_id = #{uploaderId}</if>
+            <if test="courseName != null and courseName != ''"> and c.course_name like concat('%', #{courseName}, '%')</if>
+            <if test="resourceName != null and resourceName != ''"> and r.resource_name like concat('%', #{resourceName}, '%')</if>
+            <if test="description != null and description != ''"> and r.description like concat('%', #{description}, '%')</if>
+        </where>
+        order by r.id desc
+    </select>
+
+    <select id="selectById" parameterType="long" resultMap="CourseResourceResult">
+        <include refid="baseSelect"/>
+        where r.id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.CourseResource" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_course_resource (
+            major_id, course_id, resource_name, resource_type, file_url, file_hash, file_size, link_url, description,
+            status, uploader_id, uploader_name, create_by, create_time, del_flag
+        ) values (
+            #{majorId}, #{courseId}, #{resourceName}, #{resourceType}, #{fileUrl}, #{fileHash}, #{fileSize}, #{linkUrl}, #{description},
+            #{status}, #{uploaderId}, #{uploaderName}, #{createBy}, #{createTime}, '0'
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.manage.domain.CourseResource">
+        update tb_course_resource
+        <set>
+            <if test="resourceName != null and resourceName != ''">resource_name = #{resourceName},</if>
+            <if test="resourceType != null">resource_type = #{resourceType},</if>
+            <if test="fileUrl != null">file_url = #{fileUrl},</if>
+            <if test="fileHash != null">file_hash = #{fileHash},</if>
+            <if test="fileSize != null">file_size = #{fileSize},</if>
+            <if test="linkUrl != null">link_url = #{linkUrl},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteById" parameterType="long">delete from tb_course_resource where id = #{id}</delete>
+    <delete id="deleteByIds">
+        delete from tb_course_resource where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+
+    <update id="approve">
+        update tb_course_resource set status = 1, audit_by = #{auditBy}, audit_time = #{auditTime}, publish_time = ifnull(publish_time, now())
+        where id = #{id} and status in (0,3)
+    </update>
+
+    <update id="reject">
+        update tb_course_resource set status = 2, audit_by = #{auditBy}, audit_time = #{auditTime}, audit_reason = #{reason}
+        where id = #{id} and status in (0,1,3)
+    </update>
+
+    <update id="offline">
+        update tb_course_resource set status = 3 where id = #{id} and status = 1
+    </update>
+
+    <update id="onlineToPending">
+        update tb_course_resource set status = 0 where id = #{id} and status in (2,3)
+    </update>
+
+    <update id="incrDownload">
+        update tb_course_resource set download_count = download_count + 1, last_download_time = #{time}
+        where id = #{id} and status = 1
+    </update>
+
+    <select id="selectTop" resultMap="CourseResourceResult">
+        <include refid="baseSelect"/>
+        <where>
+            r.del_flag = '0' and r.status = 1
+            <if test="scope == 'major' and majorId != null"> and r.major_id = #{majorId}</if>
+            <if test="scope == 'course' and courseId != null"> and r.course_id = #{courseId}</if>
+            <if test="fromTime != null"> and ifnull(r.last_download_time, r.publish_time) &gt;= #{fromTime}</if>
+        </where>
+        order by r.download_count desc, r.id desc
+        <if test="limit != null"> limit #{limit}</if>
+        <if test="limit == null"> limit 10</if>
+    </select>
+
+</mapper>

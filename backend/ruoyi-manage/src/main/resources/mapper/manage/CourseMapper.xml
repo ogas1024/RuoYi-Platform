@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.CourseMapper">
+
+    <resultMap id="CourseResult" type="com.ruoyi.manage.domain.Course">
+        <result property="id" column="id"/>
+        <result property="majorId" column="major_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="courseCode" column="course_code"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="majorName" column="major_name"/>
+    </resultMap>
+
+    <sql id="baseSelect">
+        select c.id, c.major_id, c.course_name, c.course_code, c.status, c.remark, c.create_by, c.create_time, c.update_by, c.update_time, c.del_flag,
+               m.major_name
+        from tb_course c
+        left join tb_major m on c.major_id = m.id
+    </sql>
+
+    <select id="selectCourseList" parameterType="com.ruoyi.manage.domain.Course" resultMap="CourseResult">
+        <include refid="baseSelect"/>
+        <where>
+            c.del_flag = '0'
+            <if test="majorId != null"> and c.major_id = #{majorId}</if>
+            <if test="courseName != null and courseName != ''"> and c.course_name like concat('%', #{courseName}, '%')</if>
+            <if test="status != null and status != ''"> and c.status = #{status}</if>
+        </where>
+        order by c.id desc
+    </select>
+
+    <select id="selectCourseById" parameterType="long" resultMap="CourseResult">
+        <include refid="baseSelect"/>
+        where c.id = #{id}
+    </select>
+
+    <insert id="insertCourse" parameterType="com.ruoyi.manage.domain.Course" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_course (major_id, course_name, course_code, status, remark, create_by, create_time, del_flag)
+        values (#{majorId}, #{courseName}, #{courseCode}, #{status}, #{remark}, #{createBy}, #{createTime}, '0')
+    </insert>
+
+    <update id="updateCourse" parameterType="com.ruoyi.manage.domain.Course">
+        update tb_course
+        <set>
+            <if test="majorId != null">major_id = #{majorId},</if>
+            <if test="courseName != null and courseName != ''">course_name = #{courseName},</if>
+            <if test="courseCode != null">course_code = #{courseCode},</if>
+            <if test="status != null and status != ''">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteCourseById" parameterType="long">
+        delete from tb_course where id = #{id}
+    </delete>
+
+    <delete id="deleteCourseByIds">
+        delete from tb_course where id in
+        <foreach collection="array" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+
+    <!-- 负责人范围限制查询：按 tb_major_lead 过滤 major_id -->
+    <select id="selectMyLeadCourseList" resultMap="CourseResult">
+        <include refid="baseSelect"/>
+        inner join tb_major_lead ml on ml.major_id = c.major_id and ml.del_flag = '0'
+        <where>
+            c.del_flag = '0' and ml.user_id = #{userId}
+            <if test="course != null and course.majorId != null"> and c.major_id = #{course.majorId}</if>
+            <if test="course != null and course.courseName != null and course.courseName != ''"> and c.course_name like concat('%', #{course.courseName}, '%')</if>
+            <if test="course != null and course.status != null and course.status != ''"> and c.status = #{course.status}</if>
+        </where>
+        order by c.id desc
+    </select>
+
+</mapper>
+
