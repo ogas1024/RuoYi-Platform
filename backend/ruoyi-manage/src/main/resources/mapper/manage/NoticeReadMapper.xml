@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.NoticeReadMapper">
+
+    <insert id="insertIgnore" parameterType="com.ruoyi.manage.domain.NoticeRead">
+        insert ignore into tb_notice_read(notice_id, user_id, ack, read_time, create_by, create_time, update_by, update_time, del_flag)
+        values(#{noticeId}, #{userId}, #{ack}, #{readTime}, #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0')
+    </insert>
+
+    <select id="countByUser" resultType="int">
+        select count(1) from tb_notice_read where notice_id = #{noticeId} and user_id = #{userId} and del_flag = '0'
+    </select>
+
+</mapper>
+

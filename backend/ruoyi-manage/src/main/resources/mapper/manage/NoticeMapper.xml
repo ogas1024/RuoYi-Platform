@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.NoticeMapper">
+
+    <resultMap id="NoticeResult" type="com.ruoyi.manage.domain.Notice">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="contentHtml" column="content_html"/>
+        <result property="type" column="type"/>
+        <result property="status" column="status"/>
+        <result property="visibleAll" column="visible_all"/>
+        <result property="publisherId" column="publisher_id"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="expireTime" column="expire_time"/>
+        <result property="pinned" column="pinned"/>
+        <result property="pinnedTime" column="pinned_time"/>
+        <result property="editCount" column="edit_count"/>
+        <result property="readCount" column="read_count"/>
+        <result property="attachmentCount" column="attachment_count"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="read" column="read_flag"/>
+        <result property="expired" column="expired_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <sql id="baseSelect">
+        select n.id, n.title, n.content_html, n.type, n.status, n.visible_all,
+               n.publisher_id, n.publish_time, n.expire_time, n.pinned, n.pinned_time,
+               n.edit_count, n.read_count, n.attachment_count, n.del_flag,
+               n.create_by, n.create_time, n.update_by, n.update_time,
+               (case when nr.id is null then 0 else 1 end) as read_flag,
+               (case when n.expire_time is not null and now() > n.expire_time then 1 else 0 end) as expired_flag
+        from tb_notice n
+        left join tb_notice_read nr on nr.notice_id = n.id and nr.user_id = #{userId} and nr.del_flag = '0'
+    </sql>
+
+    <select id="selectList" resultMap="NoticeResult">
+        <include refid="baseSelect"/>
+        <where>
+            n.del_flag = '0'
+            <choose>
+                <when test="q.status != null">
+                    and n.status = #{q.status}
+                </when>
+                <otherwise>
+                    and n.status = 1
+                </otherwise>
+            </choose>
+            <if test="q.keyword != null and q.keyword != ''">
+                and n.title like concat('%', #{q.keyword}, '%')
+            </if>
+            <if test="q.pinned != null">
+                and n.pinned = #{q.pinned}
+            </if>
+            <if test="q.includeExpired == null or q.includeExpired == false">
+                and (n.expire_time is null or now() &lt;= n.expire_time)
+            </if>
+
+            <!-- 可见范围过滤：管理员不过滤；非管理员时，满足全员或范围 OR 匹配（角色/部门/岗位任一） -->
+            <if test="isAdmin == 0">
+                and (
+                    n.visible_all = 1
+                    or exists (
+                        select 1 from tb_notice_scope s
+                        where s.notice_id = n.id and s.del_flag = '0'
+                          and (
+                            (s.scope_type = 0 and s.ref_id in (select role_id from sys_user_role where user_id = #{userId}))
+                            or (s.scope_type = 1 and s.ref_id = #{deptId})
+                            or (s.scope_type = 2 and s.ref_id in (select post_id from sys_user_post where user_id = #{userId}))
+                          )
+                    )
+                )
+            </if>
+
+            <!-- 管理视角：当查询非已发布状态时，限制为本人发布或管理员 -->
+            <if test="q.status != null and q.status != 1 and isAdmin == 0">
+                and n.publisher_id = #{userId}
+            </if>
+        </where>
+        order by n.pinned desc, n.pinned_time desc, n.publish_time desc
+    </select>
+
+    <select id="selectById" resultMap="NoticeResult">
+        <include refid="baseSelect"/>
+        where n.id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.Notice" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_notice (
+            title, content_html, type, status, visible_all, publisher_id,
+            publish_time, expire_time, pinned, pinned_time,
+            edit_count, read_count, attachment_count,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{title}, #{contentHtml}, #{type}, #{status}, #{visibleAll}, #{publisherId},
+            #{publishTime}, #{expireTime}, #{pinned}, #{pinnedTime},
+            #{editCount}, #{readCount}, #{attachmentCount},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.manage.domain.Notice">
+        update tb_notice
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="contentHtml != null">content_html = #{contentHtml},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="visibleAll != null">visible_all = #{visibleAll},</if>
+            <if test="expireTime != null">expire_time = #{expireTime},</if>
+            <if test="pinned != null">pinned = #{pinned},</if>
+            <if test="pinnedTime != null">pinned_time = #{pinnedTime},</if>
+            <if test="attachmentCount != null">attachment_count = #{attachmentCount},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="incrEditCount">
+        update tb_notice set edit_count = edit_count + 1, update_time = now() where id = #{id}
+    </update>
+
+    <update id="incrReadCount">
+        update tb_notice set read_count = read_count + 1 where id = #{id}
+    </update>
+
+    <update id="publish">
+        update tb_notice set status = 1, publish_time = ifnull(publish_time, now()) where id = #{id} and del_flag = '0'
+    </update>
+
+    <update id="retract">
+        update tb_notice set status = 2 where id = #{id} and del_flag = '0'
+    </update>
+
+    <update id="pin">
+        update tb_notice set pinned = 1, pinned_time = now() where id = #{id} and status = 1 and del_flag = '0'
+    </update>
+
+    <update id="unpin">
+        update tb_notice set pinned = 0 where id = #{id} and del_flag = '0'
+    </update>
+
+    <delete id="deleteByIds">
+        update tb_notice set del_flag = '2' where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </delete>
+
+</mapper>
+

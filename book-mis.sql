@@ -1,6 +1,46 @@
 /*
  Navicat Premium Dump SQL
 
+-- 说明（通知公告 模块注释补充，仅注释无DDL变更）
+-- 表一览：
+-- 1) tb_notice（主体）：公告富文本、发布/撤回、置顶、有效期、统计计数、审计与软删
+-- 2) tb_notice_scope（可见范围）：范围类型（0角色/1部门/2岗位） + 关联ID；与 sys_role/sys_dept/sys_post 逻辑关联
+-- 3) tb_notice_attachment（附件）：文件名/URL/类型/大小/排序；与 OSS 上传返回的 URL 对齐
+-- 4) tb_notice_read（阅读回执）：用户已读标记（进入详情即记录），保留审计与软删
+
+-- 字段要点：
+-- tb_notice.status：0草稿/1已发布/2撤回/3已过期（过期由 expire_time 动态判定，持久状态可保持1）
+-- tb_notice.visible_all：1全员可见；0自定义范围（scope 表）
+-- tb_notice.pinned 与 pinned_time：仅对“已发布”生效，排序优先级最高
+-- tb_notice.edit_count：每次编辑 +1；发布时间 publish_time 不因编辑而变
+-- tb_notice.read_count / attachment_count：冗余计数，便于列表展示
+-- tb_notice_scope.scope_type：0=角色（sys_role.role_id）/1=部门（sys_dept.dept_id）/2=岗位（sys_post.post_id）
+-- tb_notice_read.ack：预留“确认已读”能力（MVP不启用）
+
+-- 查询建议：
+-- 1) 列表过滤默认仅返回 status=1 且未过期的公告（includeExpired=true 可放开）
+-- 2) 可见性判定：
+--    - 可见范围采用“或逻辑”：角色/部门/岗位 任一匹配即可见
+--    - 管理员不过滤；非管理员时需满足 visible_all=1 或 exists() 三类命中之一
+-- 3) 排序：pinned DESC, pinned_time DESC, publish_time DESC
+-- 4) 统计：阅读回执 insert ignore + read_count 自增
+
+-- 示例：查询某用户（userId=100, deptId=10）可见的“已发布且未过期”的公告（伪SQL，实际见 Mapper）
+-- select ... from tb_notice n
+-- left join tb_notice_read nr on nr.notice_id=n.id and nr.user_id=100 and nr.del_flag='0'
+-- where n.del_flag='0' and n.status=1 and (n.expire_time is null or now()<=n.expire_time)
+--   and (
+--     n.visible_all=1 or exists (
+--       select 1 from tb_notice_scope s
+--        where s.notice_id=n.id and s.del_flag='0' and (
+--          (s.scope_type=0 and s.ref_id in (select role_id from sys_user_role where user_id=100)) or
+--          (s.scope_type=1 and s.ref_id=10) or
+--          (s.scope_type=2 and s.ref_id in (select post_id from sys_user_post where user_id=100))
+--        )
+--     )
+--   )
+-- order by n.pinned desc, n.pinned_time desc, n.publish_time desc;
+
  Source Server         : 本机
  Source Server Type    : MySQL
  Source Server Version : 50726 (5.7.26)
@@ -1162,3 +1202,111 @@ INSERT INTO `tb_course_resource_log` (`resource_id`, `action`, `actor_id`, `acto
 VALUES
   (10001, 'CREATE', 1, 'admin', '127.0.0.1', 'Mozilla/5.0', '{"note":"初始化导入示例"}', 'SUCCESS', 'admin', NOW(), 'admin', NOW(), '0'),
   (10001, 'APPROVE', 1, 'admin', '127.0.0.1', 'Mozilla/5.0', '{"note":"审核通过"}', 'SUCCESS', 'admin', NOW(), 'admin', NOW(), '0');
+
+
+-- ------------------------------------------------------------
+-- 2025-10-19 模块：通知公告（MVP）
+-- 变更说明：新增公告主体、可见范围、附件与阅读回执四张业务表
+-- 约定：不做物理外键；与 RuoYi 的 sys_user/sys_role/sys_dept/sys_post 逻辑关联
+-- ------------------------------------------------------------
+
+-- tb_notice：通知公告-主体
+CREATE TABLE IF NOT EXISTS tb_notice (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+  title VARCHAR(200) NOT NULL COMMENT '标题',
+  content_html MEDIUMTEXT NOT NULL COMMENT '富文本HTML内容',
+  type TINYINT NOT NULL DEFAULT 2 COMMENT '类型：1-通知 2-公告',
+  status TINYINT NOT NULL DEFAULT 0 COMMENT '状态：0-草稿 1-已发布 2-撤回 3-已过期',
+  visible_all TINYINT NOT NULL DEFAULT 1 COMMENT '是否全员可见：1-是 0-否',
+  publisher_id BIGINT NOT NULL COMMENT '发布者用户ID（sys_user.user_id）',
+  publish_time DATETIME NULL COMMENT '发布时间',
+  expire_time DATETIME NULL COMMENT '到期时间（超过即视为已过期）',
+  pinned TINYINT NOT NULL DEFAULT 0 COMMENT '是否置顶：0-否 1-是',
+  pinned_time DATETIME NULL COMMENT '置顶时间',
+  edit_count INT NOT NULL DEFAULT 0 COMMENT '编辑次数',
+  read_count INT NOT NULL DEFAULT 0 COMMENT '阅读次数（冗余计数）',
+  attachment_count INT NOT NULL DEFAULT 0 COMMENT '附件数量（冗余计数）',
+  remark VARCHAR(500) DEFAULT NULL COMMENT '备注',
+  create_by VARCHAR(64) NOT NULL DEFAULT '' COMMENT '创建者',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_by VARCHAR(64) NOT NULL DEFAULT '' COMMENT '更新者',
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  del_flag CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除标志（0代表存在 2代表删除）'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知公告-主体';
+
+-- 索引
+CREATE INDEX idx_notice_status_pub ON tb_notice(status, pinned, pinned_time, publish_time);
+CREATE INDEX idx_notice_expire ON tb_notice(expire_time);
+CREATE INDEX idx_notice_publisher ON tb_notice(publisher_id);
+CREATE INDEX idx_notice_title ON tb_notice(title);
+
+-- tb_notice_scope：通知公告-可见范围
+CREATE TABLE IF NOT EXISTS tb_notice_scope (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+  notice_id BIGINT NOT NULL COMMENT '公告ID（tb_notice.id）',
+  scope_type TINYINT NOT NULL COMMENT '范围类型：0-角色 1-部门 2-岗位',
+  ref_id BIGINT NOT NULL COMMENT '引用ID：sys_role.role_id / sys_dept.dept_id / sys_post.post_id',
+  remark VARCHAR(255) DEFAULT NULL COMMENT '备注',
+  create_by VARCHAR(64) NOT NULL DEFAULT '' COMMENT '创建者',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_by VARCHAR(64) NOT NULL DEFAULT '' COMMENT '更新者',
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  del_flag CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除标志（0存在 2删除）'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知公告-可见范围';
+
+-- 索引与唯一约束（避免重复范围项）
+CREATE INDEX idx_scope_notice ON tb_notice_scope(notice_id);
+CREATE INDEX idx_scope_type_ref ON tb_notice_scope(scope_type, ref_id);
+CREATE UNIQUE INDEX uk_scope_unique ON tb_notice_scope(notice_id, scope_type, ref_id, del_flag);
+
+-- tb_notice_attachment：通知公告-附件
+CREATE TABLE IF NOT EXISTS tb_notice_attachment (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+  notice_id BIGINT NOT NULL COMMENT '公告ID（tb_notice.id）',
+  file_name VARCHAR(255) NOT NULL COMMENT '文件名',
+  file_url VARCHAR(1024) NOT NULL COMMENT '文件URL（OSS）',
+  file_type VARCHAR(50) DEFAULT NULL COMMENT '文件类型（扩展名或MIME）',
+  file_size BIGINT DEFAULT NULL COMMENT '文件大小（字节）',
+  sort INT NOT NULL DEFAULT 0 COMMENT '排序',
+  remark VARCHAR(255) DEFAULT NULL COMMENT '备注',
+  create_by VARCHAR(64) NOT NULL DEFAULT '' COMMENT '创建者',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_by VARCHAR(64) NOT NULL DEFAULT '' COMMENT '更新者',
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  del_flag CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除标志（0存在 2删除）'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知公告-附件';
+
+CREATE INDEX idx_attach_notice ON tb_notice_attachment(notice_id);
+
+-- tb_notice_read：通知公告-阅读回执
+CREATE TABLE IF NOT EXISTS tb_notice_read (
+  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
+  notice_id BIGINT NOT NULL COMMENT '公告ID（tb_notice.id）',
+  user_id BIGINT NOT NULL COMMENT '用户ID（sys_user.user_id）',
+  ack TINYINT NOT NULL DEFAULT 0 COMMENT '是否确认（预留，MVP为0）',
+  read_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '阅读时间',
+  remark VARCHAR(255) DEFAULT NULL COMMENT '备注',
+  create_by VARCHAR(64) NOT NULL DEFAULT '' COMMENT '创建者',
+  create_time DATETIME DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  update_by VARCHAR(64) NOT NULL DEFAULT '' COMMENT '更新者',
+  update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  del_flag CHAR(1) NOT NULL DEFAULT '0' COMMENT '删除标志（0存在 2删除）'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='通知公告-阅读回执';
+
+-- 索引与唯一约束（一个用户对同一公告仅保留一条有效回执）
+CREATE UNIQUE INDEX uk_notice_read ON tb_notice_read(notice_id, user_id, del_flag);
+CREATE INDEX idx_read_user ON tb_notice_read(user_id);
+
+-- 示例数据（最小集）
+INSERT INTO tb_notice (
+  title, content_html, type, status, visible_all, publisher_id,
+  publish_time, expire_time, pinned, pinned_time,
+  edit_count, read_count, attachment_count, remark, create_by, update_by
+) VALUES
+('测试公告（全员可见）', '<p>欢迎使用通知公告模块（MVP）</p>', 2, 1, 1, 1,
+ NOW(), DATE_ADD(NOW(), INTERVAL 30 DAY), 1, NOW(),
+ 0, 0, 0, '示例数据', 'admin', 'admin');
+
+-- 如需按角色/部门/岗位限定可见范围，插入 tb_notice_scope 示例（以下ID仅演示，实际以系统表为准）
+-- INSERT INTO tb_notice_scope(notice_id, scope_type, ref_id, create_by, update_by)
+-- VALUES (LAST_INSERT_ID(), 0, 2, 'admin', 'admin'); -- 0=角色，ref_id=某角色ID

@@ -39,9 +39,10 @@ const usePermissionStore = defineStore(
             const sdata = JSON.parse(JSON.stringify(res.data))
             const rdata = JSON.parse(JSON.stringify(res.data))
             const defaultData = JSON.parse(JSON.stringify(res.data))
-            const sidebarRoutes = filterAsyncRouter(sdata)
-            const rewriteRoutes = filterAsyncRouter(rdata, false, true)
-            const defaultRoutes = filterAsyncRouter(defaultData)
+            // 将后端返回路由转为组件并规范化名称，避免父子/同级路由 name 冲突
+            const sidebarRoutes = ensureUniqueNames(filterAsyncRouter(sdata))
+            const rewriteRoutes = ensureUniqueNames(filterAsyncRouter(rdata, false, true))
+            const defaultRoutes = ensureUniqueNames(filterAsyncRouter(defaultData))
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route) })
             this.setRoutes(rewriteRoutes)
@@ -122,6 +123,44 @@ export const loadView = (view) => {
     }
   }
   return res
+}
+
+// 统一清洗并确保路由 name 唯一（避免出现父子同名或同级重名导致 addRoute 报错）
+function ensureUniqueNames(routes, ancestorNames = new Set()) {
+  const seen = new Set()
+  routes.forEach((route, idx) => {
+    // 标准化 name：优先使用已有 name，否则用 path 生成；统一去除特殊字符
+    const rawName = route.name || route.path || `route_${idx}`
+    let safeName = sanitizeName(rawName)
+
+    // 如果与祖先/同级冲突，则附加基于 path 的后缀直到唯一
+    const baseSuffix = sanitizeName(route.path || `child_${idx}`)
+    let counter = 0
+    while (ancestorNames.has(safeName) || seen.has(safeName)) {
+      counter += 1
+      safeName = `${safeName}_${baseSuffix}${counter > 1 ? '_' + counter : ''}`
+    }
+    route.name = safeName
+
+    // 递归处理子路由
+    if (route.children && route.children.length) {
+      const nextAncestors = new Set(ancestorNames)
+      nextAncestors.add(route.name)
+      ensureUniqueNames(route.children, nextAncestors)
+    }
+
+    seen.add(route.name)
+  })
+  return routes
+}
+
+function sanitizeName(name) {
+  if (typeof name !== 'string') {
+    name = String(name)
+  }
+  // 将不适合作为 name 的字符统一替换为下划线，保持稳定且可读
+  const n = name.trim()
+  return n.replace(/[^A-Za-z0-9_\-]/g, '_').replace(/^_+/, '').replace(/_+$/, '') || 'route'
 }
 
 export default usePermissionStore
