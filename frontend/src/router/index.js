@@ -50,6 +50,12 @@ export const constantRoutes = [
         meta: { title: '课程资源' }
       },
       {
+        path: 'notice',
+        name: 'PortalNotice',
+        component: () => import('@/views/portal/notice/index.vue'),
+        meta: { title: '通知公告' }
+      },
+      {
         path: 'course',
         name: 'PortalCourse',
         component: () => import('@/views/portal/courseResource/course.vue'),

@@ -43,7 +43,10 @@
             n.del_flag = '0'
             <choose>
                 <when test="q.status != null">
-                    and n.status = #{q.status}
+                    <if test="q.status != -1">
+                        and n.status = #{q.status}
+                    </if>
+                    <!-- q.status == -1 表示“全部”，不加状态过滤 -->
                 </when>
                 <otherwise>
                     and n.status = 1
@@ -57,6 +60,18 @@
             </if>
             <if test="q.includeExpired == null or q.includeExpired == false">
                 and (n.expire_time is null or now() &lt;= n.expire_time)
+            </if>
+
+            <!-- 已读/未读筛选：read=true -> 有回执；read=false -> 无回执 -->
+            <if test="q.read != null">
+                <choose>
+                    <when test="q.read == true">
+                        and nr.id is not null
+                    </when>
+                    <otherwise>
+                        and nr.id is null
+                    </otherwise>
+                </choose>
             </if>
 
             <!-- 可见范围过滤：管理员不过滤；非管理员时，满足全员或范围 OR 匹配（角色/部门/岗位任一） -->
@@ -79,8 +94,38 @@
             <if test="q.status != null and q.status != 1 and isAdmin == 0">
                 and n.publisher_id = #{userId}
             </if>
+
+            <!-- 当选择“全部”且非管理员时：仅允许查看“已发布”或“本人发布”的记录，避免看到他人草稿/撤回 -->
+            <if test="q.status == -1 and isAdmin == 0">
+                and (n.status = 1 or n.publisher_id = #{userId})
+            </if>
         </where>
-        order by n.pinned desc, n.pinned_time desc, n.publish_time desc
+        <choose>
+            <when test="q.orderBy == 'publishTime'">
+                order by n.pinned desc, n.pinned_time desc, n.publish_time
+                <choose>
+                    <when test="q.orderDir == 'asc'"> asc </when>
+                    <otherwise> desc </otherwise>
+                </choose>
+            </when>
+            <when test="q.orderBy == 'updateTime'">
+                order by n.pinned desc, n.pinned_time desc, n.update_time
+                <choose>
+                    <when test="q.orderDir == 'asc'"> asc </when>
+                    <otherwise> desc </otherwise>
+                </choose>
+            </when>
+            <when test="q.orderBy == 'expireTime'">
+                order by n.pinned desc, n.pinned_time desc, n.expire_time
+                <choose>
+                    <when test="q.orderDir == 'asc'"> asc </when>
+                    <otherwise> desc </otherwise>
+                </choose>
+            </when>
+            <otherwise>
+                order by n.pinned desc, n.pinned_time desc, n.publish_time desc
+            </otherwise>
+        </choose>
     </select>
 
     <select id="selectById" resultMap="NoticeResult">
@@ -133,7 +178,11 @@
     </update>
 
     <update id="retract">
-        update tb_notice set status = 2 where id = #{id} and del_flag = '0'
+        update tb_notice
+        set status = 2,
+            pinned = 0,
+            pinned_time = null
+        where id = #{id} and del_flag = '0'
     </update>
 
     <update id="pin">
@@ -150,4 +199,3 @@
     </delete>
 
 </mapper>
-

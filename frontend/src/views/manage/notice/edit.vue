@@ -75,15 +75,16 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import Editor from '@/components/Editor/index.vue'
-import { addNotice, updateNotice, getNotice } from '@/api/manage/notice'
+import { addNotice, updateNotice, getNotice, publishNotice } from '@/api/manage/notice'
 import { listRole } from '@/api/system/role'
 import { deptTreeSelect as getDeptTree } from '@/api/system/user'
 import { listPost } from '@/api/system/post'
 import { uploadOss } from '@/api/manage/upload'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const formRef = ref()
 const fileRef = ref()
 const form = reactive({ id: undefined, title: '', type: 2, contentHtml: '', visibleAll: 1, expireTime: undefined })
@@ -136,9 +137,17 @@ function onSubmit() {
   const payload = { ...form, attachments: [...attachments] }
   if (form.visibleAll === 0) payload.scopes = buildScopes()
   const api = form.id ? updateNotice : addNotice
-  api(payload).then(r => {
+  api(payload).then(async r => {
     if (!form.id) form.id = (r.data && r.data.id) || form.id
     ElMessage.success('保存成功')
+    try {
+      await ElMessageBox.confirm('保存成功，是否立即发布？', '发布提示', { type: 'info', confirmButtonText: '立即发布', cancelButtonText: '稍后' })
+      await publishNotice(form.id)
+      ElMessage.success('已发布')
+    } catch (e) {
+      // 用户选择“稍后”或发布失败均忽略，回到列表页
+    }
+    router.push('/manage/notice/index')
   })
 }
 
@@ -165,4 +174,3 @@ onMounted(() => {
 .mt16{ margin-top:16px }
 .tip{ margin-left:10px;color:#909399 }
 </style>
-

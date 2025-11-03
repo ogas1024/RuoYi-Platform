@@ -15,6 +15,15 @@
         <span>排行榜</span>
       </el-menu-item>
     </el-sub-menu>
+    <el-sub-menu index="notice">
+      <template #title>
+        <el-icon><Bell /></el-icon>
+        <span>通知公告</span>
+      </template>
+      <el-menu-item index="/p/notice">
+        <span>公告列表</span>
+      </el-menu-item>
+    </el-sub-menu>
     <el-sub-menu index="lib">
       <template #title>
         <el-icon><Collection /></el-icon>
@@ -26,7 +35,7 @@
 </template>
 
 <script setup>
-import { Menu, Collection } from '@element-plus/icons-vue'
+import { Menu, Collection, Bell } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

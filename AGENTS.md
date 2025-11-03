@@ -4,7 +4,7 @@
 - 你的个性化要求优先：小白友好、逐模块推进、你先建表、我生成代码但遵循 RuoYi 规范。
 - 后端仅改动 `backend/ruoyi-manage`；前端仅改动 `frontend`；全部 SQL 写到根目录 `book-mis.sql`，表名均以 `tb_` 前缀。
 - 技术栈：**Ruoyi-Vue 框架 + Spring Boot 3 + Vue3 + Element-Plus + MySQL + Redis + 阿里云 OSS**（但尽量弱化对 RuoYi 的强依赖；代码由代理生成、遵循 RuoYi 目录与风格）如需任何 RuoYi 后台手动操作，我提供详细教程。
-- 你现在在WSL中运行
+- 系统环境为CachyOS
 
 ### 角色分工
 - 你（学生）：给出需求、确认边界、创建表（我先出表设计草案）、在 Apifox 手工验证、按教程在 RuoYi 后台配置菜单/权限、执行 `git commit`。
@@ -12,7 +12,7 @@
 
 ### 仓库结构与运行
 - 后端 `backend/`：RuoYi Maven 多模块。仅在 `backend/ruoyi-manage` 编写业务代码。核心配置在 `ruoyi-admin/src/main/resources/application.yml`、`application-druid.yml`。
-- 前端 `frontend/`：Vite + Vue3 + Element‑Plus。代码集中 `frontend/src` 与 `frontend/src/api`。环境文件 `.env.*`（设置 `VITE_APP_BASE_API=/dev-api`）。
+- 前端 `frontend/`：Vite + Vue3 + Element‑Plus。代码集中 `frontend/src` 与 `frontend/src/api`。
 - 文档与数据：设计文档 `docs/requirements/`；API 文档 `docs/api/`；Apifox 指南 `docs/apifox/<模块>.md`；模块报告 `docs/report/<模块>.md`；SQL `book-mis.sql`（含建表、注释、示例数据）。
 - 构建与运行:
   - 后端：`cd backend && mvn -T 1C clean package -DskipTests`；开发运行 `mvn -f backend/pom.xml spring-boot:run -pl ruoyi-admin -am` 或 `java -jar backend/ruoyi-admin/target/ruoyi-admin.jar`
@@ -92,7 +92,7 @@
 - 前端（Vue 3，2 空格）：
   - 组件 PascalCase；路由页面置于 `src/views/**/index.vue`；通用组件 `src/components/*`
   - API 封装：`src/api/<module>.ts`，方法名 `list/get/add/update/remove` 对应后端；统一异常提示。
-  - 环境：`.env.*` 使用 `VITE_APP_BASE_API=/dev-api`；鉴权通过 RuoYi 内置 token 头。
+  - 环境：；鉴权通过 RuoYi 内置 token 头。
 - API 路由（示例）：
   - GET `/manage/<entity>/list`（分页）
   - GET `/manage/<entity>/{id}`（详情）
@@ -140,8 +140,6 @@ CREATE TABLE tb_book (
   - 超级管理员：系统开关与用户管理
 
 ### RuoYi 后台操作教程
-
-必要时你手工执行, **请优先检查能否通过sql语句批量执行!** 编写对应的sql语句交由我来执行, 减少手工在ruoyi后台操作
 
 若需在 RuoYi 后台做菜单/权限设置，代理会生成一步步操作说明, 输出在 `docs/ruoyi-opt` 下，例如：
 
@@ -219,7 +217,7 @@ CREATE TABLE tb_book (
 
 #### Apifox 指南模板（`docs/apifox-<模块>.md`）
 - 固定说明：
-    - baseURL: `http://localhost:8080/dev-api`
+    - baseURL: `http://localhost:8080`
     - 请求头示例：
         - `Authorization: Bearer <token>`（说明如何获取 token：登录接口）
     - 每个接口写明：

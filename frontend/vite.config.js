@@ -42,7 +42,8 @@ export default defineConfig(({ mode, command }) => {
     },
     // vite 相关配置
     server: {
-      port: 80,
+      // 与社区常用端口保持一致，避免权限问题（80 需要 root）。
+      port: 5173,
       host: true,
       open: true,
       proxy: {

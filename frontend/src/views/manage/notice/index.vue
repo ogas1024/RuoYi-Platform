@@ -5,7 +5,8 @@
         <el-input v-model="query.keyword" placeholder="标题关键词" clearable @keyup.enter="handleQuery" />
       </el-form-item>
       <el-form-item label="状态">
-        <el-select v-model="query.status" placeholder="默认已发布" clearable style="width: 160px">
+        <el-select v-model="query.status" placeholder="全部" clearable style="width: 180px" @clear="() => { query.status = -1 }">
+          <el-option :value="-1" label="全部" />
           <el-option :value="1" label="已发布" />
           <el-option :value="0" label="草稿" />
           <el-option :value="2" label="撤回" />
@@ -21,10 +22,12 @@
       </el-form-item>
       <el-form-item>
         <el-button type="success" icon="Plus" @click="handleAdd" v-hasPermi="['manage:notice:add']">新增</el-button>
+        <el-button type="danger" icon="Delete" :disabled="!multipleSelection.length" @click="delBatch" v-hasPermi="['manage:notice:remove']">批量删除</el-button>
       </el-form-item>
     </el-form>
 
-    <el-table :data="list" v-loading="loading">
+    <el-table :data="list" v-loading="loading" @selection-change="onSelectionChange">
+      <el-table-column type="selection" width="50" />
       <el-table-column prop="title" label="标题" min-width="240">
         <template #default="scope">
           <el-tag v-if="scope.row.pinned" type="warning" class="mr5">置顶</el-tag>
@@ -73,18 +76,45 @@
       @pagination="getList"
     />
   </div>
+
+  <!-- 详情抽屉 -->
+  <el-drawer v-model="showDetail" title="公告详情" size="60%">
+    <template #default>
+      <h3>{{ detail.notice?.title }}</h3>
+      <div class="meta">
+        <span>发布时间：{{ detail.notice?.publishTime }}</span>
+        <el-tag v-if="detail.notice?.expired" type="info" class="ml8">已过期</el-tag>
+      </div>
+      <div class="content" v-html="detail.notice?.contentHtml"></div>
+      <div v-if="(detail.attachments||[]).length" class="mt16">
+        <h4>附件</h4>
+        <ul>
+          <li v-for="a in detail.attachments" :key="a.id">
+            <a :href="a.fileUrl" target="_blank">{{ a.fileName }}</a>
+          </li>
+        </ul>
+      </div>
+    </template>
+  </el-drawer>
   
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { listNotice, publishNotice, retractNotice, pinNotice, delNotice } from '@/api/manage/notice'
 import { ElMessageBox, ElMessage } from 'element-plus'
+import usePermissionStore from '@/store/modules/permission'
+import { isHttp } from '@/utils/validate'
 
 const loading = ref(false)
 const list = ref([])
 const total = ref(0)
-const query = reactive({ pageNum: 1, pageSize: 10, keyword: '', status: undefined, includeExpired: false })
+const query = reactive({ pageNum: 1, pageSize: 10, keyword: '', status: -1, includeExpired: false })
+const multipleSelection = ref([])
+const showDetail = ref(false)
+const detail = reactive({})
+const router = useRouter()
 
 function getList() {
   loading.value = true
@@ -95,7 +125,7 @@ function getList() {
 }
 
 function handleQuery() { query.pageNum = 1; getList() }
-function resetQuery() { query.keyword = ''; query.status = undefined; query.includeExpired = false; handleQuery() }
+function resetQuery() { query.keyword = ''; query.status = -1; query.includeExpired = false; handleQuery() }
 
 function publishRow(row) {
   publishNotice(row.id).then(() => { ElMessage.success('发布成功'); getList() })
@@ -116,18 +146,45 @@ function delRow(row) {
 }
 
 function viewDetail(row) {
-  // 最小实现：调用详情接口记录已读，并弹出内容摘要
   import('@/api/manage/notice').then(({ getNotice }) => {
     getNotice(row.id).then(res => {
-      ElMessage.success('已记录已读')
+      Object.assign(detail, res.data || {})
+      showDetail.value = true
       getList()
-      // 可根据需要展示弹窗，这里简化为提示
     })
   })
 }
 
-function handleAdd() { window.location.hash = '#/manage/notice/edit' }
-function editRow(row) { window.location.hash = `#/manage/notice/edit?id=${row.id}` }
+async function ensureNoticeRoutesReady() {
+  const exists = router.getRoutes().some(r => r.path === '/manage/notice/edit')
+  if (!exists) {
+    // 主动拉取一次动态路由，避免首次点击“新增”时还未注册隐藏路由导致 404
+    const accessRoutes = await usePermissionStore().generateRoutes()
+    accessRoutes.forEach(route => { if (!isHttp(route.path)) router.addRoute(route) })
+  }
+}
+
+async function handleAdd() {
+  await ensureNoticeRoutesReady()
+  router.push('/manage/notice/edit')
+}
+
+async function editRow(row) {
+  await ensureNoticeRoutesReady()
+  router.push({ path: '/manage/notice/edit', query: { id: row.id } })
+}
+
+function onSelectionChange(rows) {
+  multipleSelection.value = rows
+}
+
+function delBatch() {
+  const ids = multipleSelection.value.map(i => i.id)
+  if (!ids.length) return
+  ElMessageBox.confirm(`确定删除选中的 ${ids.length} 条记录吗？`, '提示', { type: 'warning' }).then(() => {
+    delNotice(ids.join(',')).then(() => { ElMessage.success('删除成功'); getList() })
+  }).catch(()=>{})
+}
 
 onMounted(getList)
 </script>
@@ -136,4 +193,7 @@ onMounted(getList)
 .mb10 { margin-bottom: 10px; }
 .mr5 { margin-right: 5px; }
 .link { cursor: pointer; color: var(--el-color-primary); }
+.ml8 { margin-left: 8px; }
+.mt16 { margin-top: 16px; }
+.content :deep(img){ max-width: 100%; }
 </style>

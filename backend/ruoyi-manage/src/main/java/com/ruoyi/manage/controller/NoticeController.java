@@ -61,14 +61,20 @@ public class NoticeController extends BaseController {
     @PutMapping("/{id}/publish")
     public AjaxResult publish(@PathVariable Long id) {
         int rows = noticeService.publish(id);
-        return rows > 0 ? AjaxResult.success() : AjaxResult.error("发布失败");
+        if (rows > 0) return AjaxResult.success();
+        if (rows == -404) return AjaxResult.error(404, "公告不存在或已删除");
+        if (rows == -409) return AjaxResult.error(409, "状态冲突：仅草稿/撤回可发布或已发布幂等");
+        return AjaxResult.error("发布失败");
     }
 
     @PreAuthorize("@ss.hasPermi('manage:notice:publish')")
     @PutMapping("/{id}/retract")
     public AjaxResult retract(@PathVariable Long id) {
         int rows = noticeService.retract(id);
-        return rows > 0 ? AjaxResult.success() : AjaxResult.error("撤回失败");
+        if (rows > 0) return AjaxResult.success();
+        if (rows == -404) return AjaxResult.error(404, "公告不存在或已删除");
+        if (rows == -409) return AjaxResult.error(409, "状态冲突：仅已发布公告可撤回");
+        return AjaxResult.error("撤回失败");
     }
 
     public static class PinBody { public Boolean pinned; }
@@ -78,6 +84,9 @@ public class NoticeController extends BaseController {
     public AjaxResult pin(@PathVariable Long id, @RequestBody PinBody body) {
         boolean pinned = body != null && Boolean.TRUE.equals(body.pinned);
         int rows = noticeService.pin(id, pinned);
-        return rows > 0 ? AjaxResult.success() : AjaxResult.error("置顶失败");
+        if (rows > 0) return AjaxResult.success();
+        if (rows == -404) return AjaxResult.error(404, "公告不存在或已删除");
+        if (rows == -409) return AjaxResult.error(409, "状态冲突：仅已发布公告可置顶");
+        return AjaxResult.error("置顶失败");
     }
 }

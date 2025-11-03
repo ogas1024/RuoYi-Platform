@@ -69,8 +69,10 @@ public class NoticeServiceImpl implements INoticeService {
         rec.setCreateTime(DateUtils.getNowDate());
         rec.setUpdateBy(SecurityUtils.getUsername());
         rec.setUpdateTime(DateUtils.getNowDate());
-        readMapper.insertIgnore(rec);
-        noticeMapper.incrReadCount(id);
+        int inserted = readMapper.insertIgnore(rec);
+        if (inserted > 0) {
+            noticeMapper.incrReadCount(id);
+        }
 
         Map<String, Object> data = new HashMap<>();
         data.put("notice", notice);
@@ -147,22 +149,48 @@ public class NoticeServiceImpl implements INoticeService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int publish(Long id) {
+        // 幂等：已发布直接返回成功；不存在返回-404；其他非法状态返回-409
+        Notice n = noticeMapper.selectById(id, null);
+        if (n == null || Objects.equals("2", n.getDelFlag())) {
+            return -404;
+        }
+        if (Objects.equals(1, n.getStatus())) {
+            return 1;
+        }
         return noticeMapper.publish(id);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int retract(Long id) {
+        Notice n = noticeMapper.selectById(id, null);
+        if (n == null || Objects.equals("2", n.getDelFlag())) {
+            return -404;
+        }
+        if (!Objects.equals(1, n.getStatus())) {
+            // 仅已发布可撤回；重复撤回视为状态冲突
+            return -409;
+        }
         return noticeMapper.retract(id);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int pin(Long id, boolean pinned) {
+        Notice n = noticeMapper.selectById(id, null);
+        if (n == null || Objects.equals("2", n.getDelFlag())) {
+            return -404;
+        }
         if (pinned) {
+            // 仅已发布可置顶
+            if (!Objects.equals(1, n.getStatus())) {
+                return -409;
+            }
             return noticeMapper.pin(id);
         } else {
-            return noticeMapper.unpin(id);
+            // 取消置顶幂等，视为成功
+            noticeMapper.unpin(id);
+            return 1;
         }
     }
 
@@ -197,4 +225,3 @@ public class NoticeServiceImpl implements INoticeService {
         }
     }
 }
-

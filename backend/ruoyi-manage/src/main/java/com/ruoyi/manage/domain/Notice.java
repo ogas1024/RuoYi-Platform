@@ -36,9 +36,11 @@ public class Notice extends BaseEntity {
     // 查询辅助
     private String keyword; // 按标题搜索
     private Boolean includeExpired; // 是否包含过期
+    private Boolean read; // 查询：已读/未读（true/false）；结果也用该字段承载
+    private String orderBy; // 排序字段：publishTime/updateTime/expireTime
+    private String orderDir; // 排序方向：asc/desc
 
     // 计算展示
-    private Boolean read;     // 当前用户是否已读
     private Boolean expired;  // 是否已过期
 
     // 详情聚合（仅详情接口返回）
@@ -47,4 +49,3 @@ public class Notice extends BaseEntity {
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private List<NoticeScope> scopes;
 }
-
