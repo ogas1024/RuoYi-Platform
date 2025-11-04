@@ -14,22 +14,28 @@
         <result property="updateBy" column="update_by"/>
         <result property="updateTime" column="update_time"/>
         <result property="delFlag" column="del_flag"/>
+        <result property="majorName" column="major_name"/>
     </resultMap>
 
-    <sql id="baseSelect">select id, major_id, user_id, remark, create_by, create_time, update_by, update_time, del_flag from tb_major_lead</sql>
+    <sql id="baseSelect">
+        select ml.id, ml.major_id, ml.user_id, ml.remark, ml.create_by, ml.create_time, ml.update_by, ml.update_time, ml.del_flag,
+               m.major_name
+        from tb_major_lead ml
+        left join tb_major m on m.id = ml.major_id
+    </sql>
 
     <select id="selectById" parameterType="long" resultMap="MajorLeadResult">
-        <include refid="baseSelect"/> where id = #{id}
+        <include refid="baseSelect"/> where ml.id = #{id}
     </select>
 
     <select id="selectList" parameterType="com.ruoyi.manage.domain.MajorLead" resultMap="MajorLeadResult">
         <include refid="baseSelect"/>
         <where>
-            del_flag = '0'
-            <if test="majorId != null"> and major_id = #{majorId}</if>
-            <if test="userId != null"> and user_id = #{userId}</if>
+            ml.del_flag = '0'
+            <if test="majorId != null"> and ml.major_id = #{majorId}</if>
+            <if test="userId != null"> and ml.user_id = #{userId}</if>
         </where>
-        order by id desc
+        order by ml.id desc
     </select>
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.MajorLead" useGeneratedKeys="true" keyProperty="id">
@@ -50,5 +56,29 @@
         delete from tb_major_lead where major_id = #{majorId} and user_id = #{userId}
     </delete>
 
-</mapper>
+    <select id="countByUserId" parameterType="long" resultType="int">
+        select count(1) from tb_major_lead where user_id = #{userId}
+    </select>
 
+    <select id="selectUserIdsByIds" resultType="long">
+        select distinct user_id from tb_major_lead where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
+    <delete id="deleteByUserId" parameterType="long">
+        delete from tb_major_lead where user_id = #{userId}
+    </delete>
+
+    <select id="selectMajorsByUserId" parameterType="long" resultType="com.ruoyi.manage.domain.Major">
+        select m.id, m.major_name, m.status, m.remark, m.del_flag
+        from tb_major_lead ml
+        inner join tb_major m on m.id = ml.major_id
+        where ml.user_id = #{userId} and ml.del_flag = '0' and m.del_flag = '0'
+        order by m.id asc
+    </select>
+
+    <select id="existsUserMajor" resultType="int">
+        select count(1) from tb_major_lead where user_id = #{userId} and major_id = #{majorId} and del_flag = '0'
+    </select>
+
+</mapper>

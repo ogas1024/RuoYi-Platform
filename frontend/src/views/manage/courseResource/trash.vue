@@ -6,7 +6,7 @@
     <el-form :inline="true" :model="queryParams" class="mb8">
       <el-form-item label="专业">
         <el-select v-model="queryParams.majorId" clearable placeholder="选择专业" style="width: 220px">
-          <el-option v-for="m in majors" :key="m.id" :label="m.majorName" :value="m.id" />
+          <el-option v-for="m in allowedMajors" :key="m.id" :label="m.majorName" :value="m.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="课程名">
@@ -27,8 +27,9 @@
       </el-table-column>
       <el-table-column label="驳回理由" prop="auditReason" min-width="200"/>
       <el-table-column label="更新时间" prop="updateTime" width="180"/>
-      <el-table-column label="操作" fixed="right" width="220">
+      <el-table-column label="操作" fixed="right" width="300">
         <template #default="scope">
+          <el-button link type="primary" icon="Download" @click="downloadRow(scope.row)" v-hasPermi="['manage:courseResource:download']">下载</el-button>
           <el-button link type="success" icon="Top" @click="onlineRow(scope.row)" v-hasPermi="['manage:courseResource:online']">重新上架</el-button>
           <el-button link type="danger" icon="Delete" @click="delRow(scope.row)" v-hasPermi="['manage:courseResource:remove']">删除</el-button>
         </template>
@@ -41,14 +42,18 @@
 <script setup name="ResourceTrash">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
 import { listResource, delResource, onlineResource } from '@/api/manage/courseResource'
+import { getToken } from '@/utils/auth'
 import { listMajor } from '@/api/manage/major'
+import { listMyMajors } from '@/api/manage/majorLead'
+import useUserStore from '@/store/modules/user'
 
 const { proxy } = getCurrentInstance()
 const loading = ref(false)
 const total = ref(0)
 const list = ref([])
 const queryParams = reactive({ pageNum: 1, pageSize: 10, status: undefined, majorId: undefined, courseId: undefined })
-const majors = ref([])
+const allowedMajors = ref([])
+const userStore = useUserStore()
 
 const getList = async () => {
   loading.value = true
@@ -65,11 +70,28 @@ const getList = async () => {
 }
 const handleQuery = () => { queryParams.pageNum = 1; getList() }
 const resetQuery = () => { queryParams.majorId = undefined; queryParams.courseId = undefined; handleQuery() }
+const downloadRow = (row) => {
+  const token = getToken()
+  const url = `${import.meta.env.VITE_APP_BASE_API}/manage/courseResource/${row.id}/download?token=${encodeURIComponent(token)}`
+  window.open(url, '_blank')
+}
 const delRow = async (row) => { await delResource(row.id); proxy.$modal.msgSuccess('删除成功'); getList() }
 const onlineRow = async (row) => { await onlineResource(row.id); proxy.$modal.msgSuccess('已提交上架审核'); getList() }
 
-const getMajors = async () => { const resp = await listMajor({ pageNum: 1, pageSize: 100 }); majors.value = resp.rows || [] }
-onMounted(async () => { await getMajors(); await getList() })
+const getAllowedMajors = async () => {
+  const roles = userStore.roles || []
+  const isAdmin = roles.includes('admin') || roles.includes('super_admin')
+  if (isAdmin) {
+    const resp = await listMajor({ pageNum: 1, pageSize: 100 });
+    allowedMajors.value = resp.rows || []
+  } else if (roles.includes('major_lead')) {
+    const resp = await listMyMajors();
+    allowedMajors.value = resp.data || resp.rows || []
+  } else {
+    allowedMajors.value = []
+  }
+}
+onMounted(async () => { await getAllowedMajors(); await getList() })
 </script>
 
 <style scoped>

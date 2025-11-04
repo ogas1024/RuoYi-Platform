@@ -7,8 +7,17 @@
         <el-option label="按专业" value="major" />
         <el-option label="按课程" value="course" />
       </el-select>
-      <el-input-number v-if="scope==='major'" v-model="majorId" :min="1" :step="1" placeholder="专业ID" style="margin-left: 8px" />
-      <el-input-number v-if="scope==='course'" v-model="courseId" :min="1" :step="1" placeholder="课程ID" style="margin-left: 8px" />
+      <el-select v-if="scope==='major'" v-model="majorId" clearable placeholder="选择专业" style="margin-left: 8px; width: 220px">
+        <el-option v-for="m in majors" :key="m.id" :label="m.majorName" :value="m.id" />
+      </el-select>
+      <template v-if="scope==='course'">
+        <el-select v-model="majorId" clearable placeholder="选择专业" style="margin-left: 8px; width: 220px" @change="loadCourses">
+          <el-option v-for="m in majors" :key="m.id" :label="m.majorName" :value="m.id" />
+        </el-select>
+        <el-select v-model="courseId" clearable placeholder="选择课程" style="margin-left: 8px; width: 240px">
+          <el-option v-for="c in courses" :key="c.id" :label="c.courseName" :value="c.id" />
+        </el-select>
+      </template>
       <el-input-number v-model="days" :min="1" :max="365" :step="1" style="margin-left: 8px" />
       <el-button type="primary" icon="Search" style="margin-left: 8px" @click="handleQuery">查询</el-button>
     </div>
@@ -31,12 +40,16 @@
 <script setup name="ResourceTop">
 import { ref } from 'vue'
 import { topResourcePortal } from '@/api/portal/resource'
+import { listMajorPortal } from '@/api/portal/major'
+import { listCoursePortal } from '@/api/portal/course'
 
 const loading = ref(false)
 const list = ref([])
 const scope = ref('global')
 const majorId = ref()
 const courseId = ref()
+const majors = ref([])
+const courses = ref([])
 const days = ref(7)
 
 const fetch = async () => {
@@ -51,11 +64,21 @@ const fetch = async () => {
 }
 
 const handleQuery = () => fetch()
+const loadMajors = async () => {
+  const { rows } = await listMajorPortal({ pageNum: 1, pageSize: 200 })
+  majors.value = rows || []
+}
+const loadCourses = async () => {
+  courses.value = []
+  if (!majorId.value) return
+  const { rows } = await listCoursePortal({ majorId: majorId.value, pageNum: 1, pageSize: 500 })
+  courses.value = rows || []
+}
 const download = (row) => {
   window.open(`${import.meta.env.VITE_APP_BASE_API}/portal/resource/${row.id}/download`, '_blank')
 }
 
-fetch()
+loadMajors().then(() => fetch())
 </script>
 
 <style scoped>

@@ -4,6 +4,7 @@ import com.aliyun.oss.HttpMethod;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.common.utils.IOUtils;
 import com.aliyun.oss.model.ObjectMetadata;
+import com.aliyun.oss.model.PutObjectResult;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.manage.config.OssProperties;
 import com.ruoyi.manage.service.IOssService;
@@ -67,9 +68,21 @@ public class OssServiceImpl implements IOssService {
             meta.setServerSideEncryption(props.getSse());
         }
 
+        // 计算 SHA-256（供资源去重使用）
+        String sha256Hex;
+        try (InputStream calcIn = file.getInputStream()) {
+            sha256Hex = sha256Hex(calcIn);
+        } catch (Exception e) {
+            throw new ServiceException("计算文件哈希失败：" + e.getMessage());
+        }
+
+        String etag = null;
         try (InputStream in = file.getInputStream()) {
             // putObject 会读取输入流，此处由 try-with-resources 负责关闭
-            ossClient.putObject(props.getBucket(), objectKey, in, meta);
+            PutObjectResult putRes = ossClient.putObject(props.getBucket(), objectKey, in, meta);
+            if (putRes != null) {
+                etag = putRes.getETag();
+            }
         } catch (Exception e) {
             throw new ServiceException("上传失败：" + e.getMessage());
         }
@@ -81,6 +94,11 @@ public class OssServiceImpl implements IOssService {
         result.put("objectKey", objectKey);
         result.put("size", file.getSize());
         result.put("contentType", contentType);
+        // 前端课程资源提交将优先取 data.sha256，其次 data.etag
+        result.put("sha256", "sha256:" + sha256Hex);
+        if (etag != null) {
+            result.put("etag", etag);
+        }
         return result;
     }
 
@@ -144,5 +162,22 @@ public class OssServiceImpl implements IOssService {
         Date expiration = new Date(System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(props.getPresignedExpireSeconds()));
         URL signed = ossClient.generatePresignedUrl(props.getBucket(), objectKey, expiration, HttpMethod.GET);
         return signed.toString();
+    }
+
+    private static String sha256Hex(InputStream in) throws Exception {
+        java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
+        byte[] buf = new byte[8192];
+        int len;
+        while ((len = in.read(buf)) != -1) {
+            md.update(buf, 0, len);
+        }
+        byte[] digest = md.digest();
+        StringBuilder sb = new StringBuilder(digest.length * 2);
+        for (byte b : digest) {
+            String hex = Integer.toHexString(b & 0xff);
+            if (hex.length() == 1) sb.append('0');
+            sb.append(hex);
+        }
+        return sb.toString();
     }
 }

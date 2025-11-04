@@ -23,6 +23,8 @@ public class CourseResourceController extends BaseController {
 
     @Resource
     private ICourseResourceService service;
+    @Resource
+    private com.ruoyi.manage.mapper.MajorLeadMapper majorLeadMapper;
 
     @PreAuthorize("@ss.hasPermi('manage:courseResource:list')")
     @GetMapping("/list")
@@ -89,14 +91,42 @@ public class CourseResourceController extends BaseController {
         return toAjax(service.onlineToPending(id));
     }
 
+    @Log(title = "课程资源", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('manage:courseResource:best')")
+    @PutMapping("/{id}/best")
+    public AjaxResult best(@PathVariable Long id) {
+        return toAjax(service.setBest(id, getUsername()));
+    }
+
+    @Log(title = "课程资源", businessType = BusinessType.UPDATE)
+    @PreAuthorize("@ss.hasPermi('manage:courseResource:best')")
+    @PutMapping("/{id}/unbest")
+    public AjaxResult unbest(@PathVariable Long id) {
+        return toAjax(service.unsetBest(id));
+    }
+
     @PreAuthorize("@ss.hasPermi('manage:courseResource:download')")
     @GetMapping("/{id}/download")
     public void download(@PathVariable Long id, HttpServletResponse response) throws IOException {
         CourseResource r = service.selectById(id);
-        if (r == null || r.getStatus() == null || r.getStatus() != 1) {
-            response.sendError(404, "资源不存在或未上架");
+        if (r == null) {
+            response.sendError(404, "资源不存在");
             return;
         }
+        boolean isAdminOrLead = SecurityUtils.isAdmin(SecurityUtils.getUserId()) || SecurityUtils.hasRole("major_lead");
+        if (!isAdminOrLead && (r.getStatus() == null || r.getStatus() != 1)) {
+            response.sendError(404, "资源未上架");
+            return;
+        }
+        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+            Long uid = SecurityUtils.getUserId();
+            Integer ok = majorLeadMapper.existsUserMajor(uid, r.getMajorId());
+            if (ok == null || ok == 0) {
+                response.sendError(403, "无权下载该专业资源");
+                return;
+            }
+        }
+        // 管理端下载：允许 admin/major_lead 在任意状态下下载进行审核
         service.incrDownload(id);
         String target = r.getResourceType() != null && r.getResourceType() == 1 ? r.getLinkUrl() : r.getFileUrl();
         response.setStatus(HttpServletResponse.SC_FOUND); // 302
@@ -114,4 +144,3 @@ public class CourseResourceController extends BaseController {
         return success(list);
     }
 }
-

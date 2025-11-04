@@ -9,6 +9,7 @@ import java.util.List;
 public interface CourseResourceMapper {
     CourseResource selectById(Long id);
     List<CourseResource> selectList(CourseResource query);
+    List<CourseResource> selectMyLeadList(@Param("userId") Long userId, @Param("query") CourseResource query);
     int insert(CourseResource data);
     int update(CourseResource data);
     int deleteById(Long id);
@@ -26,5 +27,7 @@ public interface CourseResourceMapper {
                                    @Param("courseId") Long courseId,
                                    @Param("fromTime") Date fromTime,
                                    @Param("limit") Integer limit);
-}
 
+    int setBest(@Param("id") Long id, @Param("bestBy") String bestBy, @Param("bestTime") Date bestTime);
+    int unsetBest(@Param("id") Long id);
+}

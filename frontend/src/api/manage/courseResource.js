@@ -40,3 +40,10 @@ export function topResource(query) {
   return request({ url: '/manage/courseResource/top', method: 'get', params: query })
 }
 
+export function setBestResource(id) {
+  return request({ url: `/manage/courseResource/${id}/best`, method: 'put' })
+}
+
+export function unsetBestResource(id) {
+  return request({ url: `/manage/courseResource/${id}/unbest`, method: 'put' })
+}

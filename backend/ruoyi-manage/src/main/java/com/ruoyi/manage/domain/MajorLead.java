@@ -12,5 +12,6 @@ public class MajorLead extends BaseEntity {
     private Long userId;
     private String remark;
     private String delFlag; // 0存在 2删除
+    // 展示字段
+    private String majorName;
 }
-

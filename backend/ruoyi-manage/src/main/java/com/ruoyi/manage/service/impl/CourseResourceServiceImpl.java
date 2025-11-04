@@ -6,6 +6,7 @@ import com.ruoyi.manage.domain.CourseResource;
 import com.ruoyi.manage.domain.CourseResourceLog;
 import com.ruoyi.manage.mapper.CourseResourceLogMapper;
 import com.ruoyi.manage.mapper.CourseResourceMapper;
+import com.ruoyi.manage.mapper.MajorLeadMapper;
 import com.ruoyi.manage.service.ICourseResourceService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,8 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     private CourseResourceMapper mapper;
     @Resource
     private CourseResourceLogMapper logMapper;
+    @Resource
+    private MajorLeadMapper majorLeadMapper;
 
     @Override
     public CourseResource selectById(Long id) {
@@ -33,6 +36,9 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     public List<CourseResource> selectList(CourseResource query, boolean onlyApprovedForAnonymous) {
         if (onlyApprovedForAnonymous) {
             query.setStatus(1);
+        }
+        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+            return mapper.selectMyLeadList(SecurityUtils.getUserId(), query);
         }
         return mapper.selectList(query);
     }
@@ -77,6 +83,12 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
                 if (r.getStatus() != null && r.getStatus() == 1) {
                     throw new ServiceException("已通过资源请先下架或等待审核");
                 }
+            } else if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+                // 负责人仅能删除其负责专业下的资源
+                Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
+                if (ok == null || ok == 0) {
+                    throw new ServiceException("无权删除该专业下的资源: " + id);
+                }
             }
             total += mapper.deleteById(id);
             log("DELETE", id, "SUCCESS", null);
@@ -87,6 +99,12 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     @Override
     @Transactional
     public int approve(Long id, String auditor) {
+        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+            CourseResource r = mapper.selectById(id);
+            if (r == null) throw new ServiceException("资源不存在: " + id);
+            Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
+            if (ok == null || ok == 0) throw new ServiceException("无权审核该专业资源");
+        }
         int rows = mapper.approve(id, auditor, DateUtils.getNowDate());
         if (rows > 0) log("APPROVE", id, "SUCCESS", null);
         return rows;
@@ -95,6 +113,12 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     @Override
     @Transactional
     public int reject(Long id, String auditor, String reason) {
+        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+            CourseResource r = mapper.selectById(id);
+            if (r == null) throw new ServiceException("资源不存在: " + id);
+            Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
+            if (ok == null || ok == 0) throw new ServiceException("无权审核该专业资源");
+        }
         int rows = mapper.reject(id, auditor, DateUtils.getNowDate(), reason);
         if (rows > 0) log("REJECT", id, "SUCCESS", reason);
         return rows;
@@ -103,6 +127,12 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     @Override
     @Transactional
     public int offline(Long id) {
+        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+            CourseResource r = mapper.selectById(id);
+            if (r == null) throw new ServiceException("资源不存在: " + id);
+            Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
+            if (ok == null || ok == 0) throw new ServiceException("无权下架该专业资源");
+        }
         int rows = mapper.offline(id);
         if (rows > 0) log("OFFLINE", id, "SUCCESS", null);
         return rows;
@@ -111,6 +141,12 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     @Override
     @Transactional
     public int onlineToPending(Long id) {
+        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+            CourseResource r = mapper.selectById(id);
+            if (r == null) throw new ServiceException("资源不存在: " + id);
+            Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
+            if (ok == null || ok == 0) throw new ServiceException("无权操作该专业资源");
+        }
         int rows = mapper.onlineToPending(id);
         if (rows > 0) log("ONLINE", id, "SUCCESS", null);
         return rows;
@@ -135,17 +171,49 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
         return mapper.selectTop(scope, majorId, courseId, fromTime, limit);
     }
 
+    @Override
+    @Transactional
+    public int setBest(Long id, String operator) {
+        CourseResource r = mapper.selectById(id);
+        if (r == null) throw new ServiceException("资源不存在: " + id);
+        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+            Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
+            if (ok == null || ok == 0) throw new ServiceException("无权标记本专业以外资源为最佳");
+        }
+        int rows = mapper.setBest(id, operator, DateUtils.getNowDate());
+        if (rows > 0) log("BEST", id, "SUCCESS", null);
+        return rows;
+    }
+
+    @Override
+    @Transactional
+    public int unsetBest(Long id) {
+        CourseResource r = mapper.selectById(id);
+        if (r == null) throw new ServiceException("资源不存在: " + id);
+        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
+            Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
+            if (ok == null || ok == 0) throw new ServiceException("无权取消本专业以外资源的最佳");
+        }
+        int rows = mapper.unsetBest(id);
+        if (rows > 0) log("UNBEST", id, "SUCCESS", null);
+        return rows;
+    }
+
     private void log(String action, Long resourceId, String result, String detail) {
         CourseResourceLog log = new CourseResourceLog();
         log.setResourceId(resourceId);
         log.setAction(action);
-        log.setActorId(SecurityUtils.getUserId());
-        log.setActorName(SecurityUtils.getUsername());
+        Long actorId = null;
+        String actorName = "portal";
+        try { actorId = SecurityUtils.getUserId(); } catch (Exception ignored) {}
+        try { actorName = SecurityUtils.getUsername(); } catch (Exception ignored) {}
+        log.setActorId(actorId);
+        log.setActorName(actorName);
         log.setIp(null);
         log.setUserAgent(null);
         log.setDetail(detail);
         log.setResult(result);
-        log.setCreateBy(SecurityUtils.getUsername());
+        log.setCreateBy(actorName);
         log.setCreateTime(DateUtils.getNowDate());
         logMapper.insert(log);
     }

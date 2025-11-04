@@ -14,18 +14,23 @@
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
       </el-form-item>
     </el-form>
-    <el-table v-loading="loading" border stripe :data="list">
-      <el-table-column label="资源名称" prop="resourceName" min-width="200" :show-overflow-tooltip="true"/>
-      <el-table-column label="上传者" prop="uploaderName" width="120"/>
-      <el-table-column label="下载次数" prop="downloadCount" width="100"/>
-      <el-table-column label="创建时间" prop="createTime" width="180"/>
-      <el-table-column label="更新时间" prop="updateTime" width="180"/>
-      <el-table-column label="操作" fixed="right" width="180">
-        <template #default="scope">
-          <el-button link type="primary" icon="Download" @click="handleDownload(scope.row)">下载</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
+    <div class="card-grid" v-loading="loading">
+      <div v-for="item in list" :key="item.id" class="res-card" @click="openDetail(item)">
+        <div v-if="item.isBest===1" class="badge-best">最佳</div>
+        <div class="title">{{ item.resourceName }}</div>
+        <div class="desc" :title="item.description">{{ item.description || '（无简介）' }}</div>
+        <div class="meta">
+          <span class="uploader">{{ item.uploaderName }}</span>
+          <span class="dot">·</span>
+          <span class="time">{{ item.createTime }}</span>
+        </div>
+        <div class="footer">
+          <span class="label">下载数</span>
+          <span class="count">{{ item.downloadCount || 0 }}</span>
+          <el-button size="small" type="primary" text @click.stop="handleDownload(item)">下载</el-button>
+        </div>
+      </div>
+    </div>
     <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList"/>
 
     <el-dialog v-model="open" title="分享资源" width="520px" append-to-body>
@@ -60,6 +65,28 @@
         <el-button type="primary" @click="submitForm">提交审核</el-button>
       </template>
     </el-dialog>
+
+    <el-dialog v-model="detailVisible" title="资源详情" width="640px" append-to-body>
+      <el-descriptions :column="2" border>
+        <el-descriptions-item label="资源名称">{{ detail.resourceName }}</el-descriptions-item>
+        <el-descriptions-item label="资源类型">{{ detail.resourceType===1?'外链':'文件' }}</el-descriptions-item>
+        <el-descriptions-item label="专业">{{ majorName }}</el-descriptions-item>
+        <el-descriptions-item label="课程">{{ courseName }}</el-descriptions-item>
+        <el-descriptions-item label="最佳">{{ detail.isBest===1?'是':'否' }}</el-descriptions-item>
+        <el-descriptions-item label="上传者">{{ detail.uploaderName }}</el-descriptions-item>
+        <el-descriptions-item label="上传时间">{{ detail.createTime }}</el-descriptions-item>
+        <el-descriptions-item label="上架时间">{{ detail.publishTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="下载次数">{{ detail.downloadCount || 0 }}</el-descriptions-item>
+      </el-descriptions>
+      <div class="detail-desc">
+        <div class="detail-label">资源简介</div>
+        <div class="detail-content">{{ detail.description || '（无）' }}</div>
+      </div>
+      <template #footer>
+        <el-button @click="detailVisible=false">关闭</el-button>
+        <el-button type="primary" @click="handleDownload(detail)">下载</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -86,6 +113,8 @@ const queryParams = reactive({ pageNum: 1, pageSize: 10, majorId, courseId, stat
 const open = ref(false)
 const formRef = ref()
 const form = reactive({ majorId, courseId, resourceName: '', resourceType: 0, fileUrl: '', fileHash: '', fileSize: 0, linkUrl: '', description: '' })
+const detailVisible = ref(false)
+const detail = ref({})
 const rules = {
   resourceName: [{ required: true, message: '请填写资源名称', trigger: 'blur' }],
   resourceType: [{ required: true, message: '请选择资源类型', trigger: 'change' }],
@@ -154,10 +183,30 @@ const handleDownload = (row) => {
   window.open(`${import.meta.env.VITE_APP_BASE_API}/portal/resource/${row.id}/download`, '_blank')
 }
 
+const openDetail = (row) => {
+  detail.value = row
+  detailVisible.value = true
+}
+
 onMounted(getList)
 </script>
 
 <style scoped>
 .toolbar { margin-bottom: 10px; }
 .hint { margin-left: 8px; color: #909399; }
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.res-card { border: 1px solid #ebeef5; border-radius: 8px; padding: 12px; cursor: pointer; transition: box-shadow .2s ease; background: #fff; }
+.res-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+.badge-best { position: absolute; right: 12px; top: 12px; background: #f56c6c; color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 3px; }
+.res-card { position: relative; }
+.title { font-size: 16px; font-weight: 600; color: #303133; margin-bottom: 6px; }
+.desc { color: #606266; font-size: 13px; line-height: 1.5; max-height: 3.9em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.meta { margin-top: 8px; color: #909399; font-size: 12px; }
+.meta .dot { margin: 0 6px; }
+.footer { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; color: #409EFF; }
+.count { margin-left: 4px; color: #606266; }
+.label { color: #909399; }
+.detail-desc { margin-top: 14px; }
+.detail-label { font-weight: 600; margin-bottom: 6px; }
+.detail-content { white-space: pre-wrap; line-height: 1.6; }
 </style>

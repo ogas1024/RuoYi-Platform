@@ -6,7 +6,7 @@
     <el-form :inline="true" :model="queryParams" class="mb8">
       <el-form-item label="专业">
         <el-select v-model="queryParams.majorId" clearable placeholder="选择专业" style="width: 220px">
-          <el-option v-for="m in majors" :key="m.id" :label="m.majorName" :value="m.id" />
+          <el-option v-for="m in allowedMajors" :key="m.id" :label="m.majorName" :value="m.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="课程名">
@@ -29,8 +29,10 @@
       <el-table-column label="上传者" prop="uploaderName" width="120"/>
       <el-table-column label="下载数" prop="downloadCount" width="100"/>
       <el-table-column label="上架时间" prop="publishTime" width="180"/>
-      <el-table-column label="操作" fixed="right" width="240">
+      <el-table-column label="操作" fixed="right" width="380">
         <template #default="scope">
+          <el-button link type="primary" icon="Download" @click="downloadRow(scope.row)" v-hasPermi="['manage:courseResource:download']">下载</el-button>
+          <el-button link :type="scope.row.isBest===1?'info':'success'" icon="Star" @click="toggleBest(scope.row)" v-hasPermi="['manage:courseResource:best']">{{ scope.row.isBest===1?'取消最佳':'设为最佳' }}</el-button>
           <el-button link type="warning" icon="Bottom" @click="offlineRow(scope.row)" v-hasPermi="['manage:courseResource:offline']">下架</el-button>
           <el-button link type="primary" icon="Edit" @click="editRow(scope.row)" v-hasPermi="['manage:courseResource:edit']">编辑</el-button>
           <el-button link type="danger" icon="Delete" @click="delRow(scope.row)" v-hasPermi="['manage:courseResource:remove']">删除</el-button>
@@ -58,15 +60,19 @@
 
 <script setup name="ResourceApproved">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
-import { listResource, updateResource, delResource, offlineResource } from '@/api/manage/courseResource'
+import { listResource, updateResource, delResource, offlineResource, setBestResource, unsetBestResource } from '@/api/manage/courseResource'
+import { getToken } from '@/utils/auth'
 import { listMajor } from '@/api/manage/major'
+import { listMyMajors } from '@/api/manage/majorLead'
+import useUserStore from '@/store/modules/user'
 
 const { proxy } = getCurrentInstance()
 const loading = ref(false)
 const total = ref(0)
 const list = ref([])
 const queryParams = reactive({ pageNum: 1, pageSize: 10, status: 1, majorId: undefined, courseName: '', keyword: '' })
-const majors = ref([])
+const allowedMajors = ref([])
+const userStore = useUserStore()
 
 const open = ref(false)
 const formRef = ref()
@@ -83,6 +89,11 @@ const getList = async () => {
 }
 const handleQuery = () => { queryParams.pageNum = 1; getList() }
 const resetQuery = () => { queryParams.majorId = undefined; queryParams.courseName = ''; queryParams.keyword=''; handleQuery() }
+const downloadRow = (row) => {
+  const token = getToken()
+  const url = `${import.meta.env.VITE_APP_BASE_API}/manage/courseResource/${row.id}/download?token=${encodeURIComponent(token)}`
+  window.open(url, '_blank')
+}
 const editRow = (row) => { Object.assign(form, { id: row.id, resourceName: row.resourceName, description: row.description }); open.value = true }
 const submitForm = () => {
   formRef.value.validate(async (valid) => {
@@ -104,9 +115,31 @@ const offlineRow = async (row) => {
   proxy.$modal.msgSuccess('已下架')
   getList()
 }
+const toggleBest = async (row) => {
+  if (row.isBest === 1) {
+    await unsetBestResource(row.id)
+    proxy.$modal.msgSuccess('已取消最佳')
+  } else {
+    await setBestResource(row.id)
+    proxy.$modal.msgSuccess('已设为最佳')
+  }
+  getList()
+}
 
-const getMajors = async () => { const resp = await listMajor({ pageNum: 1, pageSize: 100 }); majors.value = resp.rows || [] }
-onMounted(async () => { await getMajors(); await getList() })
+const getAllowedMajors = async () => {
+  const roles = userStore.roles || []
+  const isAdmin = roles.includes('admin') || roles.includes('super_admin')
+  if (isAdmin) {
+    const resp = await listMajor({ pageNum: 1, pageSize: 100 });
+    allowedMajors.value = resp.rows || []
+  } else if (roles.includes('major_lead')) {
+    const resp = await listMyMajors();
+    allowedMajors.value = resp.data || resp.rows || []
+  } else {
+    allowedMajors.value = []
+  }
+}
+onMounted(async () => { await getAllowedMajors(); await getList() })
 </script>
 
 <style scoped>

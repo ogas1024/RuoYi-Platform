@@ -21,6 +21,10 @@ public class CourseResource extends BaseEntity {
     private String linkUrl;
     private String description;
     private Integer status; // 0待审 1通过 2驳回 3下架
+    private Integer isBest; // 0否 1是
+    private String bestBy;
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date bestTime;
     private String auditBy;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date auditTime;
@@ -38,4 +42,3 @@ public class CourseResource extends BaseEntity {
     private String majorName;
     private String courseName;
 }
-

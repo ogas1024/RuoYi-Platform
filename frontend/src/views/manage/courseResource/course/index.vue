@@ -6,7 +6,7 @@
     <el-form :inline="true" :model="queryParams" class="mb8">
       <el-form-item label="专业">
         <el-select v-model="queryParams.majorId" clearable placeholder="选择专业" style="width: 220px">
-          <el-option v-for="m in majors" :key="m.id" :label="m.majorName" :value="m.id" />
+          <el-option v-for="m in allowedMajors" :key="m.id" :label="m.majorName" :value="m.id" />
         </el-select>
       </el-form-item>
       <el-form-item label="课程名">
@@ -19,8 +19,8 @@
     </el-form>
     <el-table v-loading="loading" border stripe :data="list">
       <el-table-column label="ID" prop="id" width="80"/>
-      <el-table-column label="专业ID/名称" min-width="200">
-        <template #default="scope">{{ scope.row.majorId }} / {{ scope.row.majorName || '-' }}</template>
+      <el-table-column label="专业" min-width="200" prop="majorName">
+        <template #default="scope">{{ scope.row.majorName || '-' }}</template>
       </el-table-column>
       <el-table-column label="课程名称" prop="courseName" min-width="200"/>
       <el-table-column label="课程编码" prop="courseCode" min-width="160"/>
@@ -38,7 +38,11 @@
 
     <el-dialog v-model="open" :title="form.id?'编辑课程':'新增课程'" width="520px" append-to-body>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
-        <el-form-item label="专业ID" prop="majorId"><el-input v-model.number="form.majorId" /></el-form-item>
+        <el-form-item label="专业" prop="majorId">
+          <el-select v-model="form.majorId" placeholder="选择专业">
+            <el-option v-for="m in allowedMajors" :key="m.id" :label="m.majorName" :value="m.id" />
+          </el-select>
+        </el-form-item>
         <el-form-item label="课程名称" prop="courseName"><el-input v-model="form.courseName" maxlength="255"/></el-form-item>
         <el-form-item label="课程编码"><el-input v-model="form.courseCode" maxlength="64"/></el-form-item>
         <el-form-item label="状态" prop="status">
@@ -60,18 +64,21 @@
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
 import { listCourse, addCourse, updateCourse, delCourse } from '@/api/manage/course'
 import { listMajor } from '@/api/manage/major'
+import { listMyMajors } from '@/api/manage/majorLead'
+import useUserStore from '@/store/modules/user'
 
 const { proxy } = getCurrentInstance()
 const loading = ref(false)
 const total = ref(0)
 const list = ref([])
 const queryParams = reactive({ pageNum: 1, pageSize: 10, majorId: undefined, courseName: '' })
-const majors = ref([])
+const allowedMajors = ref([])
+const userStore = useUserStore()
 
 const open = ref(false)
 const formRef = ref()
 const form = reactive({ id: undefined, majorId: undefined, courseName: '', courseCode: '', status: '0' })
-const rules = { majorId: [{ required: true, message: '请填写专业ID', trigger: 'blur' }], courseName: [{ required: true, message: '请填写课程名称', trigger: 'blur' }] }
+const rules = { majorId: [{ required: true, message: '请选择专业', trigger: 'change' }], courseName: [{ required: true, message: '请填写课程名称', trigger: 'blur' }] }
 
 const getList = async () => {
   loading.value = true
@@ -96,8 +103,20 @@ const submitForm = () => {
 }
 const delRow = async (row) => { await delCourse(row.id); proxy.$modal.msgSuccess('删除成功'); getList() }
 
-const getMajors = async () => { const resp = await listMajor({ pageNum: 1, pageSize: 100 }); majors.value = resp.rows || [] }
-onMounted(async () => { await getMajors(); await getList() })
+const getAllowedMajors = async () => {
+  const roles = userStore.roles || []
+  const isAdmin = roles.includes('admin') || roles.includes('super_admin')
+  if (isAdmin) {
+    const resp = await listMajor({ pageNum: 1, pageSize: 100 });
+    allowedMajors.value = resp.rows || []
+  } else if (roles.includes('major_lead')) {
+    const resp = await listMyMajors();
+    allowedMajors.value = resp.data || resp.rows || []
+  } else {
+    allowedMajors.value = []
+  }
+}
+onMounted(async () => { await getAllowedMajors(); await getList() })
 </script>
 
 <style scoped>

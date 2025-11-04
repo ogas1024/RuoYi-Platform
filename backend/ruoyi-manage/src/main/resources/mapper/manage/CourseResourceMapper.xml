@@ -16,6 +16,9 @@
         <result property="linkUrl" column="link_url"/>
         <result property="description" column="description"/>
         <result property="status" column="status"/>
+        <result property="isBest" column="is_best"/>
+        <result property="bestBy" column="best_by"/>
+        <result property="bestTime" column="best_time"/>
         <result property="auditBy" column="audit_by"/>
         <result property="auditTime" column="audit_time"/>
         <result property="auditReason" column="audit_reason"/>
@@ -35,10 +38,14 @@
 
     <sql id="baseSelect">
         select r.id, r.major_id, r.course_id, r.resource_name, r.resource_type, r.file_url, r.file_hash, r.file_size, r.link_url,
-               r.description, r.status, r.audit_by, r.audit_time, r.audit_reason, r.publish_time, r.download_count, r.last_download_time,
+               r.description, r.status,
+               case when b.resource_id is not null then 1 else 0 end as is_best,
+               b.best_by, b.best_time,
+               r.audit_by, r.audit_time, r.audit_reason, r.publish_time, r.download_count, r.last_download_time,
                r.uploader_id, r.uploader_name, r.create_by, r.create_time, r.update_by, r.update_time, r.del_flag,
                m.major_name, c.course_name
         from tb_course_resource r
+        left join tb_course_resource_best b on b.resource_id = r.id and b.del_flag = '0'
         left join tb_major m on r.major_id = m.id
         left join tb_course c on r.course_id = c.id
     </sql>
@@ -54,6 +61,23 @@
             <if test="courseName != null and courseName != ''"> and c.course_name like concat('%', #{courseName}, '%')</if>
             <if test="resourceName != null and resourceName != ''"> and r.resource_name like concat('%', #{resourceName}, '%')</if>
             <if test="description != null and description != ''"> and r.description like concat('%', #{description}, '%')</if>
+        </where>
+        order by is_best desc, r.id desc
+    </select>
+
+    <!-- 专业负责人范围限制查询：按 tb_major_lead 过滤 r.major_id -->
+    <select id="selectMyLeadList" resultMap="CourseResourceResult">
+        <include refid="baseSelect"/>
+        inner join tb_major_lead ml on ml.major_id = r.major_id and ml.del_flag = '0'
+        <where>
+            r.del_flag = '0' and ml.user_id = #{userId}
+            <if test="query != null and query.majorId != null"> and r.major_id = #{query.majorId}</if>
+            <if test="query != null and query.courseId != null"> and r.course_id = #{query.courseId}</if>
+            <if test="query != null and query.status != null"> and r.status = #{query.status}</if>
+            <if test="query != null and query.uploaderId != null"> and r.uploader_id = #{query.uploaderId}</if>
+            <if test="query != null and query.courseName != null and query.courseName != ''"> and c.course_name like concat('%', #{query.courseName}, '%')</if>
+            <if test="query != null and query.resourceName != null and query.resourceName != ''"> and r.resource_name like concat('%', #{query.resourceName}, '%')</if>
+            <if test="query != null and query.description != null and query.description != ''"> and r.description like concat('%', #{query.description}, '%')</if>
         </where>
         order by r.id desc
     </select>
@@ -118,6 +142,16 @@
         update tb_course_resource set download_count = download_count + 1, last_download_time = #{time}
         where id = #{id} and status = 1
     </update>
+
+    <insert id="setBest">
+        insert into tb_course_resource_best(resource_id, best_by, best_time, create_by, create_time, del_flag)
+        values(#{id}, #{bestBy}, #{bestTime}, #{bestBy}, #{bestTime}, '0')
+        on duplicate key update best_by = values(best_by), best_time = values(best_time), update_by = values(best_by), update_time = values(best_time), del_flag = '0'
+    </insert>
+
+    <delete id="unsetBest">
+        delete from tb_course_resource_best where resource_id = #{id}
+    </delete>
 
     <select id="selectTop" resultMap="CourseResourceResult">
         <include refid="baseSelect"/>

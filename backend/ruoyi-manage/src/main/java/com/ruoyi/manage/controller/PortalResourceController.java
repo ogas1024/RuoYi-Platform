@@ -3,6 +3,7 @@ package com.ruoyi.manage.controller;
 import com.ruoyi.common.core.controller.BaseController;
 import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
+import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.manage.domain.CourseResource;
 import com.ruoyi.manage.service.ICourseResourceService;
 import org.springframework.web.bind.annotation.*;
@@ -32,6 +33,7 @@ public class PortalResourceController extends BaseController {
         return success(service.selectById(id));
     }
 
+    @Anonymous
     @GetMapping("/{id}/download")
     public void download(@PathVariable Long id, HttpServletResponse response) throws IOException {
         CourseResource r = service.selectById(id);

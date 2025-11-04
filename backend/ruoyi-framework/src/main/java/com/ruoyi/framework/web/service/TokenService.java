@@ -217,12 +217,27 @@ public class TokenService
      */
     private String getToken(HttpServletRequest request)
     {
+        // 1) 优先从请求头读取（Authorization: Bearer <token>）
         String token = request.getHeader(header);
-        if (StringUtils.isNotEmpty(token) && token.startsWith(Constants.TOKEN_PREFIX))
+        if (StringUtils.isNotEmpty(token))
         {
-            token = token.replace(Constants.TOKEN_PREFIX, "");
+            if (token.startsWith(Constants.TOKEN_PREFIX))
+            {
+                return token.replace(Constants.TOKEN_PREFIX, "");
+            }
+            return token;
         }
-        return token;
+        // 2) 兼容从查询参数读取 ?token=<token> 或 ?token=Bearer%20<token>
+        String qp = request.getParameter("token");
+        if (StringUtils.isNotEmpty(qp))
+        {
+            if (qp.startsWith(Constants.TOKEN_PREFIX))
+            {
+                return qp.replace(Constants.TOKEN_PREFIX, "");
+            }
+            return qp;
+        }
+        return null;
     }
 
     private String getTokenKey(String uuid)

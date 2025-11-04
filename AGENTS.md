@@ -109,18 +109,50 @@
 - 变更：每次变更以注释块标明日期、模块与变更说明
 - 示例: 
 ```sql
--- tb_book: 存储图书基础信息（id, title, author, price, stock, status）
-CREATE TABLE tb_book (
-  id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '主键ID',
-  title VARCHAR(255) NOT NULL COMMENT '书名',
-  author VARCHAR(128) NOT NULL COMMENT '作者名',
-  price DECIMAL(10,2) NOT NULL COMMENT '价格，元',
-  stock INT NOT NULL DEFAULT 0 COMMENT '库存',
-  status TINYINT NOT NULL DEFAULT 0 COMMENT '上架状态:0-草稿 1-上架 2-下架',
-  seller_id BIGINT NOT NULL COMMENT '卖家ID',
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图书表';
+/*
+======================================================================
+  变更记录（按日期追加）
+----------------------------------------------------------------------
+  日期：2025-10-18
+  模块：OSS 上传（/manage/upload/oss）
+  说明：本模块为通用文件存储网关能力，不涉及业务库表变更；
+        通过环境变量注入 OSS 凭据与策略（endpoint/ak/sk/bucket/customDomain 等）。
+        若后续引入“上传记录审计/回收站/内容风控”等能力，再新增对应 tb_ 前缀表。
+======================================================================
+*/
+/* ======================================================================
+   课程资源分享模块（v2）
+   日期：2025-10-18
+   重要说明：
+   - 本段为最新DDL，覆盖此前在文件前部的旧草案。
+   - 结构差异：
+       1) tb_major 移除 dept_id 与 sort，完全独立于 RuoYi 部门体系。
+       2) tb_course 移除 sort。
+       3) tb_course_resource 移除 file_ext（扩展名在应用层校验）。
+   - 约定：仅允许压缩包（zip/rar/7z/tar/tar.gz/tar.bz2/tar.xz）或外链；大小≤100MB 由应用层控制。
+   - 状态流转：0-待审 1-已通过 2-驳回 3-已下架；修改后重新进入待审。
+====================================================================== */
+
+-- ----------------------------
+-- 专业：tb_major（独立维护，不依赖 sys_dept）
+-- 关键点：
+--  - 使用专业名唯一索引，便于后台维护与前端展示。
+--  - 管理员通过后台页面对专业进行增删改查。
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_major`;
+CREATE TABLE `tb_major` (
+  `id`           BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `major_name`   VARCHAR(128) NOT NULL COMMENT '专业名称（唯一）',
+  `status`       CHAR(1)      NOT NULL DEFAULT '0' COMMENT '状态（0正常 1停用）',
+  `remark`       VARCHAR(500)          DEFAULT NULL COMMENT '备注',
+  `create_by`    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '创建者',
+  `create_time`  DATETIME              DEFAULT NULL COMMENT '创建时间',
+  `update_by`    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '更新者',
+  `update_time`  DATETIME              DEFAULT NULL COMMENT '更新时间',
+  `del_flag`     CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除标志（0存在 2删除）',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_major_name` (`major_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='专业表（独立）';
 ```
 
 ### 权限与角色（至少 3 角色，4 模块）

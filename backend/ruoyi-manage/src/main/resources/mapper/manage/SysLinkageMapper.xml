@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.SysLinkageMapper">
+
+    <select id="selectRoleIdByKey" parameterType="string" resultType="long">
+        select role_id from sys_role where role_key = #{roleKey} and del_flag = '0' limit 1
+    </select>
+
+    <select id="existsUserRole" resultType="int">
+        select count(1) from sys_user_role where user_id = #{userId} and role_id = #{roleId}
+    </select>
+
+    <insert id="insertUserRole">
+        insert into sys_user_role(user_id, role_id) values(#{userId}, #{roleId})
+    </insert>
+
+    <delete id="deleteUserRole">
+        delete from sys_user_role where user_id = #{userId} and role_id = #{roleId}
+    </delete>
+
+    <select id="existsUser" parameterType="long" resultType="int">
+        select count(1) from sys_user where user_id = #{userId} and del_flag = '0'
+    </select>
+
+    <!-- 列出拥有指定角色的用户，并聚合其绑定的专业ID（逗号分隔）
+         若传入 majorId，则仅返回已绑定该专业的用户（使用 exists 过滤） -->
+    <select id="selectRoleUsersWithMajors" resultType="com.ruoyi.manage.vo.RoleUserLeadVO">
+        select u.user_id as userId,
+               u.user_name as userName,
+               u.nick_name as nickName,
+               (
+                 select group_concat(distinct ml2.major_id order by ml2.major_id separator ',')
+                 from tb_major_lead ml2 where ml2.user_id = u.user_id
+               ) as majorIds,
+               (
+                 select group_concat(distinct m2.major_name order by m2.major_name separator ',')
+                 from tb_major_lead ml3 left join tb_major m2 on m2.id = ml3.major_id
+                 where ml3.user_id = u.user_id
+               ) as majorNames
+        from sys_user u
+        inner join sys_user_role ur on u.user_id = ur.user_id
+        inner join sys_role r on r.role_id = ur.role_id and r.role_key = #{roleKey}
+        <where>
+            u.del_flag = '0'
+            <if test="majorId != null">
+                and exists (select 1 from tb_major_lead m3 where m3.user_id = u.user_id and m3.major_id = #{majorId})
+            </if>
+        </where>
+        order by u.user_id desc
+    </select>
+
+</mapper>

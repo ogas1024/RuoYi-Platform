@@ -16,15 +16,33 @@
       </el-form-item>
     </el-form>
     <el-table v-loading="loading" border stripe :data="list">
-      <el-table-column label="ID" prop="id" width="80"/>
-      <el-table-column label="专业ID" prop="majorId" width="120"/>
-      <el-table-column label="用户ID" prop="userId" width="120"/>
-      <el-table-column label="备注" prop="remark" min-width="200"/>
-      <el-table-column label="操作" fixed="right" width="160">
-        <template #default="scope">
-          <el-button link type="danger" icon="Delete" @click="delRow(scope.row)" v-hasPermi="['manage:majorLead:remove']">删除</el-button>
-        </template>
-      </el-table-column>
+      <template v-if="isAllRoleView">
+        <el-table-column label="用户ID" prop="userId" width="120"/>
+        <el-table-column label="用户名" prop="userName" width="180"/>
+        <el-table-column label="昵称" prop="nickName" width="180"/>
+        <el-table-column label="已绑定专业" min-width="220">
+          <template #default="scope">
+            <span>{{ scope.row.majorNames || scope.row.majorIds || '-' }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" fixed="right" width="220">
+          <template #default="scope">
+            <el-button link type="primary" icon="Plus" @click="openAdd(scope.row.userId)" v-hasPermi="['manage:majorLead:add']">绑定到专业</el-button>
+            <el-button link type="danger" icon="Remove" @click="retire(scope.row.userId)" v-hasPermi="['manage:majorLead:remove']">卸任</el-button>
+          </template>
+        </el-table-column>
+      </template>
+      <template v-else>
+        <el-table-column label="ID" prop="id" width="80"/>
+        <el-table-column label="专业" prop="majorName" width="180"/>
+        <el-table-column label="用户ID" prop="userId" width="120"/>
+        <el-table-column label="备注" prop="remark" min-width="200"/>
+        <el-table-column label="操作" fixed="right" width="160">
+          <template #default="scope">
+            <el-button link type="danger" icon="Delete" @click="delRow(scope.row)" v-hasPermi="['manage:majorLead:remove']">删除</el-button>
+          </template>
+        </el-table-column>
+      </template>
     </el-table>
     <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList"/>
 
@@ -48,13 +66,14 @@
 
 <script setup name="MajorLeadManage">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
-import { listMajorLead, addMajorLead, delMajorLead } from '@/api/manage/majorLead'
+import { listMajorLead, addMajorLead, delMajorLead, listMajorLeadRoleUsers, retireMajorLeadUser } from '@/api/manage/majorLead'
 import { listMajor } from '@/api/manage/major'
 
 const { proxy } = getCurrentInstance()
 const loading = ref(false)
 const total = ref(0)
 const list = ref([])
+const isAllRoleView = ref(true)
 const queryParams = reactive({ pageNum: 1, pageSize: 10, majorId: undefined, userId: undefined })
 const majors = ref([])
 
@@ -66,14 +85,22 @@ const rules = { majorId: [{ required: true, message: '请填写专业ID', trigge
 const getList = async () => {
   loading.value = true
   try {
-    const resp = await listMajorLead(queryParams)
-    list.value = resp.rows || []
-    total.value = resp.total || 0
+    // 当未选择专业且未按用户ID过滤时，展示所有拥有 major_lead 角色的用户
+    isAllRoleView.value = !queryParams.majorId && !queryParams.userId
+    if (isAllRoleView.value) {
+      const resp = await listMajorLeadRoleUsers({ pageNum: queryParams.pageNum, pageSize: queryParams.pageSize, majorId: undefined })
+      list.value = resp.rows || []
+      total.value = resp.total || 0
+    } else {
+      const resp = await listMajorLead(queryParams)
+      list.value = resp.rows || []
+      total.value = resp.total || 0
+    }
   } finally { loading.value = false }
 }
 const handleQuery = () => { queryParams.pageNum = 1; getList() }
 const resetQuery = () => { queryParams.majorId = undefined; queryParams.userId = undefined; handleQuery() }
-const openAdd = () => { Object.assign(form, { majorId: undefined, userId: undefined, remark: '' }); open.value = true }
+const openAdd = (uid) => { Object.assign(form, { majorId: queryParams.majorId, userId: uid || undefined, remark: '' }); open.value = true }
 const submitForm = () => {
   formRef.value.validate(async (valid) => {
     if (!valid) return
@@ -84,6 +111,7 @@ const submitForm = () => {
   })
 }
 const delRow = async (row) => { await delMajorLead(row.id); proxy.$modal.msgSuccess('删除成功'); getList() }
+const retire = async (userId) => { await retireMajorLeadUser(userId); proxy.$modal.msgSuccess('已卸任'); getList() }
 
 const getMajors = async () => { const resp = await listMajor({ pageNum: 1, pageSize: 100 }); majors.value = resp.rows || [] }
 onMounted(async () => { await getMajors(); await getList() })

@@ -19,5 +19,7 @@ public interface ICourseResourceService {
     int incrDownload(Long id);
 
     List<CourseResource> selectTop(String scope, Long majorId, Long courseId, Integer days, Integer limit);
-}
 
+    int setBest(Long id, String operator);
+    int unsetBest(Long id);
+}
