@@ -25,7 +25,7 @@ const fetchMajors = async () => {
 }
 
 const goCourse = (m) => {
-  router.push({ path: '/p/course', query: { majorId: m.id, majorName: m.majorName } })
+  router.push({ path: '/portal/course-resource/course', query: { majorId: m.id, majorName: m.majorName } })
 }
 
 onMounted(fetchMajors)

@@ -6,7 +6,7 @@
       </div>
       <div class="crumb">
         <el-breadcrumb separator="/">
-          <el-breadcrumb-item to="/p">课程资源</el-breadcrumb-item>
+          <el-breadcrumb-item to="/portal/course-resource">课程资源</el-breadcrumb-item>
           <el-breadcrumb-item v-if="route.name==='PortalCourse' || route.name==='PortalResourceList'">{{ route.query.majorName || '专业' }}</el-breadcrumb-item>
           <el-breadcrumb-item v-if="route.name==='PortalResourceList'">{{ route.query.courseName || '课程' }}</el-breadcrumb-item>
         </el-breadcrumb>
@@ -49,16 +49,19 @@ const route = useRoute()
 const router = useRouter()
 const userStore = useUserStore()
 
-function goHome() { router.push('/p') }
+function goHome() { router.push('/portal/course-resource') }
 function goProfile() { router.push({ name: 'Profile' }) }
-function goAdmin() { router.push('/index') }
+function goAdmin() {
+  // 使用整页跳转，避免在门户路由上下文下的路由守卫/动态路由注入时机造成的 404
+  location.href = '/index'
+}
 async function logout() {
   try { await userStore.logOut() } finally { location.href = '/index' }
 }
 
 const showAdmin = computed(() => {
-  const roles = userStore.roles || []
-  return roles.includes('admin') || roles.includes('super_admin') || roles.includes('major_lead')
+  const roles = (userStore.roles || []).map(r => String(r).toLowerCase())
+  return roles.includes('admin') || roles.includes('super_admin') || roles.includes('major_lead') || roles.includes('librarian') || roles.includes('staff')
 })
 </script>
 

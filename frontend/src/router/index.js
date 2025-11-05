@@ -39,45 +39,47 @@ export const constantRoutes = [
   },
   // 门户（普通用户）常量路由：使用独立布局，不依赖后台菜单
   {
-    path: '/p',
+    path: '/portal',
     component: () => import('@/layout/portal/PortalLayout.vue'),
     hidden: true,
     children: [
+      // 课程资源分享模块：模块化前缀 /portal/course-resource
       {
-        path: '',
-        name: 'PortalMajor',
+        path: 'course-resource',
+        name: 'PortalCourseResource',
         component: () => import('@/views/portal/courseResource/index.vue'),
         meta: { title: '课程资源' }
       },
       {
-        path: 'notice',
-        name: 'PortalNotice',
-        component: () => import('@/views/portal/notice/index.vue'),
-        meta: { title: '通知公告' }
-      },
-      {
-        path: 'course',
+        path: 'course-resource/course',
         name: 'PortalCourse',
         component: () => import('@/views/portal/courseResource/course.vue'),
         meta: { title: '课程' }
       },
       {
-        path: 'list',
+        path: 'course-resource/list',
         name: 'PortalResourceList',
         component: () => import('@/views/portal/courseResource/list.vue'),
         meta: { title: '资源列表' }
       },
       {
-        path: 'my',
+        path: 'course-resource/my',
         name: 'PortalMyResource',
         component: () => import('@/views/portal/courseResource/my.vue'),
         meta: { title: '我上传的' }
       },
       {
-        path: 'top',
+        path: 'course-resource/top',
         name: 'PortalTop',
         component: () => import('@/views/portal/courseResource/top.vue'),
         meta: { title: '排行榜' }
+      },
+      // 门户通知公告（与课程资源分享并列）
+      {
+        path: 'notice',
+        name: 'PortalNotice',
+        component: () => import('@/views/portal/notice/index.vue'),
+        meta: { title: '通知公告' }
       }
     ]
   },
@@ -104,7 +106,7 @@ export const constantRoutes = [
   {
     path: '',
     component: Layout,
-    redirect: '/p',
+    redirect: '/portal/course-resource',
     children: [
       {
         path: '/index',

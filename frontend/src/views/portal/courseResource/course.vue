@@ -37,7 +37,7 @@ const fetchCourses = async () => {
 }
 
 const goResource = (c) => {
-  router.push({ path: '/p/list', query: { majorId, courseId: c.id, courseName: c.courseName, majorName } })
+  router.push({ path: '/portal/course-resource/list', query: { majorId, courseId: c.id, courseName: c.courseName, majorName } })
 }
 
 onMounted(fetchCourses)

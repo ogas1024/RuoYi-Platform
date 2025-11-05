@@ -5,13 +5,13 @@
         <el-icon><Menu /></el-icon>
         <span>课程资源分享</span>
       </template>
-      <el-menu-item index="/p">
+      <el-menu-item index="/portal/course-resource">
         <span>资源首页</span>
       </el-menu-item>
-      <el-menu-item index="/p/my">
+      <el-menu-item index="/portal/course-resource/my">
         <span>我上传的</span>
       </el-menu-item>
-      <el-menu-item index="/p/top">
+      <el-menu-item index="/portal/course-resource/top">
         <span>排行榜</span>
       </el-menu-item>
     </el-sub-menu>
@@ -20,7 +20,7 @@
         <el-icon><Bell /></el-icon>
         <span>通知公告</span>
       </template>
-      <el-menu-item index="/p/notice">
+      <el-menu-item index="/portal/notice">
         <span>公告列表</span>
       </el-menu-item>
     </el-sub-menu>
