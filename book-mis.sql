@@ -1348,6 +1348,80 @@ VALUES
   (10001, 'APPROVE', 1, 'admin', '127.0.0.1', 'Mozilla/5.0', '{"note":"审核通过"}', 'SUCCESS', 'admin', NOW(), 'admin', NOW(), '0');
 
 
+/*
+======================================================================
+  变更记录（按日期追加）
+----------------------------------------------------------------------
+  日期：2025-11-04
+  模块：课程资源分享 / 积分与用户排行榜（CR 专属）
+  说明：
+    - 新增两张业务表（仅供“课程资源分享”模块使用，避免与“数字图书馆”等后续积分表冲突）：
+      (1) tb_cr_user_score：用户积分（聚合，按用户×专业；major_id=0 表示全站汇总）。
+      (2) tb_cr_user_score_log：用户积分变动流水（一次性发放防刷，唯一 (user_id, resource_id, event_type)）。
+    - 规则：
+      * 仅在“第一次审核通过”与“第一次被设置为最佳”发放积分；
+      * 取消“最佳”不扣分；再次审核通过/再次设置为最佳不重复加分；
+      * 通过在 tb_user_score_log 建立唯一约束实现幂等；
+      * 聚合表 tb_user_score 维护 (user_id, major_id=资源所属专业 或 0=全站) 的积分与计数，便于排行榜查询；
+      * 后续可将发放分值作为应用配置（MVP 采用固定值：通过+5，最佳+10）。
+======================================================================
+*/
+
+-- ----------------------------
+-- 用户积分聚合：tb_cr_user_score（CR 专属）
+-- 关键点：
+--  - (user_id, major_id) 唯一；major_id=0 表示全站总积分行
+--  - total_score 降序用于排行榜；approve_count/best_count 仅统计次数
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_cr_user_score`;
+CREATE TABLE `tb_cr_user_score` (
+  `id`            BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id`       BIGINT       NOT NULL COMMENT '用户ID（sys_user.id）',
+  `username`      VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '用户名快照（冗余）',
+  `major_id`      BIGINT       NOT NULL DEFAULT 0 COMMENT '专业ID；0=全站',
+  `total_score`   INT          NOT NULL DEFAULT 0 COMMENT '累计积分',
+  `approve_count` INT          NOT NULL DEFAULT 0 COMMENT '审核通过次数（仅第一次通过计数）',
+  `best_count`    INT          NOT NULL DEFAULT 0 COMMENT '被评为最佳次数（仅第一次计数）',
+  `remark`        VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+  `create_by`     VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '创建者',
+  `create_time`   DATETIME              DEFAULT NULL COMMENT '创建时间',
+  `update_by`     VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '更新者',
+  `update_time`   DATETIME              DEFAULT NULL COMMENT '更新时间',
+  `del_flag`      CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除标志（0存在 2删除）',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_user_major` (`user_id`, `major_id`),
+  KEY `idx_major_score` (`major_id`, `total_score`),
+  KEY `idx_user` (`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='课程资源（CR）用户积分聚合表（用户×专业；0=全站）';
+
+-- ----------------------------
+-- 用户积分流水：tb_cr_user_score_log（CR 专属）
+-- 关键点：
+--  - 幂等防刷：(user_id, resource_id, event_type) 唯一；
+--  - event_type：APPROVE/BEST；delta 为正数；取消“最佳”不记录负数流水；
+-- ----------------------------
+DROP TABLE IF EXISTS `tb_cr_user_score_log`;
+CREATE TABLE `tb_cr_user_score_log` (
+  `id`           BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `user_id`      BIGINT       NOT NULL COMMENT '得分用户ID（资源上传者）',
+  `username`     VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '用户名快照（冗余）',
+  `major_id`     BIGINT       NOT NULL DEFAULT 0 COMMENT '资源所属专业ID；0=全站',
+  `resource_id`  BIGINT       NOT NULL COMMENT '资源ID（tb_course_resource.id）',
+  `event_type`   VARCHAR(16)  NOT NULL COMMENT 'APPROVE/BEST',
+  `delta`        INT          NOT NULL COMMENT '积分变动（正数）',
+  `remark`       VARCHAR(255)          DEFAULT NULL COMMENT '备注',
+  `create_by`    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '创建者',
+  `create_time`  DATETIME              DEFAULT NULL COMMENT '创建时间',
+  `update_by`    VARCHAR(64)  NOT NULL DEFAULT '' COMMENT '更新者',
+  `update_time`  DATETIME              DEFAULT NULL COMMENT '更新时间',
+  `del_flag`     CHAR(1)      NOT NULL DEFAULT '0' COMMENT '删除标志（0存在 2删除）',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE KEY `uk_once_event` (`user_id`, `resource_id`, `event_type`),
+  KEY `idx_user_time` (`user_id`, `create_time`),
+  KEY `idx_major_time` (`major_id`, `create_time`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='课程资源（CR）用户积分变动流水（一次性发放）';
+
+
 -- ------------------------------------------------------------
 -- 2025-10-19 模块：通知公告（MVP）
 -- 变更说明：新增公告主体、可见范围、附件与阅读回执四张业务表

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.CrUserScoreMapper">
+
+    <resultMap id="CrUserScoreResult" type="com.ruoyi.manage.domain.CrUserScore">
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="majorId" column="major_id"/>
+        <result property="totalScore" column="total_score"/>
+        <result property="approveCount" column="approve_count"/>
+        <result property="bestCount" column="best_count"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="majorName" column="major_name"/>
+        <result property="rank" column="rank"/>
+    </resultMap>
+
+    <insert id="upsertScore">
+        insert into tb_cr_user_score(user_id, username, major_id, total_score, approve_count, best_count, create_by, create_time, del_flag)
+        values(#{userId}, #{username}, #{majorId}, #{delta}, #{approveInc}, #{bestInc}, #{operator}, #{now}, '0')
+        on duplicate key update total_score = total_score + values(total_score),
+            approve_count = approve_count + values(approve_count),
+            best_count = best_count + values(best_count),
+            update_by = values(create_by), update_time = values(create_time)
+    </insert>
+
+    <select id="selectRank" resultMap="CrUserScoreResult">
+        select s.*, m.major_name,
+               row_number() over(order by s.total_score desc, s.id asc) as `rank`
+        from tb_cr_user_score s
+        left join tb_major m on s.major_id = m.id
+        <where>
+            s.del_flag = '0'
+            <if test="majorId != null and majorId &gt; 0"> and s.major_id = #{majorId}</if>
+            <if test="majorId == null or majorId == 0"> and s.major_id = 0</if>
+        </where>
+        order by s.total_score desc, s.id asc
+    </select>
+
+</mapper>
+

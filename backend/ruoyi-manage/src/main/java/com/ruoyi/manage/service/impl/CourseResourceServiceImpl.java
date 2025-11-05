@@ -7,9 +7,11 @@ import com.ruoyi.manage.domain.CourseResourceLog;
 import com.ruoyi.manage.mapper.CourseResourceLogMapper;
 import com.ruoyi.manage.mapper.CourseResourceMapper;
 import com.ruoyi.manage.mapper.MajorLeadMapper;
+import com.ruoyi.manage.service.IScoreService;
 import com.ruoyi.manage.service.ICourseResourceService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DuplicateKeyException;
 
 import javax.annotation.Resource;
 import java.util.Calendar;
@@ -26,6 +28,8 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     private CourseResourceLogMapper logMapper;
     @Resource
     private MajorLeadMapper majorLeadMapper;
+    @Resource
+    private IScoreService scoreService;
 
     @Override
     public CourseResource selectById(Long id) {
@@ -49,9 +53,19 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
         data.setCreateBy(SecurityUtils.getUsername());
         data.setCreateTime(DateUtils.getNowDate());
         data.setStatus(0); // 创建即待审
-        int rows = mapper.insert(data);
-        log("CREATE", data.getId(), "SUCCESS", null);
-        return rows;
+        try {
+            int rows = mapper.insert(data);
+            log("CREATE", data.getId(), "SUCCESS", null);
+            return rows;
+        } catch (DuplicateKeyException ex) {
+            String msg;
+            if (data.getResourceType() != null && data.getResourceType() == 0) {
+                msg = "同课程已存在相同文件（哈希重复），请勿重复上传";
+            } else {
+                msg = "同课程已存在相同外链（URL 重复），请勿重复提交";
+            }
+            throw new ServiceException(msg);
+        }
     }
 
     @Override
@@ -106,7 +120,12 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
             if (ok == null || ok == 0) throw new ServiceException("无权审核该专业资源");
         }
         int rows = mapper.approve(id, auditor, DateUtils.getNowDate());
-        if (rows > 0) log("APPROVE", id, "SUCCESS", null);
+        if (rows > 0) {
+            log("APPROVE", id, "SUCCESS", null);
+            // 审核通过首次加分（幂等由流水唯一约束保证）
+            CourseResource r = mapper.selectById(id);
+            scoreService.awardApprove(r, auditor);
+        }
         return rows;
     }
 
@@ -181,7 +200,12 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
             if (ok == null || ok == 0) throw new ServiceException("无权标记本专业以外资源为最佳");
         }
         int rows = mapper.setBest(id, operator, DateUtils.getNowDate());
-        if (rows > 0) log("BEST", id, "SUCCESS", null);
+        if (rows > 0) {
+            log("BEST", id, "SUCCESS", null);
+            // 首次设置最佳加分
+            r = mapper.selectById(id);
+            scoreService.awardBest(r, operator);
+        }
         return rows;
     }
 

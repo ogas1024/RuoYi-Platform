@@ -19,7 +19,12 @@
     </el-form>
     <el-table v-loading="loading" border stripe :data="list" @selection-change="onSel">
       <el-table-column type="selection" width="50"/>
-      <el-table-column label="资源名称" prop="resourceName" min-width="200"/>
+      <el-table-column label="资源名称" min-width="240">
+        <template #default="scope">
+          <el-tag v-if="scope.row.isBest===1" type="warning" size="small" effect="dark" style="margin-right:6px">最佳</el-tag>
+          <span>{{ scope.row.resourceName }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="课程/专业" min-width="200">
         <template #default="scope">{{ scope.row.majorName || '-' }} / {{ scope.row.courseName || scope.row.courseId }}</template>
       </el-table-column>

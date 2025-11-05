@@ -36,4 +36,3 @@ public class UploadController {
         return AjaxResult.success(data);
     }
 }
-

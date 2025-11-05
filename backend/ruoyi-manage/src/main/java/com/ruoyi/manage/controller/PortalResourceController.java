@@ -33,7 +33,6 @@ public class PortalResourceController extends BaseController {
         return success(service.selectById(id));
     }
 
-    @Anonymous
     @GetMapping("/{id}/download")
     public void download(@PathVariable Long id, HttpServletResponse response) throws IOException {
         CourseResource r = service.selectById(id);

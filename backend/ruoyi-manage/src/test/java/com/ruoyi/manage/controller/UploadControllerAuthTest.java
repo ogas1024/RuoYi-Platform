@@ -16,4 +16,3 @@ class UploadControllerAuthTest {
         Assertions.assertTrue(anno.value().contains("manage:upload:oss"));
     }
 }
-
