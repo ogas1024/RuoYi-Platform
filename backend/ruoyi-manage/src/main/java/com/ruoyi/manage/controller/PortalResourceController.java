@@ -6,6 +6,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.annotation.Anonymous;
 import com.ruoyi.manage.domain.CourseResource;
 import com.ruoyi.manage.service.ICourseResourceService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -33,6 +34,7 @@ public class PortalResourceController extends BaseController {
         return success(service.selectById(id));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}/download")
     public void download(@PathVariable Long id, HttpServletResponse response) throws IOException {
         CourseResource r = service.selectById(id);

@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.LibraryMapper">
+
+    <resultMap id="LibraryResult" type="com.ruoyi.manage.domain.Library">
+        <result property="id" column="id"/>
+        <result property="isbn13" column="isbn13"/>
+        <result property="title" column="title"/>
+        <result property="author" column="author"/>
+        <result property="publisher" column="publisher"/>
+        <result property="publishYear" column="publish_year"/>
+        <result property="language" column="language"/>
+        <result property="keywords" column="keywords"/>
+        <result property="summary" column="summary"/>
+        <result property="coverUrl" column="cover_url"/>
+        <result property="status" column="status"/>
+        <result property="auditBy" column="audit_by"/>
+        <result property="auditTime" column="audit_time"/>
+        <result property="auditReason" column="audit_reason"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="downloadCount" column="download_count"/>
+        <result property="lastDownloadTime" column="last_download_time"/>
+        <result property="uploaderId" column="uploader_id"/>
+        <result property="uploaderName" column="uploader_name"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="baseSelect">select * from tb_library_book</sql>
+
+    <select id="selectList" resultMap="LibraryResult">
+        <include refid="baseSelect"/>
+        <where>
+            del_flag = '0'
+            <if test="query != null and query.status != null"> and status = #{query.status}</if>
+            <if test="query != null and query.title != null and query.title != ''"> and title like concat('%', #{query.title}, '%')</if>
+            <if test="query != null and query.author != null and query.author != ''"> and author like concat('%', #{query.author}, '%')</if>
+            <if test="query != null and query.publisher != null and query.publisher != ''"> and publisher like concat('%', #{query.publisher}, '%')</if>
+            <if test="query != null and query.isbn13 != null and query.isbn13 != ''"> and isbn13 = #{query.isbn13}</if>
+            <!-- 关键字搜索：title/author/isbn13/keywords OR 匹配 -->
+            <if test="query != null and query.keyword != null and query.keyword != ''">
+                and (
+                    title like concat('%', #{query.keyword}, '%')
+                    or author like concat('%', #{query.keyword}, '%')
+                    or isbn13 like concat('%', #{query.keyword}, '%')
+                    or keywords like concat('%', #{query.keyword}, '%')
+                )
+            </if>
+            <!-- 上传者过滤：用于“我的上传” -->
+            <if test="query != null and query.uploaderId != null"> and uploader_id = #{query.uploaderId}</if>
+            <!-- 格式过滤：存在指定格式的文件型资产 -->
+            <if test="query != null and query.format != null and query.format != ''">
+                and exists (
+                    select 1 from tb_library_book_asset a
+                    where a.del_flag = '0'
+                      and a.book_id = tb_library_book.id
+                      and a.asset_type = '0'
+                      and lower(a.format) = lower(#{query.format})
+                )
+            </if>
+        </where>
+        <!-- 默认排序；若使用 PageHelper 的 orderByColumn/isAsc，将在外层追加，通常会覆盖默认排序需求。 -->
+        order by publish_time desc, id desc
+    </select>
+
+    <select id="selectById" parameterType="long" resultMap="LibraryResult">
+        <include refid="baseSelect"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.Library" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_library_book(
+            isbn13,title,author,publisher,publish_year,language,keywords,summary,cover_url,status,
+            uploader_id,uploader_name,create_by,create_time,del_flag
+        ) values(
+            #{isbn13},#{title},#{author},#{publisher},#{publishYear},#{language},#{keywords},#{summary},#{coverUrl},#{status},
+            #{uploaderId},#{uploaderName},#{createBy},#{createTime},'0'
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.manage.domain.Library">
+        update tb_library_book
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="author != null">author = #{author},</if>
+            <if test="publisher != null">publisher = #{publisher},</if>
+            <if test="publishYear != null">publish_year = #{publishYear},</if>
+            <if test="language != null">language = #{language},</if>
+            <if test="keywords != null">keywords = #{keywords},</if>
+            <if test="summary != null">summary = #{summary},</if>
+            <if test="coverUrl != null">cover_url = #{coverUrl},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="approve">
+        update tb_library_book set status = 1, audit_by = #{auditBy}, audit_time = #{auditTime}, publish_time = ifnull(publish_time, now())
+        where id = #{id} and status in (0,3)
+    </update>
+
+    <update id="reject">
+        update tb_library_book set status = 2, audit_by = #{auditBy}, audit_time = #{auditTime}, audit_reason = #{reason}
+        where id = #{id} and status in (0,1,3)
+    </update>
+
+    <update id="offline">
+        update tb_library_book
+        set status = 3,
+            audit_by = #{auditBy},
+            audit_time = #{auditTime},
+            audit_reason = #{reason}
+        where id = #{id} and status = 1
+    </update>
+
+    <update id="onlineToPending">
+        update tb_library_book set status = 0 where id = #{id} and status in (2,3)
+    </update>
+
+    <update id="incrDownload">
+        update tb_library_book set download_count = download_count + 1, last_download_time = #{time}
+        where id = #{id} and status = 1
+    </update>
+
+    <update id="softDeleteByIds">
+        update tb_library_book set del_flag = '2', update_time = now()
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+
+    <select id="selectTop" resultMap="LibraryResult">
+        select * from tb_library_book where del_flag = '0' and status = 1 order by download_count desc, id desc
+        <if test="limit != null"> limit #{limit}</if>
+        <if test="limit == null"> limit 10</if>
+    </select>
+
+    <select id="selectTopUsers" resultType="com.ruoyi.manage.vo.TopUserVO">
+        select uploader_id   as userId,
+               max(uploader_name) as username,
+               max(uploader_name) as nickname,
+               count(1) as passedCount
+        from tb_library_book
+        where del_flag = '0' and status = 1
+        group by uploader_id
+        order by passedCount desc, userId asc
+        <if test="limit != null"> limit #{limit}</if>
+    </select>
+
+    <select id="existsIsbn13" parameterType="string" resultType="int">
+        select count(1) from tb_library_book where isbn13 = #{isbn13}
+    </select>
+
+    <select id="existsIsbn13ExcludeId" resultType="int">
+        select count(1) from tb_library_book where isbn13 = #{isbn13} and id &lt;&gt; #{id}
+    </select>
+
+    <!-- 我的收藏列表：按收藏时间倒序 -->
+    <select id="selectFavorites" resultMap="LibraryResult">
+        select b.* from tb_library_book_favorite f
+        inner join tb_library_book b on b.id = f.book_id
+        where f.user_id = #{userId} and b.del_flag='0'
+        order by f.create_time desc, b.id desc
+    </select>
+
+    <!-- moved under mapper/manage for consistency -->
+</mapper>

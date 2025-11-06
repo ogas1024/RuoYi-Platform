@@ -14,7 +14,7 @@ public interface ICourseResourceService {
 
     int approve(Long id, String auditor);
     int reject(Long id, String auditor, String reason);
-    int offline(Long id);
+    int offline(Long id, String auditor, String reason);
     int onlineToPending(Long id);
     int incrDownload(Long id);
 

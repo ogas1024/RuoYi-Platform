@@ -24,6 +24,10 @@
         select count(1) from sys_user where user_id = #{userId} and del_flag = '0'
     </select>
 
+    <select id="selectUserNameNickName" parameterType="long" resultType="map">
+        select user_name as username, nick_name as nickname from sys_user where user_id = #{userId} and del_flag = '0' limit 1
+    </select>
+
     <!-- 列出拥有指定角色的用户，并聚合其绑定的专业ID（逗号分隔）
          若传入 majorId，则仅返回已绑定该专业的用户（使用 exists 过滤） -->
     <select id="selectRoleUsersWithMajors" resultType="com.ruoyi.manage.vo.RoleUserLeadVO">

@@ -37,6 +37,32 @@ export const constantRoutes = [
       }
     ]
   },
+  // 管理端：课程资源分享（静态注册，避免菜单未配置时404）
+  {
+    path: '/manage/course-resource',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'audit',
+        name: 'ManageCourseResourceAudit',
+        component: () => import('@/views/manage/courseResource/audit.vue'),
+        meta: { title: '课程资源-待审核' }
+      },
+      {
+        path: 'approved',
+        name: 'ManageCourseResourceApproved',
+        component: () => import('@/views/manage/courseResource/approved.vue'),
+        meta: { title: '课程资源-已上架' }
+      },
+      {
+        path: 'trash',
+        name: 'ManageCourseResourceTrash',
+        component: () => import('@/views/manage/courseResource/trash.vue'),
+        meta: { title: '课程资源-回收站' }
+      }
+    ]
+  },
   // 门户（普通用户）常量路由：使用独立布局，不依赖后台菜单
   {
     path: '/portal',
@@ -69,6 +95,12 @@ export const constantRoutes = [
         meta: { title: '我上传的' }
       },
       {
+        path: 'course-resource/edit',
+        name: 'PortalEditResource',
+        component: () => import('@/views/portal/courseResource/edit.vue'),
+        meta: { title: '编辑资源' }
+      },
+      {
         path: 'course-resource/top',
         name: 'PortalTop',
         component: () => import('@/views/portal/courseResource/top.vue'),
@@ -80,6 +112,56 @@ export const constantRoutes = [
         name: 'PortalNotice',
         component: () => import('@/views/portal/notice/index.vue'),
         meta: { title: '通知公告' }
+      }
+      ,
+      // 数字图书馆（与课程资源分享并列）：/portal/library
+      {
+        path: 'library',
+        name: 'PortalLibrary',
+        component: () => import('@/views/portal/library/List.vue'),
+        meta: { title: '数字图书馆' }
+      },
+      {
+        path: 'library/list',
+        name: 'PortalLibraryList',
+        component: () => import('@/views/portal/library/List.vue'),
+        meta: { title: '全部图书' }
+      },
+      {
+        path: 'library/detail',
+        name: 'PortalLibraryDetail',
+        component: () => import('@/views/portal/library/Detail.vue'),
+        meta: { title: '图书详情' }
+      },
+      {
+        path: 'library/edit',
+        name: 'PortalLibraryEdit',
+        component: () => import('@/views/portal/library/Edit.vue'),
+        meta: { title: '编辑图书' }
+      },
+      {
+        path: 'library/upload',
+        name: 'PortalLibraryUpload',
+        component: () => import('@/views/portal/library/Upload.vue'),
+        meta: { title: '上传图书' }
+      },
+      {
+        path: 'library/top',
+        name: 'PortalLibraryTop',
+        component: () => import('@/views/portal/library/Top.vue'),
+        meta: { title: '下载与贡献榜' }
+      },
+      {
+        path: 'library/contributions',
+        name: 'PortalLibraryContributions',
+        component: () => import('@/views/portal/library/Contributions.vue'),
+        meta: { title: '我的上传' }
+      },
+      {
+        path: 'library/fav',
+        name: 'PortalLibraryFavorite',
+        component: () => import('@/views/portal/book/Favorite.vue'),
+        meta: { title: '我的收藏' }
       }
     ]
   },

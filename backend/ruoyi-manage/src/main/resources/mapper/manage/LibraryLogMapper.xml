@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.LibraryLogMapper">
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.LibraryLog" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_library_book_log(book_id, action, actor_id, actor_name, ip, ua, detail, result, create_time, del_flag)
+        values(#{bookId}, #{action}, #{actorId}, #{actorName}, #{ip}, #{ua}, #{detail}, #{result}, #{createTime}, #{delFlag})
+    </insert>
+
+    <!-- moved under mapper/manage for consistency -->
+</mapper>

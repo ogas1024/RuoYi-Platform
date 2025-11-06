@@ -28,8 +28,8 @@ export function rejectResource(id, reason) {
   return request({ url: `/manage/courseResource/${id}/reject`, method: 'put', data: { reason } })
 }
 
-export function offlineResource(id) {
-  return request({ url: `/manage/courseResource/${id}/offline`, method: 'put' })
+export function offlineResource(id, reason) {
+  return request({ url: `/manage/courseResource/${id}/offline`, method: 'put', data: { reason } })
 }
 
 export function onlineResource(id) {

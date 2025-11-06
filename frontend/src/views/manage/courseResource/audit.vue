@@ -28,13 +28,24 @@
         <template #default="scope">
           <el-button link type="primary" icon="Download" @click="downloadRow(scope.row)" v-hasPermi="['manage:courseResource:download']">下载</el-button>
           <el-button link type="success" icon="CircleCheck" @click="approve(scope.row)">通过</el-button>
-          <el-button link type="danger" icon="Close" @click="reject(scope.row)">驳回</el-button>
+          <el-button link type="danger" icon="Close" @click="openReject(scope.row)">驳回</el-button>
         </template>
       </el-table-column>
     </el-table>
     <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList"/>
   </div>
-</template>
+    <el-dialog v-model="rejectOpen" title="驳回原因" width="460px" append-to-body>
+      <el-form ref="rejectFormRef" :model="rejectForm" :rules="rejectRules" label-width="80px">
+        <el-form-item label="原因" prop="reason">
+          <el-input v-model="rejectForm.reason" type="textarea" :rows="3" maxlength="200" show-word-limit placeholder="请输入驳回原因（必填）" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="cancelReject">取消</el-button>
+        <el-button type="primary" @click="submitReject">确 定</el-button>
+      </template>
+    </el-dialog>
+  </template>
 
 <script setup name="ResourceAudit">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
@@ -81,12 +92,22 @@ const downloadRow = (row) => {
   window.open(url)
 }
 const approve = async (row) => { await approveResource(row.id); proxy.$modal.msgSuccess('已通过'); getList() }
-const reject = async (row) => {
-  const reason = await proxy.$prompt('请输入驳回理由', '驳回', { inputPattern: /.+/, inputErrorMessage: '必填' }).catch(() => null)
-  if (!reason || !reason.value) return
-  await rejectResource(row.id, reason.value)
-  proxy.$modal.msgSuccess('已驳回')
-  getList()
+// 驳回弹窗
+const rejectOpen = ref(false)
+const rejectFormRef = ref()
+const rejectForm = ref({ reason: '' })
+const rejectRules = reactive({ reason: [{ required: true, message: '请输入驳回原因', trigger: 'blur' }] })
+const rejectRow = ref(null)
+const openReject = (row) => { rejectRow.value = row; rejectForm.value.reason=''; rejectOpen.value = true }
+const cancelReject = () => { rejectOpen.value = false }
+const submitReject = () => {
+  rejectFormRef.value.validate(async valid => {
+    if (!valid) return
+    await rejectResource(rejectRow.value.id, rejectForm.value.reason)
+    rejectOpen.value = false
+    proxy.$modal.msgSuccess('已驳回')
+    getList()
+  })
 }
 
 onMounted(async () => { await getAllowedMajors(); await getList() })

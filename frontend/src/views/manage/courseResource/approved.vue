@@ -33,7 +33,7 @@
         <template #default="scope">
           <el-button link type="primary" icon="Download" @click="downloadRow(scope.row)" v-hasPermi="['manage:courseResource:download']">下载</el-button>
           <el-button link :type="scope.row.isBest===1?'info':'success'" icon="Star" @click="toggleBest(scope.row)" v-hasPermi="['manage:courseResource:best']">{{ scope.row.isBest===1?'取消最佳':'设为最佳' }}</el-button>
-          <el-button link type="warning" icon="Bottom" @click="offlineRow(scope.row)" v-hasPermi="['manage:courseResource:offline']">下架</el-button>
+          <el-button link type="warning" icon="Bottom" @click="openOffline(scope.row)" v-hasPermi="['manage:courseResource:offline']">下架</el-button>
           <el-button link type="primary" icon="Edit" @click="editRow(scope.row)" v-hasPermi="['manage:courseResource:edit']">编辑</el-button>
           <el-button link type="danger" icon="Delete" @click="delRow(scope.row)" v-hasPermi="['manage:courseResource:remove']">删除</el-button>
         </template>
@@ -56,7 +56,19 @@
       </template>
     </el-dialog>
   </div>
-</template>
+
+    <el-dialog v-model="offlineOpen" title="下架原因" width="460px" append-to-body>
+      <el-form ref="offlineFormRef" :model="offlineForm" :rules="offlineRules" label-width="80px">
+        <el-form-item label="原因" prop="reason">
+          <el-input v-model="offlineForm.reason" type="textarea" :rows="3" maxlength="200" show-word-limit placeholder="请输入下架原因（必填）" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="cancelOffline">取消</el-button>
+        <el-button type="primary" @click="submitOffline">确 定</el-button>
+      </template>
+    </el-dialog>
+  </template>
 
 <script setup name="ResourceApproved">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
@@ -110,10 +122,22 @@ const delRow = async (row) => {
   proxy.$modal.msgSuccess('删除成功')
   getList()
 }
-const offlineRow = async (row) => {
-  await offlineResource(row.id)
-  proxy.$modal.msgSuccess('已下架')
-  getList()
+// 下架弹窗
+const offlineOpen = ref(false)
+const offlineFormRef = ref()
+const offlineForm = ref({ reason: '' })
+const offlineRules = reactive({ reason: [{ required: true, message: '请输入下架原因', trigger: 'blur' }] })
+const offlineRowRef = ref(null)
+const openOffline = (row) => { offlineRowRef.value = row; offlineForm.value.reason=''; offlineOpen.value = true }
+const cancelOffline = () => { offlineOpen.value = false }
+const submitOffline = () => {
+  offlineFormRef.value.validate(async valid => {
+    if (!valid) return
+    await offlineResource(offlineRowRef.value.id, offlineForm.value.reason)
+    offlineOpen.value = false
+    proxy.$modal.msgSuccess('已下架')
+    getList()
+  })
 }
 const toggleBest = async (row) => {
   if (row.isBest === 1) {

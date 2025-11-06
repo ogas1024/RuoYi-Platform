@@ -1,55 +1,37 @@
 import request from '@/utils/request'
 
-// 查询图书列表列表
 export function listBook(query) {
-  return request({
-    url: '/manage/book/list',
-    method: 'get',
-    params: query
-  })
+  return request({ url: '/manage/book/list', method: 'get', params: query })
 }
 
-// 查询图书列表详细
 export function getBook(id) {
-  return request({
-    url: '/manage/book/' + id,
-    method: 'get'
-  })
+  return request({ url: `/manage/book/${id}`, method: 'get' })
 }
 
-// 新增图书列表
 export function addBook(data) {
-  return request({
-    url: '/manage/book',
-    method: 'post',
-    data: data
-  })
+  return request({ url: '/manage/book', method: 'post', data })
 }
 
-// 修改图书列表
 export function updateBook(data) {
-  return request({
-    url: '/manage/book',
-    method: 'put',
-    data: data
-  })
+  return request({ url: '/manage/book', method: 'put', data })
 }
 
-// 删除图书列表
-export function delBook(id) {
-  return request({
-    url: '/manage/book/' + id,
-    method: 'delete'
-  })
+export function delBook(ids) {
+  return request({ url: `/manage/book/${ids}`, method: 'delete' })
 }
 
-export function batchAuditBook(ids,status) {
-  return request({
-    url: '/manage/book/batchAudit',
-    method: 'put',
-    data: {
-      ids: ids,
-      status: status
-    }
-  })
+export function approveBook(id) {
+  return request({ url: `/manage/book/${id}/approve`, method: 'put' })
+}
+
+export function rejectBook(id, reason) {
+  return request({ url: `/manage/book/${id}/reject`, method: 'put', data: { reason } })
+}
+
+export function offlineBook(id) {
+  return request({ url: `/manage/book/${id}/offline`, method: 'put' })
+}
+
+export function onlineBook(id) {
+  return request({ url: `/manage/book/${id}/online`, method: 'put' })
 }

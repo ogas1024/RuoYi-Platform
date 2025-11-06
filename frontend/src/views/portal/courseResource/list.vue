@@ -77,6 +77,9 @@
         <el-descriptions-item label="上传时间">{{ detail.createTime }}</el-descriptions-item>
         <el-descriptions-item label="上架时间">{{ detail.publishTime || '-' }}</el-descriptions-item>
         <el-descriptions-item label="下载次数">{{ detail.downloadCount || 0 }}</el-descriptions-item>
+        <el-descriptions-item v-if="(detail.status===2||detail.status===3) && detail.auditReason" label="原因" :span="2">
+          <span class="reason-strong">{{ detail.auditReason }}</span>
+        </el-descriptions-item>
       </el-descriptions>
       <div class="detail-desc">
         <div class="detail-label">资源简介</div>
@@ -209,4 +212,5 @@ onMounted(getList)
 .detail-desc { margin-top: 14px; }
 .detail-label { font-weight: 600; margin-bottom: 6px; }
 .detail-content { white-space: pre-wrap; line-height: 1.6; }
+.reason-strong { color: #d43f3a; font-weight: 600; }
 </style>

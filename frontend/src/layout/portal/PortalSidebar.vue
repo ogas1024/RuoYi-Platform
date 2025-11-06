@@ -29,7 +29,21 @@
         <el-icon><Collection /></el-icon>
         <span>数字图书馆</span>
       </template>
-      <el-menu-item disabled>即将上线</el-menu-item>
+      <el-menu-item index="/portal/library/list">
+        <span>全部图书</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/library/top">
+        <span>下载/贡献榜</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/library/upload">
+        <span>上传图书</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/library/contributions">
+        <span>我的上传</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/library/fav">
+        <span>我的收藏</span>
+      </el-menu-item>
     </el-sub-menu>
   </el-menu>
 </template>

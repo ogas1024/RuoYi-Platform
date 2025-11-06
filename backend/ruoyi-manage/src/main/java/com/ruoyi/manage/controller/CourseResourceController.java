@@ -81,8 +81,9 @@ public class CourseResourceController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('manage:courseResource:offline')")
     @PutMapping("/{id}/offline")
-    public AjaxResult offline(@PathVariable Long id) {
-        return toAjax(service.offline(id));
+    public AjaxResult offline(@PathVariable Long id, @RequestBody(required = false) java.util.Map<String, String> body) {
+        String reason = body != null ? body.getOrDefault("reason", "") : "";
+        return toAjax(service.offline(id, getUsername(), reason));
     }
 
     @PreAuthorize("@ss.hasPermi('manage:courseResource:online')")

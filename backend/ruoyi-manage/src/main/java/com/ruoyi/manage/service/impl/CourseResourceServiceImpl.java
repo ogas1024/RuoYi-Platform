@@ -145,15 +145,15 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
 
     @Override
     @Transactional
-    public int offline(Long id) {
+    public int offline(Long id, String auditor, String reason) {
         if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
             CourseResource r = mapper.selectById(id);
             if (r == null) throw new ServiceException("资源不存在: " + id);
             Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
             if (ok == null || ok == 0) throw new ServiceException("无权下架该专业资源");
         }
-        int rows = mapper.offline(id);
-        if (rows > 0) log("OFFLINE", id, "SUCCESS", null);
+        int rows = mapper.offline(id, auditor, DateUtils.getNowDate(), reason);
+        if (rows > 0) log("OFFLINE", id, "SUCCESS", reason);
         return rows;
     }
 

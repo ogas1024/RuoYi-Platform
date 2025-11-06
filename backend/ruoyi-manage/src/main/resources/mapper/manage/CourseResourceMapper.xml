@@ -131,7 +131,12 @@
     </update>
 
     <update id="offline">
-        update tb_course_resource set status = 3 where id = #{id} and status = 1
+        update tb_course_resource
+        set status = 3,
+            audit_by = #{auditBy},
+            audit_time = #{auditTime},
+            audit_reason = #{reason}
+        where id = #{id} and status = 1
     </update>
 
     <update id="onlineToPending">

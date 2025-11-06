@@ -25,10 +25,17 @@
           <el-tag type="info" v-else>已下架</el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="驳回理由" prop="auditReason" min-width="200"/>
-      <el-table-column label="更新时间" prop="updateTime" width="180"/>
-      <el-table-column label="操作" fixed="right" width="300">
+      <el-table-column label="原因" min-width="240">
         <template #default="scope">
+          <span class="reason" v-if="scope.row.status===2 || scope.row.status===3">{{ scope.row.auditReason || '无' }}</span>
+          <span v-else>-</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="更新时间" prop="updateTime" width="180"/>
+      <el-table-column label="操作" fixed="right" width="360">
+        <template #default="scope">
+          <el-button link type="primary" icon="View" @click="openDetail(scope.row)">查看</el-button>
+          <el-divider direction="vertical" />
           <el-button link type="primary" icon="Download" @click="downloadRow(scope.row)" v-hasPermi="['manage:courseResource:download']">下载</el-button>
           <el-button link type="success" icon="Top" @click="onlineRow(scope.row)" v-hasPermi="['manage:courseResource:online']">重新上架</el-button>
           <el-button link type="danger" icon="Delete" @click="delRow(scope.row)" v-hasPermi="['manage:courseResource:remove']">删除</el-button>
@@ -36,12 +43,41 @@
       </el-table-column>
     </el-table>
     <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList"/>
+    
+    <!-- 详情对话框（高亮显示原因） -->
+    <el-dialog v-model="detailOpen" title="资源详情" width="720px" append-to-body>
+      <el-descriptions :column="2" border size="small">
+        <el-descriptions-item label="资源名称" :span="2">{{ detail.resourceName }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag type="danger" v-if="detail.status===2">已驳回</el-tag>
+          <el-tag type="info" v-else>已下架</el-tag>
+        </el-descriptions-item>
+        <el-descriptions-item label="类型">{{ detail.resourceType===1?'外链':'文件' }}</el-descriptions-item>
+        <el-descriptions-item label="专业">{{ detail.majorName || detail.majorId }}</el-descriptions-item>
+        <el-descriptions-item label="课程">{{ detail.courseName || detail.courseId }}</el-descriptions-item>
+        <el-descriptions-item label="上传者">{{ detail.uploaderName }}</el-descriptions-item>
+        <el-descriptions-item label="上传时间">{{ detail.createTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="上架时间">{{ detail.publishTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="下载次数">{{ detail.downloadCount || 0 }}</el-descriptions-item>
+        <el-descriptions-item label="原因" :span="2">
+          <div class="reason-box">
+            <el-tag v-if="detail.status===2" type="danger" effect="dark" class="mr8">驳回</el-tag>
+            <el-tag v-else type="info" effect="dark" class="mr8">下架</el-tag>
+            <span class="reason-strong">{{ detail.auditReason || '无' }}</span>
+          </div>
+        </el-descriptions-item>
+        <el-descriptions-item label="简介" :span="2">{{ detail.description || '（无）' }}</el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <el-button @click="detailOpen=false">关 闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup name="ResourceTrash">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
-import { listResource, delResource, onlineResource } from '@/api/manage/courseResource'
+import { listResource, delResource, onlineResource, getResource } from '@/api/manage/courseResource'
 import { getToken } from '@/utils/auth'
 import { listMajor } from '@/api/manage/major'
 import { listMyMajors } from '@/api/manage/majorLead'
@@ -51,6 +87,8 @@ const { proxy } = getCurrentInstance()
 const loading = ref(false)
 const total = ref(0)
 const list = ref([])
+const detailOpen = ref(false)
+const detail = ref({})
 const queryParams = reactive({ pageNum: 1, pageSize: 10, status: undefined, majorId: undefined, courseId: undefined })
 const allowedMajors = ref([])
 const userStore = useUserStore()
@@ -77,6 +115,15 @@ const downloadRow = (row) => {
 }
 const delRow = async (row) => { await delResource(row.id); proxy.$modal.msgSuccess('删除成功'); getList() }
 const onlineRow = async (row) => { await onlineResource(row.id); proxy.$modal.msgSuccess('已提交上架审核'); getList() }
+const openDetail = async (row) => {
+  try {
+    const { data } = await getResource(row.id)
+    detail.value = data || row
+  } catch (e) {
+    detail.value = row || {}
+  }
+  detailOpen.value = true
+}
 
 const getAllowedMajors = async () => {
   const roles = userStore.roles || []
@@ -96,4 +143,7 @@ onMounted(async () => { await getAllowedMajors(); await getList() })
 
 <style scoped>
 .hint { color: #909399; }
+.reason { color: #d43f3a; font-weight: 600; }
+.reason-box { display: flex; align-items: center; gap: 8px; }
+.mr8 { margin-right: 8px; }
 </style>

@@ -101,6 +101,9 @@
         <el-descriptions-item label="上传时间">{{ (detail.publishTime || detail.createTime) || '-' }}</el-descriptions-item>
         <el-descriptions-item label="下载次数">{{ detail.downloadCount }}</el-descriptions-item>
         <el-descriptions-item label="最佳">{{ detail.isBest===1 ? '是' : '否' }}</el-descriptions-item>
+        <el-descriptions-item v-if="(detail.status===2||detail.status===3) && detail.auditReason" label="原因" :span="2">
+          <span class="reason-strong">{{ detail.auditReason }}</span>
+        </el-descriptions-item>
         <el-descriptions-item label="简介" :span="2">{{ detail.description }}</el-descriptions-item>
       </el-descriptions>
       <template #footer>
@@ -386,4 +389,5 @@ async function loadRepWorks(rows) {
 
 <style scoped>
 .hint { color: #909399; }
+.reason-strong { color: #d43f3a; font-weight: 600; }
 </style>

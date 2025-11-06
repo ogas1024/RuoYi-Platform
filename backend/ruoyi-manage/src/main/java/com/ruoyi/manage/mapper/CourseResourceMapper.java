@@ -17,7 +17,7 @@ public interface CourseResourceMapper {
 
     int approve(@Param("id") Long id, @Param("auditBy") String auditBy, @Param("auditTime") Date auditTime);
     int reject(@Param("id") Long id, @Param("auditBy") String auditBy, @Param("auditTime") Date auditTime, @Param("reason") String reason);
-    int offline(@Param("id") Long id);
+    int offline(@Param("id") Long id, @Param("auditBy") String auditBy, @Param("auditTime") Date auditTime, @Param("reason") String reason);
     int onlineToPending(@Param("id") Long id);
 
     int incrDownload(@Param("id") Long id, @Param("time") Date time);
