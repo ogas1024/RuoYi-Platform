@@ -71,6 +71,19 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     @Override
     @Transactional
     public int update(CourseResource data) {
+        // 非管理员/专业负责人：仅允许编辑本人资源，且已通过需先下架
+        CourseResource origin = mapper.selectById(data.getId());
+        if (origin == null) throw new ServiceException("资源不存在: " + data.getId());
+        boolean isAdmin = SecurityUtils.isAdmin(SecurityUtils.getUserId());
+        boolean isLead = SecurityUtils.hasRole("major_lead");
+        if (!isAdmin && !isLead) {
+            if (origin.getUploaderId() == null || !origin.getUploaderId().equals(SecurityUtils.getUserId())) {
+                throw new ServiceException("无权限编辑他人资源");
+            }
+            if (origin.getStatus() != null && origin.getStatus() == 1) {
+                throw new ServiceException("已通过资源请先下架后再编辑");
+            }
+        }
         // 任何编辑进入待审
         data.setStatus(0);
         data.setUpdateBy(SecurityUtils.getUsername());
@@ -146,11 +159,18 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     @Override
     @Transactional
     public int offline(Long id, String auditor, String reason) {
-        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
-            CourseResource r = mapper.selectById(id);
-            if (r == null) throw new ServiceException("资源不存在: " + id);
+        CourseResource r = mapper.selectById(id);
+        if (r == null) throw new ServiceException("资源不存在: " + id);
+        boolean isAdmin = SecurityUtils.isAdmin(SecurityUtils.getUserId());
+        boolean isLead = SecurityUtils.hasRole("major_lead");
+        if (isLead && !isAdmin) {
             Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
             if (ok == null || ok == 0) throw new ServiceException("无权下架该专业资源");
+        }
+        if (!isAdmin && !isLead) {
+            if (r.getUploaderId() == null || !r.getUploaderId().equals(SecurityUtils.getUserId())) {
+                throw new ServiceException("无权限下架他人资源");
+            }
         }
         int rows = mapper.offline(id, auditor, DateUtils.getNowDate(), reason);
         if (rows > 0) log("OFFLINE", id, "SUCCESS", reason);
@@ -160,11 +180,18 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     @Override
     @Transactional
     public int onlineToPending(Long id) {
-        if (SecurityUtils.hasRole("major_lead") && !SecurityUtils.isAdmin(SecurityUtils.getUserId())) {
-            CourseResource r = mapper.selectById(id);
-            if (r == null) throw new ServiceException("资源不存在: " + id);
+        CourseResource r = mapper.selectById(id);
+        if (r == null) throw new ServiceException("资源不存在: " + id);
+        boolean isAdmin = SecurityUtils.isAdmin(SecurityUtils.getUserId());
+        boolean isLead = SecurityUtils.hasRole("major_lead");
+        if (isLead && !isAdmin) {
             Integer ok = majorLeadMapper.existsUserMajor(SecurityUtils.getUserId(), r.getMajorId());
             if (ok == null || ok == 0) throw new ServiceException("无权操作该专业资源");
+        }
+        if (!isAdmin && !isLead) {
+            if (r.getUploaderId() == null || !r.getUploaderId().equals(SecurityUtils.getUserId())) {
+                throw new ServiceException("无权限上架他人资源");
+            }
         }
         int rows = mapper.onlineToPending(id);
         if (rows > 0) log("ONLINE", id, "SUCCESS", null);

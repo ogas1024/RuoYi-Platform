@@ -184,6 +184,22 @@ public class LibraryServiceImpl implements ILibraryService {
     @Override
     @Transactional
     public int addAsset(LibraryAsset asset) {
+        // 仅允许上传者本人在“待审/驳回/下架”状态下增添资产
+        if (asset == null || asset.getBookId() == null) {
+            throw new ServiceException("参数不完整");
+        }
+        Library book = libraryMapper.selectById(asset.getBookId());
+        if (book == null) {
+            throw new ServiceException("图书不存在");
+        }
+        Long uid = SecurityUtils.getUserId();
+        if (uid == null || !uid.equals(book.getUploaderId())) {
+            throw new ServiceException("无权限操作他人图书");
+        }
+        Integer st = book.getStatus();
+        if (st != null && st == 1) {
+            throw new ServiceException("已上架记录不允许变更资产");
+        }
         if (asset.getAssetType() == null || asset.getAssetType().isEmpty()) {
             if (asset.getLinkUrl() != null && !asset.getLinkUrl().isEmpty()) asset.setAssetType("1");
             else asset.setAssetType("0");
@@ -199,6 +215,19 @@ public class LibraryServiceImpl implements ILibraryService {
     @Override
     @Transactional
     public int deleteAsset(Long assetId) {
+        if (assetId == null) return 0;
+        LibraryAsset asset = assetMapper.selectById(assetId);
+        if (asset == null) return 0;
+        Library book = libraryMapper.selectById(asset.getBookId());
+        if (book == null) return 0;
+        Long uid = SecurityUtils.getUserId();
+        if (uid == null || !uid.equals(book.getUploaderId())) {
+            throw new ServiceException("无权限操作他人图书");
+        }
+        Integer st = book.getStatus();
+        if (st != null && st == 1) {
+            throw new ServiceException("已上架记录不允许变更资产");
+        }
         return assetMapper.deleteById(assetId);
     }
 

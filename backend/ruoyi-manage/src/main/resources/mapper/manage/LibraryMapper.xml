@@ -131,6 +131,9 @@
         update tb_library_book set del_flag = '2', update_time = now()
         where id in
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+        <if test="!admin">
+            and uploader_id = #{userId}
+        </if>
     </update>
 
     <select id="selectTop" resultMap="LibraryResult">
@@ -167,5 +170,4 @@
         order by f.create_time desc, b.id desc
     </select>
 
-    <!-- moved under mapper/manage for consistency -->
 </mapper>

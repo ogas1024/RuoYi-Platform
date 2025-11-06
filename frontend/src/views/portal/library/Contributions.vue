@@ -2,9 +2,6 @@
   <div class="app-container">
     <div class="toolbar">
       <el-button type="primary" icon="Plus" @click="goUpload">上传图书</el-button>
-      <el-alert type="info" class="ml12" :closable="false" show-icon>
-        <template #title>显示我上传的所有图书；驳回/下架将展示原因。</template>
-      </el-alert>
     </div>
     <el-form :inline="true" :model="queryParams" class="mb8">
       <el-form-item label="关键字">

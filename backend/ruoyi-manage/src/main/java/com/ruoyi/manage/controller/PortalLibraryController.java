@@ -25,6 +25,7 @@ public class PortalLibraryController extends BaseController {
     @Resource
     private ILibraryService service;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/list")
     public TableDataInfo list(Library query) {
         startPage();
@@ -40,6 +41,7 @@ public class PortalLibraryController extends BaseController {
         return getDataTable(list);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public AjaxResult info(@PathVariable Long id) {
         Library data = service.selectById(id);
@@ -86,6 +88,7 @@ public class PortalLibraryController extends BaseController {
         response.setHeader("Location", url);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping
     public AjaxResult add(@RequestBody Library data) {
         data.setUploaderId(getUserId());
@@ -100,12 +103,25 @@ public class PortalLibraryController extends BaseController {
         return error("保存失败");
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PutMapping
     public AjaxResult edit(@RequestBody Library data) {
+        if (data == null || data.getId() == null) return error("参数不能为空");
+        Library origin = service.selectById(data.getId());
+        if (origin == null) return error("图书不存在");
+        Long uid = getUserId();
+        if (uid == null || !uid.equals(origin.getUploaderId())) {
+            return error("无权限操作他人图书");
+        }
+        Integer st = origin.getStatus();
+        if (st != null && st == 1) {
+            return error("已上架记录不允许编辑");
+        }
         data.setUpdateBy(getUsername());
         return toAjax(service.update(data));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(service.deleteByIds(ids, getUserId(), false));
@@ -114,6 +130,7 @@ public class PortalLibraryController extends BaseController {
     /**
      * 门户：一次性提交图书信息与资产（文件/外链），进入待审
      */
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/full")
     public AjaxResult addFull(@RequestBody LibraryCreateVO body) {
         if (body == null) return error("参数不能为空");
@@ -126,6 +143,7 @@ public class PortalLibraryController extends BaseController {
         return success(res);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/asset")
     public AjaxResult addAsset(@PathVariable Long id, @RequestBody LibraryAsset asset) {
         asset.setBookId(id);
@@ -135,28 +153,33 @@ public class PortalLibraryController extends BaseController {
         return error("添加失败");
     }
 
+    @PreAuthorize("isAuthenticated()")
     @DeleteMapping("/{id}/asset/{assetId}")
     public AjaxResult delAsset(@PathVariable Long id, @PathVariable Long assetId) {
         return toAjax(service.deleteAsset(assetId));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/favorite")
     public AjaxResult favorite(@PathVariable Long id, @RequestBody Map<String, Object> body) {
         boolean favorite = body != null && Boolean.TRUE.equals(body.get("favorite"));
         return toAjax(service.setFavorite(id, getUserId(), favorite, getUsername()));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/top")
     public AjaxResult top(@RequestParam(required = false, defaultValue = "10") Integer limit) {
         return success(service.selectTop(limit));
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/top/users")
     public AjaxResult topUsers(@RequestParam(required = false, defaultValue = "10") Integer limit) {
         List<TopUserVO> list = service.selectTopUsers(limit);
         return success(list);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/favorite")
     public TableDataInfo favoriteList() {
         startPage();

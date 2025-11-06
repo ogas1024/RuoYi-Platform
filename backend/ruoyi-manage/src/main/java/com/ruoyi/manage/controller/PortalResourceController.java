@@ -22,6 +22,7 @@ public class PortalResourceController extends BaseController {
     private ICourseResourceService service;
 
     // 仅返回已通过资源
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/list")
     public TableDataInfo list(CourseResource query) {
         startPage();
@@ -29,9 +30,18 @@ public class PortalResourceController extends BaseController {
         return getDataTable(list);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public AjaxResult info(@PathVariable Long id) {
-        return success(service.selectById(id));
+        CourseResource r = service.selectById(id);
+        if (r == null) return error("资源不存在");
+        if (r.getStatus() == null || r.getStatus() != 1) {
+            Long uid = getUserId();
+            if (uid == null || !uid.equals(r.getUploaderId())) {
+                return error("资源不存在或未上架");
+            }
+        }
+        return success(r);
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -48,6 +58,7 @@ public class PortalResourceController extends BaseController {
         response.setHeader("Location", target);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/top")
     public AjaxResult top(@RequestParam(defaultValue = "global") String scope,
                           @RequestParam(required = false) Long majorId,
