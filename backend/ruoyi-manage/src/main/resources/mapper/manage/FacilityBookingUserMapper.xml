@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.FacilityBookingUserMapper">
+
+    <resultMap id="BookingUserResult" type="com.ruoyi.manage.domain.FacilityBookingUser">
+        <id property="id" column="id"/>
+        <result property="bookingId" column="booking_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="isApplicant" column="is_applicant"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <insert id="batchInsert">
+        insert into tb_facility_booking_user(booking_id,user_id,is_applicant,create_by,create_time,del_flag)
+        values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.bookingId},#{it.userId},#{it.isApplicant},#{it.createBy},#{it.createTime},'0')
+        </foreach>
+    </insert>
+
+    <delete id="deleteByBookingId">
+        delete from tb_facility_booking_user where booking_id = #{bookingId}
+    </delete>
+
+    <select id="selectByBookingId" resultMap="BookingUserResult">
+        select * from tb_facility_booking_user where booking_id = #{bookingId}
+    </select>
+
+</mapper>
+

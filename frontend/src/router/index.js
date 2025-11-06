@@ -121,6 +121,25 @@ export const constantRoutes = [
         component: () => import('@/views/portal/library/List.vue'),
         meta: { title: '数字图书馆' }
       },
+      // 功能房预约门户
+      {
+        path: 'facility',
+        name: 'PortalFacility',
+        component: () => import('@/views/portal/facility/List.vue'),
+        meta: { title: '功能房' }
+      },
+      {
+        path: 'facility/detail',
+        name: 'PortalFacilityDetail',
+        component: () => import('@/views/portal/facility/Detail.vue'),
+        meta: { title: '功能房详情' }
+      },
+      {
+        path: 'facility/my',
+        name: 'PortalFacilityMy',
+        component: () => import('@/views/portal/facility/My.vue'),
+        meta: { title: '我的预约' }
+      },
       {
         path: 'library/list',
         name: 'PortalLibraryList',

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.FacilityBanMapper">
+
+    <resultMap id="BanResult" type="com.ruoyi.manage.domain.FacilityBan">
+        <id property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="reason" column="reason"/>
+        <result property="status" column="status"/>
+        <result property="expireTime" column="expire_time"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.FacilityBan" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_facility_ban(user_id,reason,status,expire_time,create_by,create_time,del_flag)
+        values(#{userId},#{reason},#{status},#{expireTime},#{createBy},#{createTime},'0')
+    </insert>
+
+    <delete id="deleteById" parameterType="long">
+        delete from tb_facility_ban where id = #{id}
+    </delete>
+
+    <select id="selectList" resultMap="BanResult">
+        select * from tb_facility_ban
+        <where>
+            del_flag='0'
+            <if test="status != null and status != ''"> and status = #{status}</if>
+            <if test="userId != null"> and user_id = #{userId}</if>
+        </where>
+        order by id desc
+    </select>
+
+    <select id="countActive" resultType="int">
+        select count(1) from tb_facility_ban
+        where del_flag='0' and status = '0' and user_id = #{userId}
+          and (expire_time is null or expire_time &gt; now())
+    </select>
+
+</mapper>
+

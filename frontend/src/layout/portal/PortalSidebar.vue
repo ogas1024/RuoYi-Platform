@@ -45,11 +45,23 @@
         <span>我的收藏</span>
       </el-menu-item>
     </el-sub-menu>
+    <el-sub-menu index="facility">
+      <template #title>
+        <el-icon><OfficeBuilding /></el-icon>
+        <span>功能房预约</span>
+      </template>
+      <el-menu-item index="/portal/facility">
+        <span>功能房列表</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/facility/my">
+        <span>我的预约</span>
+      </el-menu-item>
+    </el-sub-menu>
   </el-menu>
 </template>
 
 <script setup>
-import { Menu, Collection, Bell } from '@element-plus/icons-vue'
+import { Menu, Collection, Bell, OfficeBuilding } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.FacilityRoomMapper">
+
+    <resultMap id="RoomResult" type="com.ruoyi.manage.domain.FacilityRoom">
+        <id property="id" column="id"/>
+        <result property="buildingId" column="building_id"/>
+        <result property="floorNo" column="floor_no"/>
+        <result property="roomName" column="room_name"/>
+        <result property="capacity" column="capacity"/>
+        <result property="equipmentTags" column="equipment_tags"/>
+        <result property="status" column="status"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="baseSelect">select * from tb_facility_room</sql>
+
+    <select id="selectList" resultMap="RoomResult">
+        <include refid="baseSelect"/>
+        <where>
+            del_flag = '0'
+            <if test="query != null and query.status != null and query.status != ''"> and status = #{query.status}</if>
+            <if test="query != null and query.buildingIdEq != null"> and building_id = #{query.buildingIdEq}</if>
+            <if test="query != null and query.floorNoEq != null"> and floor_no = #{query.floorNoEq}</if>
+            <if test="query != null and query.roomName != null and query.roomName != ''"> and room_name like concat('%', #{query.roomName}, '%')</if>
+        </where>
+        order by floor_no asc, room_name asc
+    </select>
+
+    <select id="selectById" parameterType="long" resultMap="RoomResult">
+        <include refid="baseSelect"/>
+        where id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.FacilityRoom" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_facility_room(
+            building_id,floor_no,room_name,capacity,equipment_tags,status,remark,create_by,create_time,del_flag
+        ) values(
+            #{buildingId},#{floorNo},#{roomName},#{capacity},#{equipmentTags},#{status},#{remark},#{createBy},#{createTime},'0'
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.manage.domain.FacilityRoom">
+        update tb_facility_room
+        <set>
+            <if test="buildingId != null">building_id = #{buildingId},</if>
+            <if test="floorNo != null">floor_no = #{floorNo},</if>
+            <if test="roomName != null">room_name = #{roomName},</if>
+            <if test="capacity != null">capacity = #{capacity},</if>
+            <if test="equipmentTags != null">equipment_tags = #{equipmentTags},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="updateStatus">
+        update tb_facility_room set status = #{status}, update_time = now() where id = #{id}
+    </update>
+
+    <update id="softDeleteByIds">
+        update tb_facility_room set del_flag = '2', update_time = now()
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+
+</mapper>
+

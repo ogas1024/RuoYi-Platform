@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.FacilitySettingMapper">
+
+    <resultMap id="SettingResult" type="com.ruoyi.manage.domain.FacilitySetting">
+        <id property="id" column="id"/>
+        <result property="auditRequired" column="audit_required"/>
+        <result property="maxDurationMinutes" column="max_duration_minutes"/>
+        <result property="remark" column="remark"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <select id="selectOne" resultMap="SettingResult">
+        select * from tb_facility_setting where del_flag = '0' order by id asc limit 1
+    </select>
+
+    <insert id="upsert" parameterType="com.ruoyi.manage.domain.FacilitySetting">
+        insert into tb_facility_setting(id,audit_required,max_duration_minutes,remark,create_by,create_time,del_flag)
+        values(#{id},#{auditRequired},#{maxDurationMinutes},#{remark},#{createBy},#{createTime},'0')
+        on duplicate key update
+            audit_required = values(audit_required),
+            max_duration_minutes = values(max_duration_minutes),
+            remark = values(remark),
+            update_by = #{updateBy},
+            update_time = #{updateTime}
+    </insert>
+
+</mapper>
+

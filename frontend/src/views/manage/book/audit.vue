@@ -215,7 +215,7 @@
 </template>
 
 <script setup name="Book">
-import {listBook, updateBook, batchAuditBook} from "@/api/manage/book"
+import {listBook, updateBook, batchAuditBook} from "@/api/manage/library"
 import {listCategory} from "@/api/manage/category"
 import {ref, reactive, getCurrentInstance} from "vue"
 import {delOrders} from "@/api/manage/orders.js";
