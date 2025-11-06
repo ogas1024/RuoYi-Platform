@@ -31,10 +31,10 @@
       </el-table-column>
       <el-table-column label="操作" width="280">
         <template #default="{ row }">
-          <el-button size="small" text type="success" @click="approve(row)" v-if="row.status===0||row.status===3">通过</el-button>
-          <el-button size="small" text type="warning" @click="openReject(row)">驳回</el-button>
-          <el-button size="small" text type="info" @click="openOffline(row)" v-if="row.status===1">下架</el-button>
-          <el-button size="small" text type="primary" @click="online(row)" v-if="row.status===2||row.status===3">上架(待审)</el-button>
+          <el-button size="small" text type="success" @click="approve(row)" v-if="row.status===0||row.status===3" v-hasPermi="['manage:library:approve']">通过</el-button>
+          <el-button size="small" text type="warning" @click="openReject(row)" v-hasPermi="['manage:library:reject']">驳回</el-button>
+          <el-button size="small" text type="info" @click="openOffline(row)" v-if="row.status===1" v-hasPermi="['manage:library:offline']">下架</el-button>
+          <el-button size="small" text type="primary" @click="online(row)" v-if="row.status===2||row.status===3" v-hasPermi="['manage:library:online']">上架(待审)</el-button>
         </template>
       </el-table-column>
     </el-table>

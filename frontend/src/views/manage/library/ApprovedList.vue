@@ -17,8 +17,8 @@
       <el-table-column prop="downloadCount" label="下载数" width="100"/>
       <el-table-column label="操作" width="280">
         <template #default="{ row }">
-          <el-button size="small" text type="primary" @click="openDetail(row)">查看</el-button>
-          <el-button size="small" text type="warning" @click="openOffline(row)">下架</el-button>
+          <el-button size="small" text type="primary" @click="openDetail(row)" v-hasPermi="['manage:library:get']">查看</el-button>
+          <el-button size="small" text type="warning" @click="openOffline(row)" v-hasPermi="['manage:library:offline']">下架</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -43,7 +43,7 @@
       <el-table-column prop="linkUrl" label="外链URL"/>
       <el-table-column label="操作" width="160">
         <template #default="{ row }">
-          <el-button v-if="row.assetType==='0'" size="small" type="primary" text @click="downloadAsset(detail.id, row.id)">下载</el-button>
+          <el-button v-if="row.assetType==='0'" size="small" type="primary" text @click="downloadAsset(detail.id, row.id)" v-hasPermi="['manage:library:download']">下载</el-button>
           <el-button v-else size="small" type="success" text @click="openLink(row.linkUrl)">打开外链</el-button>
         </template>
       </el-table-column>

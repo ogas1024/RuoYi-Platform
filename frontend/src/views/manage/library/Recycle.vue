@@ -22,9 +22,9 @@
       </el-table-column>
       <el-table-column label="操作" width="320">
         <template #default="{ row }">
-          <el-button size="small" text type="primary" @click="openDetail(row)">查看</el-button>
-          <el-button size="small" type="primary" text @click="online(row)">上架(待审)</el-button>
-          <el-button size="small" type="danger" text @click="remove(row)">删除</el-button>
+          <el-button size="small" text type="primary" @click="openDetail(row)" v-hasPermi="['manage:library:get']">查看</el-button>
+          <el-button size="small" type="primary" text @click="online(row)" v-hasPermi="['manage:library:online']">上架(待审)</el-button>
+          <el-button size="small" type="danger" text @click="remove(row)" v-hasPermi="['manage:library:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -49,7 +49,7 @@
         <el-table-column prop="linkUrl" label="外链URL"/>
         <el-table-column label="操作" width="160">
           <template #default="{ row }">
-            <el-button v-if="row.assetType==='0'" size="small" type="primary" text @click="downloadAsset(detail.id, row.id)">下载</el-button>
+            <el-button v-if="row.assetType==='0'" size="small" type="primary" text @click="downloadAsset(detail.id, row.id)" v-hasPermi="['manage:library:download']">下载</el-button>
             <el-button v-else size="small" type="success" text @click="openLink(row.linkUrl)">打开外链</el-button>
           </template>
         </el-table-column>
