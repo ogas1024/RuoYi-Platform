@@ -25,5 +25,7 @@ public class FacilityBooking extends BaseEntity {
 
     // 查询辅助字段
     private String statusEq;
-}
 
+    // 非持久化字段：前端友好展示
+    private String roomName;
+}

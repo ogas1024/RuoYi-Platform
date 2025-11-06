@@ -99,6 +99,23 @@ public class PortalFacilityController extends BaseController {
     public TableDataInfo myList(@RequestParam(required = false) String status) {
         startPage();
         List<FacilityBooking> list = bookingService.myList(getUserId(), status);
+        // 友好化：补充房间名称，便于前端展示
+        if (list != null && !list.isEmpty()) {
+            java.util.Map<Long, String> roomNameMap = new java.util.HashMap<>();
+            for (FacilityBooking b : list) {
+                Long rid = b.getRoomId();
+                if (rid == null) continue;
+                String rn = roomNameMap.get(rid);
+                if (rn == null) {
+                    try {
+                        FacilityRoom r = roomMapper.selectById(rid);
+                        rn = r != null ? r.getRoomName() : null;
+                    } catch (Exception ignored) { rn = null; }
+                    roomNameMap.put(rid, rn);
+                }
+                b.setRoomName(rn);
+            }
+        }
         return getDataTable(list);
     }
 

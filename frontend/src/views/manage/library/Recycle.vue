@@ -37,7 +37,9 @@
         <el-descriptions-item label="作者">{{ detail.author }}</el-descriptions-item>
         <el-descriptions-item label="出版社">{{ detail.publisher || '-' }}</el-descriptions-item>
         <el-descriptions-item label="驳回原因">{{ detail.auditReason || '-' }}</el-descriptions-item>
-        <el-descriptions-item label="状态">{{ detail.status }}</el-descriptions-item>
+        <el-descriptions-item label="状态">
+          <el-tag :type="statusType(detail.status)">{{ statusText(detail.status) }}</el-tag>
+        </el-descriptions-item>
         <el-descriptions-item label="简介" :span="2"><div class="content">{{ detail.summary || '（暂无简介）' }}</div></el-descriptions-item>
       </el-descriptions>
       <el-table :data="assets" class="mt12" size="small" border>
@@ -97,4 +99,8 @@ const downloadAsset = (bookId, assetId) => {
 }
 const openLink = (link) => { openExternal(link) }
 onMounted(getList)
+
+// 统一的状态展示
+const statusText = s => ({ 0:'待审', 1:'已通过', 2:'已驳回', 3:'已下架' })[Number(s)] || '-'
+const statusType = s => ({ 0:'warning', 1:'success', 2:'danger', 3:'info' })[Number(s)] || 'info'
 </script>

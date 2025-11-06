@@ -13,13 +13,20 @@
         </el-select>
       </div>
       <el-table :data="list" style="width:100%" size="small">
-        <el-table-column label="房间" prop="roomId" width="100"/>
+        <el-table-column label="房间" width="160">
+          <template #default="{ row }">{{ row.roomName || ('#' + row.roomId) }}</template>
+        </el-table-column>
         <el-table-column label="开始时间" prop="startTime" width="180"/>
         <el-table-column label="结束时间" prop="endTime" width="180"/>
-        <el-table-column label="状态" prop="status" width="100"/>
+        <el-table-column label="状态" prop="status" width="100">
+          <template #default="{ row }">
+            <el-tag :type="statusType(row.status)">{{ statusText(row.status) }}</el-tag>
+          </template>
+        </el-table-column>
         <el-table-column label="目的" prop="purpose"/>
         <el-table-column label="操作" width="220">
           <template #default="scope">
+            <el-button size="small" @click="openDetail(scope.row)">查看</el-button>
             <el-button v-if="canCancel(scope.row)" type="danger" size="small" @click="doCancel(scope.row)">取消</el-button>
             <el-button v-if="canEdit(scope.row)" size="small" @click="openEdit(scope.row)">修改</el-button>
             <el-button v-if="canEndEarly(scope.row)" size="small" type="warning" @click="openEnd(scope.row)">提前结束</el-button>
@@ -51,12 +58,14 @@
       </template>
     </el-dialog>
   </div>
+    <BookingDetailDialog v-model="detailOpen" :booking-id="currentId" :fetcher="fetchPortalBooking" :show-actions="false" />
 </template>
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { myBookings, cancelBooking, updateBooking, endEarly } from '@/api/portal/facility'
+import { myBookings, cancelBooking, updateBooking, endEarly, getBooking as getPortalBooking } from '@/api/portal/facility'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import BookingDetailDialog from '@/components/facility/BookingDetailDialog.vue'
 
 const status = ref('')
 const query = reactive({ pageNum: 1, pageSize: 10 })
@@ -69,9 +78,9 @@ async function load(){
   total.value = t || 0
 }
 
-function canCancel(r){ return (r.status === '0' || r.status === '1') && new Date(r.startTime) > new Date() }
-function canEdit(r){ return (r.status === '0' || r.status === '1' || r.status === '2') && new Date(r.startTime) > new Date() }
-function canEndEarly(r){ return r.status === '1' || r.status === '4' }
+function canCancel(r){ const st = String(r.status); return (st === '0' || st === '1') && new Date(r.startTime) > new Date() }
+function canEdit(r){ const st = String(r.status); return (st === '0' || st === '1' || st === '2') && new Date(r.startTime) > new Date() }
+function canEndEarly(r){ const st = String(r.status); return st === '1' || st === '4' }
 
 async function doCancel(r){
   await ElMessageBox.confirm('确认要取消该预约？','提示')
@@ -91,9 +100,18 @@ function openEnd(r){ endForm.id = r.id; endForm.endTime = r.endTime; showEnd.val
 async function saveEnd(){ await endEarly(endForm.id, { endTime: endForm.endTime }); ElMessage.success('操作成功'); showEnd.value=false; load() }
 
 onMounted(load)
+
+// 详情弹窗（门户只读）
+const detailOpen = ref(false)
+const currentId = ref(null)
+function openDetail(row){ currentId.value = row.id; detailOpen.value = true }
+const fetchPortalBooking = (id) => getPortalBooking(id)
+
+// 状态展示（用户友好标签）
+const statusText = (s) => ({ '0':'待审核', '1':'已批准', '2':'已驳回', '3':'已取消', '4':'进行中', '5':'已完成' })[String(s)] || '-'
+const statusType = (s) => ({ '0':'warning', '1':'success', '2':'danger', '3':'info', '4':'success', '5':'info' })[String(s)] || 'info'
 </script>
 
 <style scoped>
 .filter{ margin-bottom:12px; }
 </style>
-

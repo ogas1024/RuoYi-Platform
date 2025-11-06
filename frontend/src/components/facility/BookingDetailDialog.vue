@@ -5,7 +5,7 @@
       <el-descriptions-item label="房间">{{ meta.roomName || '-' }}（ID: {{ info.roomId }}）</el-descriptions-item>
       <el-descriptions-item label="楼房">{{ meta.buildingName || '-' }}</el-descriptions-item>
       <el-descriptions-item label="申请人">{{ meta.applicantName || '-' }}（ID: {{ info.applicantId }}）</el-descriptions-item>
-      <el-descriptions-item label="状态">{{ meta.statusText || info.status }}</el-descriptions-item>
+      <el-descriptions-item label="状态">{{ meta.statusText || statusText(info.status) }}</el-descriptions-item>
       <el-descriptions-item label="开始时间">{{ info.startTime }}</el-descriptions-item>
       <el-descriptions-item label="结束时间">{{ info.endTime }}</el-descriptions-item>
       <el-descriptions-item label="目的">{{ info.purpose }}</el-descriptions-item>
@@ -67,9 +67,14 @@ async function onReject(){
 }
 
 watch(()=>[props.modelValue, props.bookingId], load)
+
+// 用户友好状态文本（设施预约）
+function statusText(s){
+  const map = { '0':'待审核', '1':'已批准', '2':'已驳回', '3':'已取消', '4':'进行中', '5':'已完成' }
+  return map[String(s)] || String(s || '-')
+}
 </script>
 
 <style scoped>
 .mt-12{ margin-top:12px; }
 </style>
-

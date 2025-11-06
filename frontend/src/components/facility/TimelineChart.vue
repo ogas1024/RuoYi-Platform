@@ -41,7 +41,13 @@ function init(){
   if (!root.value) return
   chart = echarts.init(root.value)
   chart.setOption({
-    tooltip: { trigger: 'item', formatter: p => { const d = p.data && p.data.meta; return d ? `${d.status}<br/>${d.start} ~ ${d.end}` : '' } },
+    tooltip: { trigger: 'item', formatter: p => {
+      const d = p.data && p.data.meta
+      if (!d) return ''
+      const map = { pending: '待审', approved: '已通过', ongoing: '进行中', completed: '已完成', unknown: '未知' }
+      const st = map[d.status] || d.status
+      return `${st}<br/>${d.start} ~ ${d.end}`
+    } },
     grid: { left: 40, right: 20, bottom: 30, top: 30 },
     xAxis: { type: 'time', min: toTs(props.from), max: toTs(props.to) },
     yAxis: { type: 'category', data: ['占用'], axisTick:{show:false}, axisLine:{show:false} },
