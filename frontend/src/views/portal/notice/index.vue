@@ -95,7 +95,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { listNotice, getNotice } from '@/api/manage/notice'
+import { listNotice, getNotice } from '@/api/portal/notice'
 
 const loading = ref(false)
 const list = ref([])

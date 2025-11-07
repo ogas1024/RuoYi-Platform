@@ -83,7 +83,7 @@
                         where s.notice_id = n.id and s.del_flag = '0'
                           and (
                             (s.scope_type = 0 and s.ref_id in (select role_id from sys_user_role where user_id = #{userId}))
-                            or (s.scope_type = 1 and s.ref_id = #{deptId})
+                            or (s.scope_type = 1 and s.ref_id in (select dept_id from sys_user where user_id = #{userId}))
                             or (s.scope_type = 2 and s.ref_id in (select post_id from sys_user_post where user_id = #{userId}))
                           )
                     )
