@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.LostItemMapper">
+
+    <resultMap id="LostItemResult" type="com.ruoyi.manage.domain.LostItem">
+        <result property="id" column="id"/>
+        <result property="type" column="type"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="contactInfo" column="contact_info"/>
+        <result property="location" column="location"/>
+        <result property="lostTime" column="lost_time"/>
+        <result property="views" column="views"/>
+        <result property="status" column="status"/>
+        <result property="solvedFlag" column="solved_flag"/>
+        <result property="publishTime" column="publish_time"/>
+        <result property="rejectReason" column="reject_reason"/>
+        <result property="offlineReason" column="offline_reason"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <sql id="baseSelect">select * from tb_lost_item</sql>
+
+    <select id="selectById" parameterType="long" resultMap="LostItemResult">
+        <include refid="baseSelect"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectList" resultMap="LostItemResult">
+        <include refid="baseSelect"/>
+        <where>
+            del_flag = '0'
+            <if test="statusList != null and statusList.size() &gt; 0">
+                and status in
+                <foreach collection="statusList" item="s" open="(" separator="," close=")">#{s}</foreach>
+            </if>
+            <if test="query != null and query.status != null"> and status = #{query.status}</if>
+            <if test="query != null and query.type != null and query.type != ''"> and type = #{query.type}</if>
+            <if test="query != null and query.solvedFlag != null"> and solved_flag = #{query.solvedFlag}</if>
+            <if test="query != null and query.title != null and query.title != ''"> and title like concat('%', #{query.title}, '%')</if>
+            <if test="query != null and query.keyword != null and query.keyword != ''">
+                and (
+                    title like concat('%', #{query.keyword}, '%')
+                    or content like concat('%', #{query.keyword}, '%')
+                    or contact_info like concat('%', #{query.keyword}, '%')
+                )
+            </if>
+            <if test="query != null and query.location != null and query.location != ''"> and location like concat('%', #{query.location}, '%')</if>
+            <if test="query != null and query.beginTime != null"> and lost_time &gt;= #{query.beginTime}</if>
+            <if test="query != null and query.endTime != null"> and lost_time &lt;= #{query.endTime}</if>
+            <if test="query != null and query.createBy != null and query.createBy != ''"> and create_by = #{query.createBy}</if>
+        </where>
+        order by publish_time desc, id desc
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.LostItem" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_lost_item(
+            type,title,content,contact_info,location,lost_time,views,status,solved_flag,publish_time,
+            reject_reason,offline_reason,create_by,create_time,del_flag
+        ) values (
+            #{type},#{title},#{content},#{contactInfo},#{location},#{lostTime},ifnull(#{views},0),#{status},ifnull(#{solvedFlag},0),#{publishTime},
+            #{rejectReason},#{offlineReason},#{createBy},#{createTime},'0'
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.manage.domain.LostItem">
+        update tb_lost_item
+        <set>
+            <if test="type != null">type = #{type},</if>
+            <if test="title != null">title = #{title},</if>
+            <if test="content != null">content = #{content},</if>
+            <if test="contactInfo != null">contact_info = #{contactInfo},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="lostTime != null">lost_time = #{lostTime},</if>
+            <if test="views != null">views = #{views},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="solvedFlag != null">solved_flag = #{solvedFlag},</if>
+            <if test="publishTime != null">publish_time = #{publishTime},</if>
+            <if test="rejectReason != null">reject_reason = #{rejectReason},</if>
+            <if test="offlineReason != null">offline_reason = #{offlineReason},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="softDeleteById">
+        update tb_lost_item set del_flag = '2', update_time = now(), update_by = #{username}
+        where id = #{id}
+        <if test="!admin">
+            and create_by = #{username}
+        </if>
+    </update>
+
+    <update id="approve">
+        update tb_lost_item set status = 2, publish_time = ifnull(publish_time, #{time}), update_by = #{auditBy}, update_time = #{time}
+        where id = #{id} and status = 1 and del_flag = '0'
+    </update>
+
+    <update id="reject">
+        update tb_lost_item set status = 3, reject_reason = #{reason}, update_by = #{auditBy}, update_time = #{time}
+        where id = #{id} and status = 1 and del_flag = '0'
+    </update>
+
+    <update id="offline">
+        update tb_lost_item set status = 4, offline_reason = #{reason}, update_by = #{auditBy}, update_time = #{time}
+        where id = #{id} and status = 2 and del_flag = '0'
+    </update>
+
+    <update id="restore">
+        update tb_lost_item set status = 1, update_by = #{auditBy}, update_time = #{time}
+        where id = #{id} and status in (3,4) and del_flag = '0'
+    </update>
+
+    <update id="solve">
+        update tb_lost_item set solved_flag = 1, update_time = now(), update_by = #{username}
+        where id = #{id} and solved_flag = 0 and status = 2 and del_flag = '0' and create_by = #{username}
+    </update>
+
+    <update id="setSolvedAdmin">
+        update tb_lost_item set solved_flag = #{solved}, update_time = now(), update_by = #{auditBy}
+        where id = #{id} and status = 2 and del_flag = '0'
+    </update>
+
+</mapper>

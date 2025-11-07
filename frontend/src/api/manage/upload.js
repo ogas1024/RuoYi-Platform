@@ -10,8 +10,8 @@ export function uploadOss(formData, query) {
     url: '/manage/upload/oss',
     method: 'post',
     params: query,
-    headers: { 'Content-Type': 'multipart/form-data' },
+    // 关闭防重复提交（FormData 序列化为 "{}" 会误判为重复）并静默错误提示
+    headers: { 'Content-Type': 'multipart/form-data', repeatSubmit: false, silent: true },
     data: formData
   })
 }
-

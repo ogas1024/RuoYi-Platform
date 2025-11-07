@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.LostItemImageMapper">
+
+    <resultMap id="ImageResult" type="com.ruoyi.manage.domain.LostItemImage">
+        <result property="id" column="id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="url" column="url"/>
+        <result property="sortNo" column="sort_no"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <select id="listByItemId" resultMap="ImageResult">
+        select * from tb_lost_item_image where del_flag='0' and item_id = #{itemId} order by sort_no asc, id asc
+    </select>
+
+    <delete id="deleteByItemId">
+        update tb_lost_item_image set del_flag='2', update_time = now()
+        where item_id = #{itemId}
+    </delete>
+
+    <insert id="batchInsert">
+        insert into tb_lost_item_image(item_id, url, sort_no, create_by, create_time, del_flag)
+        values
+        <foreach collection="list" item="it" separator=",">
+            (#{it.itemId}, #{it.url}, ifnull(#{it.sortNo},0), #{it.createBy}, #{it.createTime}, '0')
+        </foreach>
+    </insert>
+
+</mapper>
+

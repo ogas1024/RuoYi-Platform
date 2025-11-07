@@ -63,6 +63,32 @@ export const constantRoutes = [
       }
     ]
   },
+  // 管理端：失物招领（静态注册，避免菜单未配置时404）
+  {
+    path: '/manage/lostfound',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageLostFoundIndex',
+        component: () => import('@/views/manage/lostfound/List.vue'),
+        meta: { title: '失物招领-已发布' }
+      },
+      {
+        path: 'audit',
+        name: 'ManageLostFoundAudit',
+        component: () => import('@/views/manage/lostfound/Audit.vue'),
+        meta: { title: '失物招领-待审核' }
+      },
+      {
+        path: 'recycle',
+        name: 'ManageLostFoundRecycle',
+        component: () => import('@/views/manage/lostfound/Recycle.vue'),
+        meta: { title: '失物招领-回收站' }
+      }
+    ]
+  },
   // 门户（普通用户）常量路由：使用独立布局，不依赖后台菜单
   {
     path: '/portal',
@@ -181,6 +207,26 @@ export const constantRoutes = [
         name: 'PortalLibraryFavorite',
         component: () => import('@/views/portal/book/Favorite.vue'),
         meta: { title: '我的收藏' }
+      }
+      ,
+      // 失物招领门户
+      {
+        path: 'lostfound',
+        name: 'PortalLostFound',
+        component: () => import('@/views/portal/lostfound/List.vue'),
+        meta: { title: '失物招领' }
+      },
+      {
+        path: 'lostfound/edit',
+        name: 'PortalLostFoundEdit',
+        component: () => import('@/views/portal/lostfound/Edit.vue'),
+        meta: { title: '发布/编辑失物' }
+      },
+      {
+        path: 'lostfound/my',
+        name: 'PortalLostFoundMy',
+        component: () => import('@/views/portal/lostfound/My.vue'),
+        meta: { title: '我的发布' }
       }
     ]
   },

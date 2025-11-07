@@ -57,11 +57,26 @@
         <span>我的预约</span>
       </el-menu-item>
     </el-sub-menu>
+    <el-sub-menu index="lostfound">
+      <template #title>
+        <el-icon><Search /></el-icon>
+        <span>失物招领</span>
+      </template>
+      <el-menu-item index="/portal/lostfound">
+        <span>事务列表</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/lostfound/edit">
+        <span>发布事物</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/lostfound/my">
+        <span>我的发布</span>
+      </el-menu-item>
+    </el-sub-menu>
   </el-menu>
 </template>
 
 <script setup>
-import { Menu, Collection, Bell, OfficeBuilding } from '@element-plus/icons-vue'
+import { Menu, Collection, Bell, OfficeBuilding, Search } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

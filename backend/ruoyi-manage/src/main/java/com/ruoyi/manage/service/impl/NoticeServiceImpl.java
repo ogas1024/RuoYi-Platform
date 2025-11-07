@@ -98,8 +98,12 @@ public class NoticeServiceImpl implements INoticeService {
                 attachmentMapper.insert(a);
             }
         }
-        if (notice.getVisibleAll() != null && notice.getVisibleAll() == 0 && notice.getScopes() != null) {
-            for (NoticeScope s : notice.getScopes()) {
+        if (notice.getVisibleAll() != null && notice.getVisibleAll() == 0) {
+            List<NoticeScope> scopes = normalizeScopes(notice.getScopes());
+            if (scopes.isEmpty()) {
+                throw new ServiceException("可见范围为自定义时，至少选择一个角色/部门/岗位");
+            }
+            for (NoticeScope s : scopes) {
                 initChild(s);
                 s.setNoticeId(notice.getId());
                 scopeMapper.insert(s);
@@ -129,9 +133,13 @@ public class NoticeServiceImpl implements INoticeService {
         if (notice.getVisibleAll() != null) {
             if (notice.getVisibleAll() == 1) {
                 scopeMapper.deleteByNoticeId(notice.getId());
-            } else if (notice.getScopes() != null) {
+            } else {
+                List<NoticeScope> scopes = normalizeScopes(notice.getScopes());
+                if (scopes.isEmpty()) {
+                    throw new ServiceException("可见范围为自定义时，至少选择一个角色/部门/岗位");
+                }
                 scopeMapper.deleteByNoticeId(notice.getId());
-                for (NoticeScope s : notice.getScopes()) {
+                for (NoticeScope s : scopes) {
                     initChild(s);
                     s.setNoticeId(notice.getId());
                     scopeMapper.insert(s);
@@ -223,5 +231,27 @@ public class NoticeServiceImpl implements INoticeService {
             s.setUpdateBy(SecurityUtils.getUsername());
             s.setUpdateTime(DateUtils.getNowDate());
         }
+    }
+
+    /**
+     * 规范化并过滤可见范围：
+     * - 去除 null 项
+     * - 仅保留 scopeType ∈ {0角色,1部门,2岗位} 且 refId 非空的项
+     * - 对 (scopeType, refId) 进行去重以避免唯一约束冲突
+     */
+    private List<NoticeScope> normalizeScopes(List<NoticeScope> scopes) {
+        if (scopes == null || scopes.isEmpty()) return Collections.emptyList();
+        List<NoticeScope> list = new ArrayList<>();
+        Set<String> dedup = new HashSet<>();
+        for (NoticeScope s : scopes) {
+            if (s == null) continue;
+            Integer t = s.getScopeType();
+            Long r = s.getRefId();
+            if (r == null) continue;
+            if (t == null || (t != 0 && t != 1 && t != 2)) continue;
+            String key = t + ":" + r;
+            if (dedup.add(key)) list.add(s);
+        }
+        return list;
     }
 }

@@ -33,7 +33,16 @@
           </el-select>
         </el-form-item>
         <el-form-item label="部门">
-          <el-tree-select v-model="scopeDeptIds" :data="deptTree" multiple check-strictly show-checkbox :props="{ value:'id', label:'label', children:'children' }" style="width: 480px" />
+          <el-tree-select
+            v-model="scopeDeptIds"
+            :data="deptTree"
+            multiple
+            check-strictly
+            show-checkbox
+            value-key="id"
+            :props="{ value:'id', label:'label', children:'children' }"
+            style="width: 480px"
+          />
         </el-form-item>
         <el-form-item label="岗位">
           <el-select v-model="scopePostIds" multiple filterable placeholder="选择岗位" style="width: 480px">
@@ -135,7 +144,11 @@ function handleFileChange(e) {
 function onSubmit() {
   if (!form.title || !form.contentHtml) { ElMessage.error('标题与内容必填'); return }
   const payload = { ...form, attachments: [...attachments] }
-  if (form.visibleAll === 0) payload.scopes = buildScopes()
+  if (form.visibleAll === 0) {
+    const scopes = buildScopes()
+    if (!scopes.length) { ElMessage.error('可见范围为自定义时，至少选择一个角色/部门/岗位'); return }
+    payload.scopes = scopes
+  }
   const api = form.id ? updateNotice : addNotice
   api(payload).then(async r => {
     if (!form.id) form.id = (r.data && r.data.id) || form.id
