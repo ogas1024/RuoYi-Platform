@@ -94,8 +94,8 @@ const ossUpload = async ({ file, onSuccess, onError }) => {
       // 管理端上传（需 manage:upload:oss 权限）
       res = await uploadOss(fd, { dir: 'lostfound', publicUrl: true })
     } else {
-      // 门户上传
-      res = await uploadOssPortal(fd, { dir: 'lostfound' })
+      // 门户上传（场景：失物招领图片）
+      res = await uploadOssPortal(fd, { scene: 'lostfound.image', dir: 'lostfound', publicUrl: true })
     }
     const url = res && (res.url || (res.data && res.data.url))
     if (url) {

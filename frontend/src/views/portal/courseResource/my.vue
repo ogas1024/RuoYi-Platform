@@ -110,8 +110,8 @@
 <script setup name="MyCourseResource">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
 import useUserStore from '@/store/modules/user'
-import { listResource, updateResource, delResource, offlineResource, onlineResource } from '@/api/manage/courseResource'
-import { uploadOss } from '@/api/manage/upload'
+import { myListResourcePortal, updateResourcePortal, removeResourcePortal, offlineResourcePortal, onlineResourcePortal } from '@/api/portal/resource'
+import { uploadOssPortal } from '@/api/portal/upload'
 
 const { proxy } = getCurrentInstance()
 const userStore = useUserStore()
@@ -134,7 +134,7 @@ const rules = {
 const getList = async () => {
   loading.value = true
   try {
-    const resp = await listResource(queryParams)
+    const resp = await myListResourcePortal(queryParams)
     list.value = resp.rows || []
     total.value = resp.total || 0
   } finally { loading.value = false }
@@ -166,7 +166,7 @@ const submitForm = () => {
     } else {
       payload.fileUrl = null; payload.fileHash = null; payload.fileSize = null
     }
-    await updateResource(payload)
+    await updateResourcePortal(payload)
     proxy.$modal.msgSuccess('修改已提交审核')
     open.value = false
     getList()
@@ -174,7 +174,7 @@ const submitForm = () => {
 }
 const delRow = async (row) => {
   await proxy.$modal.confirm('确认删除该资源吗？（待审/驳回/下架可删除）')
-  await delResource(row.id)
+  await removeResourcePortal(row.id)
   proxy.$modal.msgSuccess('删除成功')
   getList()
 }
@@ -189,13 +189,13 @@ const cancelOffline = () => { offlineOpen.value = false }
 const submitOffline = () => {
   offlineFormRef.value.validate(async valid => {
     if (!valid) return
-    await offlineResource(offlineRowRef.value.id, offlineForm.value.reason)
+  await offlineResourcePortal(offlineRowRef.value.id, offlineForm.value.reason)
     offlineOpen.value = false
     proxy.$modal.msgSuccess('已下架')
     getList()
   })
 }
-const online = async (row) => { await onlineResource(row.id); proxy.$modal.msgSuccess('已提交上架审核'); getList() }
+const online = async (row) => { await onlineResourcePortal(row.id); proxy.$modal.msgSuccess('已提交上架审核'); getList() }
 
 // 上传压缩包（与上传对话框一致）
 const doUpload = async (options) => {
@@ -208,7 +208,7 @@ const doUpload = async (options) => {
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOss(fd, { dir: `resource/${userStore.id}/edit/${form.id || 'temp'}`, publicUrl: true })
+    const { data } = await uploadOssPortal(fd, { scene: 'resource.archive', dir: `resource/${userStore.id}/edit/${form.id || 'temp'}`, publicUrl: true })
     form.fileUrl = data.url || data.publicUrl || ''
     form.fileHash = data.sha256 || data.etag || ''
     form.fileSize = file.size

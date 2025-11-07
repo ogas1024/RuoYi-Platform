@@ -67,4 +67,77 @@ public class PortalResourceController extends BaseController {
                           @RequestParam(required = false, defaultValue = "10") Integer limit) {
         return success(service.selectTop(scope, majorId, courseId, days, limit));
     }
+
+    // ========= 门户管理：我的/新增/编辑/删除/上下架 =========
+
+    /**
+     * 我的资源列表：仅当前用户上传的资源，所有状态。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/my/list")
+    public TableDataInfo myList(CourseResource query) {
+        startPage();
+        if (query == null) query = new CourseResource();
+        query.setUploaderId(getUserId());
+        List<CourseResource> list = service.selectList(query, false);
+        return getDataTable(list);
+    }
+
+    /**
+     * 新增资源（进入待审）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @PostMapping
+    public AjaxResult add(@RequestBody CourseResource data) {
+        if (data == null) return error("参数不能为空");
+        data.setUploaderId(getUserId());
+        data.setUploaderName(getUsername());
+        data.setCreateBy(getUsername());
+        int rows = service.insert(data);
+        if (rows > 0) {
+            java.util.Map<String, Object> res = new java.util.HashMap<>();
+            res.put("id", data.getId());
+            return success(res);
+        }
+        return error("保存失败");
+    }
+
+    /**
+     * 编辑资源（仅本人；编辑后回到待审）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping
+    public AjaxResult edit(@RequestBody CourseResource data) {
+        if (data == null || data.getId() == null) return error("参数不能为空");
+        data.setUpdateBy(getUsername());
+        return toAjax(service.update(data));
+    }
+
+    /**
+     * 删除资源（仅本人；待审/驳回/下架可删除）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @DeleteMapping("/{id}")
+    public AjaxResult remove(@PathVariable Long id) {
+        return toAjax(service.deleteByIds(new Long[]{id}, getUserId(), false));
+    }
+
+    /**
+     * 提交上架（转为待审）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}/online")
+    public AjaxResult online(@PathVariable Long id) {
+        return toAjax(service.onlineToPending(id));
+    }
+
+    /**
+     * 下架（仅本人或有权者）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @PutMapping("/{id}/offline")
+    public AjaxResult offline(@PathVariable Long id, @RequestBody(required = false) java.util.Map<String, String> body) {
+        String reason = body != null ? body.getOrDefault("reason", "") : "";
+        return toAjax(service.offline(id, getUsername(), reason));
+    }
 }

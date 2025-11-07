@@ -50,6 +50,33 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
     @Override
     @Transactional
     public int insert(CourseResource data) {
+        // 必填校验，避免落库约束报错
+        if (data.getMajorId() == null) {
+            throw new ServiceException("专业ID(majorId) 不能为空");
+        }
+        if (data.getCourseId() == null) {
+            throw new ServiceException("课程ID(courseId) 不能为空");
+        }
+        if (data.getResourceName() == null || data.getResourceName().trim().isEmpty()) {
+            throw new ServiceException("资源名称(resourceName) 不能为空");
+        }
+        if (data.getResourceType() == null) {
+            throw new ServiceException("资源类型(resourceType) 不能为空：0-文件 1-外链");
+        }
+        if (data.getResourceType() == 0) { // 文件
+            if (data.getFileUrl() == null || data.getFileUrl().trim().isEmpty()) {
+                throw new ServiceException("文件型资源需要提供 fileUrl");
+            }
+            if (data.getFileHash() == null || data.getFileHash().trim().isEmpty()) {
+                throw new ServiceException("文件型资源需要提供 fileHash（建议使用上传返回的哈希）");
+            }
+        } else if (data.getResourceType() == 1) { // 外链
+            if (data.getLinkUrl() == null || data.getLinkUrl().trim().isEmpty()) {
+                throw new ServiceException("外链型资源需要提供 linkUrl");
+            }
+        } else {
+            throw new ServiceException("不支持的资源类型：" + data.getResourceType());
+        }
         data.setCreateBy(SecurityUtils.getUsername());
         data.setCreateTime(DateUtils.getNowDate());
         data.setStatus(0); // 创建即待审

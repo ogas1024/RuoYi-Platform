@@ -96,9 +96,8 @@
 <script setup name="ResourceList">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
 import { useRoute } from 'vue-router'
-import { listResourcePortal } from '@/api/portal/resource'
-import { addResource } from '@/api/manage/courseResource'
-import { uploadOss } from '@/api/manage/upload'
+import { listResourcePortal, addResourcePortal } from '@/api/portal/resource'
+import { uploadOssPortal } from '@/api/portal/upload'
 
 const route = useRoute()
 const majorId = Number(route.query.majorId)
@@ -155,7 +154,7 @@ const doUpload = async (options) => {
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOss(fd, { dir: `resource/${majorId}/${courseId}`, publicUrl: true })
+    const { data } = await uploadOssPortal(fd, { scene: 'resource.archive', dir: `resource/${majorId}/${courseId}`, publicUrl: true })
     form.fileUrl = data.url || data.publicUrl || ''
     form.fileHash = data.sha256 || data.etag || ''
     form.fileSize = file.size
@@ -175,7 +174,7 @@ const submitForm = () => {
     } else {
       delete payload.fileUrl; delete payload.fileHash; delete payload.fileSize
     }
-    await addResource(payload)
+    await addResourcePortal(payload)
     proxy.$modal.msgSuccess('提交成功，等待审核')
     open.value = false
     getList()

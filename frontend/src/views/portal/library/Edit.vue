@@ -97,7 +97,7 @@
 import { ref, onMounted, getCurrentInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { getLibraryPortal, updateLibraryPortal, addAssetLibraryPortal, removeAssetLibraryPortal } from '@/api/portal/library'
-import { uploadOss } from '@/api/manage/upload'
+import { uploadOssPortal } from '@/api/portal/upload'
 
 const route = useRoute()
 const router = useRouter()
@@ -148,7 +148,7 @@ const doUploadPdf = async (options) => {
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOss(fd, { dir: `library/${form.value.id || 'temp'}`, publicUrl: true })
+    const { data } = await uploadOssPortal(fd, { scene: 'library.pdf', dir: `library/${form.value.id || 'temp'}`, publicUrl: true })
     const url = data.url || data.publicUrl || data
     const payload = { assetType: '0', format: 'pdf', fileUrl: url, fileSize: file.size, fileHash: data.sha256 || data.etag || '' }
     const res = await addAssetLibraryPortal(form.value.id, payload)
@@ -168,7 +168,7 @@ const doUploadExtra = async (options) => {
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOss(fd, { dir: `library/${form.value.id || 'temp'}`, publicUrl: true })
+    const { data } = await uploadOssPortal(fd, { scene: 'library.extra', dir: `library/${form.value.id || 'temp'}`, publicUrl: true })
     const url = data.url || data.publicUrl || data
     // 直接提交到后端新增资产
     const payload = { assetType: '0', format: ext, fileUrl: url, fileSize: file.size, fileHash: data.sha256 || data.etag || '' }

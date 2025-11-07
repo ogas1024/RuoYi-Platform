@@ -91,7 +91,7 @@
 import { ref, getCurrentInstance } from 'vue'
 import { normalizeExternalUrl } from '@/utils/url'
 import { addLibraryPortalFull } from '@/api/portal/library'
-import { uploadOss } from '@/api/manage/upload'
+import { uploadOssPortal } from '@/api/portal/upload'
 
 const formRef = ref()
 const form = ref({ isbn13: '', title: '', author: '', publisher: '', publish_year: null, language: '', keywords: '', summary: '' })
@@ -149,7 +149,7 @@ const doUploadPdf = async (options) => {
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOss(fd, { dir: `library/pdf`, publicUrl: true })
+    const { data } = await uploadOssPortal(fd, { scene: 'library.pdf', dir: 'library/pdf', publicUrl: true })
     const url = data.url || data.publicUrl || data
     pdfAsset.value = { id: Date.now(), assetType: '0', format: 'pdf', fileUrl: url, fileSize: file.size, fileHash: data.sha256 || data.etag || '' }
     options.onSuccess(data)
@@ -176,7 +176,7 @@ const doUploadExtra = async (options) => {
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOss(fd, { dir: `library/extra`, publicUrl: true })
+    const { data } = await uploadOssPortal(fd, { scene: 'library.extra', dir: 'library/extra', publicUrl: true })
     const url = data.url || data.publicUrl || data
     extraAssets.value.push({ id: Date.now(), assetType: '0', format: ext, fileUrl: url, fileSize: file.size, fileHash: data.sha256 || data.etag || '' })
     options.onSuccess(data)

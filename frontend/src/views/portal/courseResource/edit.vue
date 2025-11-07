@@ -56,8 +56,8 @@
 <script setup>
 import { ref, onMounted, getCurrentInstance } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getResource, updateResource } from '@/api/manage/courseResource'
-import { uploadOss } from '@/api/manage/upload'
+import { getResourcePortal, updateResourcePortal } from '@/api/portal/resource'
+import { uploadOssPortal } from '@/api/portal/upload'
 
 const route = useRoute()
 const router = useRouter()
@@ -76,7 +76,7 @@ const load = async () => {
   loading.value = true
   try {
     const id = route.query.id
-    const { data } = await getResource(id)
+    const { data } = await getResourcePortal(id)
     form.value = {
       id: data.id,
       resourceName: data.resourceName,
@@ -103,7 +103,7 @@ const save = () => {
     const payload = { ...form.value }
     if (payload.resourceType === 0) { payload.linkUrl = null }
     else { payload.fileUrl = null; payload.fileHash = null; payload.fileSize = null }
-    await updateResource(payload)
+    await updateResourcePortal(payload)
     proxy.$modal.msgSuccess('已保存修改并提交审核')
     router.push({ path: '/portal/course-resource/my' })
   })
@@ -122,7 +122,7 @@ const doUpload = async (options) => {
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOss(fd, { dir: `resource/edit/${form.value.id || 'temp'}`, publicUrl: true })
+    const { data } = await uploadOssPortal(fd, { scene: 'resource.archive', dir: `resource/edit/${form.value.id || 'temp'}`, publicUrl: true })
     form.value.fileUrl = data.url || data.publicUrl || ''
     form.value.fileHash = data.sha256 || data.etag || ''
     form.value.fileSize = file.size
@@ -141,4 +141,3 @@ onMounted(load)
 .ml8 { margin-left: 8px; }
 .mt8 { margin-top: 8px; }
 </style>
-
