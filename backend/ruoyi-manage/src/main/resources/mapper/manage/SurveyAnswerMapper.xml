@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.SurveyAnswerMapper">
+
+    <resultMap id="AnsResult" type="com.ruoyi.manage.domain.SurveyAnswer">
+        <result property="id" column="id"/>
+        <result property="surveyId" column="survey_id"/>
+        <result property="userId" column="user_id"/>
+        <result property="submitTime" column="submit_time"/>
+        <result property="updateTime2" column="update_time2"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <select id="selectOne" resultMap="AnsResult">
+        select * from tb_survey_answer where survey_id = #{surveyId} and user_id = #{userId} and del_flag = '0' limit 1
+    </select>
+
+    <insert id="insertIgnore" parameterType="com.ruoyi.manage.domain.SurveyAnswer" useGeneratedKeys="true" keyProperty="id">
+        insert ignore into tb_survey_answer (
+            survey_id, user_id, submit_time, update_time2,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{surveyId}, #{userId}, #{submitTime}, #{updateTime2},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
+        )
+    </insert>
+
+    <update id="updateById" parameterType="com.ruoyi.manage.domain.SurveyAnswer">
+        update tb_survey_answer
+        <set>
+            <if test="submitTime != null">submit_time = #{submitTime},</if>
+            <if test="updateTime2 != null">update_time2 = #{updateTime2},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <select id="selectMyAnswers" resultMap="AnsResult">
+        select * from tb_survey_answer where user_id = #{userId} and del_flag = '0' order by submit_time desc
+    </select>
+
+    <select id="selectSubmitUsers" resultType="java.util.HashMap">
+        select a.user_id as userId,
+               u.user_name as userName,
+               u.nick_name as nickName,
+               a.submit_time as submitTime
+        from tb_survey_answer a
+        left join sys_user u on u.user_id = a.user_id
+        where a.survey_id = #{surveyId} and a.del_flag = '0'
+        order by a.submit_time desc
+    </select>
+
+</mapper>

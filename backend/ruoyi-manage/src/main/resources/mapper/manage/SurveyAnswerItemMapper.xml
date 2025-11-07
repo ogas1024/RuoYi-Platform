@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.SurveyAnswerItemMapper">
+
+    <resultMap id="AnsItemResult" type="com.ruoyi.manage.domain.SurveyAnswerItem">
+        <result property="id" column="id"/>
+        <result property="answerId" column="answer_id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="valueText" column="value_text"/>
+        <result property="valueOptionIds" column="value_option_ids"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="delFlag" column="del_flag"/>
+    </resultMap>
+
+    <select id="selectByAnswerId" resultMap="AnsItemResult">
+        select * from tb_survey_answer_item where answer_id = #{answerId} and del_flag = '0'
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.SurveyAnswerItem" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_survey_answer_item (
+            answer_id, item_id, value_text, value_option_ids,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{answerId}, #{itemId}, #{valueText}, #{valueOptionIds},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
+        )
+    </insert>
+
+    <delete id="deleteByAnswerId">
+        delete from tb_survey_answer_item where answer_id = #{answerId}
+    </delete>
+
+</mapper>
+

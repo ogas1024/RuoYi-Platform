@@ -72,11 +72,23 @@
         <span>我的发布</span>
       </el-menu-item>
     </el-sub-menu>
+    <el-sub-menu index="survey">
+      <template #title>
+        <el-icon><Edit /></el-icon>
+        <span>问卷</span>
+      </template>
+      <el-menu-item index="/portal/survey">
+        <span>问卷列表</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/survey/my">
+        <span>我填写的</span>
+      </el-menu-item>
+    </el-sub-menu>
   </el-menu>
 </template>
 
 <script setup>
-import { Menu, Collection, Bell, OfficeBuilding, Search } from '@element-plus/icons-vue'
+import { Menu, Collection, Bell, OfficeBuilding, Search, Edit } from '@element-plus/icons-vue'
 </script>
 
 <style scoped>

@@ -89,6 +89,32 @@ export const constantRoutes = [
       }
     ]
   },
+  // 管理端：问卷（静态注册）
+  {
+    path: '/manage/survey',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageSurveyIndex',
+        component: () => import('@/views/manage/survey/List.vue'),
+        meta: { title: '问卷管理' }
+      },
+      {
+        path: 'archive',
+        name: 'ManageSurveyArchive',
+        component: () => import('@/views/manage/survey/List.vue'),
+        meta: { title: '问卷归档' }
+      },
+      {
+        path: 'new',
+        name: 'ManageSurveyNew',
+        component: () => import('@/views/manage/survey/Create.vue'),
+        meta: { title: '新建问卷' }
+      }
+    ]
+  },
   // 门户（普通用户）常量路由：使用独立布局，不依赖后台菜单
   {
     path: '/portal',
@@ -227,6 +253,25 @@ export const constantRoutes = [
         name: 'PortalLostFoundMy',
         component: () => import('@/views/portal/lostfound/My.vue'),
         meta: { title: '我的发布' }
+      },
+      // 问卷门户
+      {
+        path: 'survey',
+        name: 'PortalSurvey',
+        component: () => import('@/views/portal/survey/List.vue'),
+        meta: { title: '问卷' }
+      },
+      {
+        path: 'survey/fill',
+        name: 'PortalSurveyFill',
+        component: () => import('@/views/portal/survey/Fill.vue'),
+        meta: { title: '填写问卷' }
+      },
+      {
+        path: 'survey/my',
+        name: 'PortalSurveyMy',
+        component: () => import('@/views/portal/survey/My.vue'),
+        meta: { title: '我填写的' }
       }
     ]
   },

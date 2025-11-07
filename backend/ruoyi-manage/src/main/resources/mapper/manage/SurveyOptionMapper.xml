@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.SurveyOptionMapper">
+
+    <resultMap id="OptionResult" type="com.ruoyi.manage.domain.SurveyOption">
+        <result property="id" column="id"/>
+        <result property="itemId" column="item_id"/>
+        <result property="label" column="label"/>
+        <result property="value" column="value"/>
+        <result property="sortNo" column="sort_no"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+    </resultMap>
+
+    <select id="selectByItemId" resultMap="OptionResult">
+        select * from tb_survey_option where item_id = #{itemId} and del_flag = '0' order by sort_no asc, id asc
+    </select>
+
+    <select id="selectBySurveyId" resultMap="OptionResult">
+        select o.* from tb_survey_option o
+        where exists (select 1 from tb_survey_item i where i.id = o.item_id and i.survey_id = #{surveyId})
+          and o.del_flag = '0'
+        order by o.item_id asc, o.sort_no asc, o.id asc
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.SurveyOption" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_survey_option (
+            item_id, label, value, sort_no,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{itemId}, #{label}, #{value}, #{sortNo},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
+        )
+    </insert>
+
+    <delete id="deleteBySurveyId">
+        delete from tb_survey_option where item_id in (select id from tb_survey_item where survey_id = #{surveyId})
+    </delete>
+
+</mapper>
+

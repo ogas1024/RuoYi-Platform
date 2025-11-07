@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ruoyi.manage.mapper.SurveyMapper">
+
+    <resultMap id="SurveyResult" type="com.ruoyi.manage.domain.Survey">
+        <result property="id" column="id"/>
+        <result property="title" column="title"/>
+        <result property="status" column="status"/>
+        <result property="visibleAll" column="visible_all"/>
+        <result property="deadline" column="deadline"/>
+        <result property="remark" column="remark"/>
+        <result property="pinned" column="pinned"/>
+        <result property="pinnedTime" column="pinned_time"/>
+        <result property="delFlag" column="del_flag"/>
+        <result property="createBy" column="create_by"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateBy" column="update_by"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="submitted" column="submitted_flag"/>
+    </resultMap>
+
+    <!-- 列表查询（需要 userId 计算 submitted_flag） -->
+    <sql id="baseSelectForList">
+        select s.id, s.title, s.status, s.visible_all, s.deadline, s.remark,
+               s.pinned, s.pinned_time,
+               s.create_by, s.create_time, s.update_by, s.update_time, s.del_flag,
+               (case when sa.id is null then 0 else 1 end) as submitted_flag
+        from tb_survey s
+        left join tb_survey_answer sa on sa.survey_id = s.id and sa.user_id = #{userId} and sa.del_flag = '0'
+    </sql>
+
+    <select id="selectList" resultMap="SurveyResult">
+        <include refid="baseSelectForList"/>
+        <where>
+            s.del_flag = '0'
+            <if test="q.status != null">
+                and s.status = #{q.status}
+            </if>
+            <if test="q.title != null and q.title != ''">
+                and s.title like concat('%', #{q.title}, '%')
+            </if>
+            <if test="q.includeExpired == null or q.includeExpired == false">
+                and (s.deadline is null or now() &lt;= s.deadline)
+            </if>
+            <if test="q.expiredOnly == true">
+                and (s.deadline is not null and now() &gt; s.deadline)
+            </if>
+
+            <!-- 门户可见性过滤：管理员不过滤；非管理员需满足全员或在范围内 -->
+            <if test="isAdmin == 0">
+                and (
+                    s.visible_all = 1
+                    or exists (
+                        select 1 from tb_survey_scope sc
+                        where sc.survey_id = s.id and sc.del_flag = '0'
+                          and (
+                            (sc.scope_type = 0 and sc.ref_id in (select role_id from sys_user_role where user_id = #{userId}))
+                            or (sc.scope_type = 1 and sc.ref_id in (select dept_id from sys_user where user_id = #{userId}))
+                            or (sc.scope_type = 2 and sc.ref_id in (select post_id from sys_user_post where user_id = #{userId}))
+                          )
+                    )
+                )
+            </if>
+        </where>
+        order by s.pinned desc, s.pinned_time desc, s.update_time desc, s.id desc
+    </select>
+
+    <select id="selectById" resultMap="SurveyResult">
+        select s.id, s.title, s.status, s.visible_all, s.deadline, s.remark,
+               s.pinned, s.pinned_time,
+               s.create_by, s.create_time, s.update_by, s.update_time, s.del_flag
+        from tb_survey s
+        where s.id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.Survey" useGeneratedKeys="true" keyProperty="id">
+        insert into tb_survey (
+            title, status, visible_all, deadline, remark,
+            create_by, create_time, update_by, update_time, del_flag
+        ) values (
+            #{title}, #{status}, #{visibleAll}, #{deadline}, #{remark},
+            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
+        )
+    </insert>
+
+    <update id="update" parameterType="com.ruoyi.manage.domain.Survey">
+        update tb_survey
+        <set>
+            <if test="title != null">title = #{title},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="visibleAll != null">visible_all = #{visibleAll},</if>
+            <if test="deadline != null">deadline = #{deadline},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="updateBy != null">update_by = #{updateBy},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where id = #{id}
+    </update>
+
+    <update id="archive">
+        update tb_survey set status = 2, update_time = now() where id = #{id} and del_flag = '0'
+    </update>
+
+    <update id="extend">
+        update tb_survey set deadline = #{deadline}, update_time = now() where id = #{id} and del_flag = '0'
+    </update>
+
+    <!-- 自动取消置顶（过期即取消） -->
+    <update id="unpinExpired">
+        update tb_survey set pinned = 0
+        where pinned = 1 and deadline is not null and now() &gt; deadline and del_flag = '0'
+    </update>
+
+    <update id="pin">
+        update tb_survey set pinned = 1, pinned_time = now(), update_time = now() where id = #{id} and del_flag = '0'
+    </update>
+
+    <update id="unpin">
+        update tb_survey set pinned = 0, update_time = now() where id = #{id} and del_flag = '0'
+    </update>
+
+</mapper>
