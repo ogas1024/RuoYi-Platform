@@ -14,7 +14,6 @@
         <el-button type="success" @click="openCreate">新建问卷</el-button>
       </div>
       <el-table :data="list" v-loading="loading" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="80"/>
         <el-table-column prop="title" label="标题" min-width="240">
           <template #default="scope">
             <div style="display:flex;align-items:center;gap:8px;">
@@ -31,7 +30,7 @@
             <el-tag v-else type="warning">草稿</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="420">
+        <el-table-column label="操作" width="520">
           <template #default="scope">
             <el-button size="small" @click="openDetail(scope.row)">详情</el-button>
             <template v-if="scope.row.status===0">
@@ -51,6 +50,7 @@
               <el-button size="small" type="warning" @click="togglePin(scope.row)" v-hasPermi="['manage:survey:pin']">
                 {{ scope.row.pinned === 1 ? '取消置顶' : '置顶' }}
               </el-button>
+              <el-button size="small" type="success" @click="openAiSummary(scope.row)" v-hasPermi="['manage:survey:summary']">AI汇总</el-button>
             </template>
           </template>
         </el-table-column>
@@ -177,7 +177,7 @@
     </el-dialog>
 
     <!-- 用户答卷弹窗 -->
-    <el-dialog v-model="ansVisible" :title="'用户答卷：' + userAnsName" width="720px">
+    <el-dialog v-model="ansVisible" :title="'用户答卷：' + userAnsName" width="720px" append-to-body :z-index="3600">
       <div v-if="userAns">
         <div v-for="i in userAns.items" :key="i.id" style="margin-bottom:12px;">
           <div><b>{{ i.title }}</b> <small v-if="i.required===1" style="color:#f56c6c">(必填)</small></div>
@@ -194,6 +194,33 @@
       </div>
       <template #footer>
         <el-button @click="ansVisible=false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- AI 汇总报告弹窗 -->
+    <el-dialog v-model="aiVisible" title="AI汇总报告" width="820px" append-to-body :z-index="3500">
+      <div>
+        <el-alert type="info" :closable="false" style="margin-bottom:10px;"
+                  title="将问卷配置与已提交结果整合为提示词发送给 AI（Zhipu）。需在后端配置环境变量 ZAI_API_KEY。"/>
+        <el-input
+            v-model="aiExtra"
+            type="textarea"
+            :rows="3"
+            placeholder="可选：补充你的分析目标或格式要求（例如：以 Markdown 输出、加入改进建议清单）"/>
+        <div style="margin-top:10px; display:flex; gap:8px; align-items:center;">
+          <el-button type="primary" @click="genAiNow" :loading="aiLoading" :disabled="aiLoading">生成</el-button>
+          <el-button @click="copyAi" :disabled="!aiText">复制</el-button>
+        </div>
+        <el-divider/>
+        <div v-if="aiLoading" style="padding: 12px 4px;">
+          <el-skeleton :rows="8" animated/>
+        </div>
+        <el-scrollbar v-else height="50vh">
+          <pre style="white-space:pre-wrap; font-family: var(--el-font-family);">{{ aiText || '（生成后在此展示 AI 汇总报告）' }}</pre>
+        </el-scrollbar>
+      </div>
+      <template #footer>
+        <el-button @click="aiVisible=false">关闭</el-button>
       </template>
     </el-dialog>
 
@@ -258,6 +285,7 @@ const aiVisible = ref(false)
 const aiLoading = ref(false)
 const aiExtra = ref('')
 const aiText = ref('')
+const aiTargetId = ref(null)
 
 function applyRouteDefault() {
   // 根据路由区分默认视图：/index -> 已发布；/archive -> 已归档
@@ -466,22 +494,51 @@ function doPublish(row) {
 })
 }
 
-function openAiSummary() {
+function openAiSummary(row) {
+  // 支持从列表直接打开，或从详情弹窗打开
   aiExtra.value = ''
   aiText.value = ''
+  aiTargetId.value = (row && row.id) ? row.id : (detail.value && detail.value.id)
+  if (!aiTargetId.value) {
+    ElMessage.error('未获取到问卷ID')
+    return
+  }
   aiVisible.value = true
 }
 
 function genAiNow() {
-  if (!detail.value || !detail.value.id) return
+  if (!aiTargetId.value) {
+    return ElMessage.error('未获取到问卷ID')
+  }
   aiLoading.value = true
   aiText.value = ''
-  aiSummary(detail.value.id, aiExtra.value).then(res => {
+  aiSummary(aiTargetId.value, aiExtra.value).then(res => {
     aiText.value = (res && res.data && res.data.text) ? res.data.text : ''
     if (!aiText.value) ElMessage.warning('AI 未返回内容，请稍后重试')
   }).catch(e => {
     ElMessage.error((e && e.msg) || '生成失败，请检查后端日志与 ZAI_API_KEY 配置')
   }).finally(() => aiLoading.value = false)
+}
+
+function copyAi() {
+  if (!aiText.value) return
+  if (navigator && navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(aiText.value).then(() => ElMessage.success('已复制'))
+        .catch(() => ElMessage.error('复制失败'))
+  } else {
+    // 兜底
+    try {
+      const ta = document.createElement('textarea')
+      ta.value = aiText.value
+      document.body.appendChild(ta)
+      ta.select()
+      document.execCommand('copy')
+      document.body.removeChild(ta)
+      ElMessage.success('已复制')
+    } catch (e) {
+      ElMessage.error('复制失败')
+    }
+  }
 }
 </script>
 

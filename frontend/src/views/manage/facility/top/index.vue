@@ -12,7 +12,6 @@
         <el-card>
           <div class="card-title">房间预约时长 Top</div>
           <el-table :data="rooms" size="small" border>
-            <el-table-column prop="roomId" label="房间ID" width="100"/>
             <el-table-column prop="buildingName" label="楼房"/>
             <el-table-column prop="roomName" label="房间"/>
             <el-table-column prop="totalMinutes" label="累计分钟" width="120"/>

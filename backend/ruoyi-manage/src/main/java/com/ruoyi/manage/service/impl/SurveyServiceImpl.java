@@ -485,6 +485,139 @@ public class SurveyServiceImpl implements ISurveyService {
         return s;
     }
 
+    @Override
+    public String aiSummaryReport(Long id, String extraPrompt) {
+        Survey s = manageDetailWithStats(id);
+        // 采样文本题答案
+        java.util.List<java.util.Map<String, Object>> textRows = answerItemMapper.selectTextAnswersBySurveyId(id);
+        // 提交用户数（用于背景信息）
+        int submitCount = 0;
+        try {
+            submitCount = selectSubmitUsers(id).size();
+        } catch (Exception ignore) {}
+
+        StringBuilder prompt = new StringBuilder();
+        prompt.append("你是一个严谨的中文数据分析师，请基于下面的问卷配置与用户作答，生成一份结构化的中文汇总报告。\n");
+        prompt.append("要求：\n");
+        prompt.append("1) 先给出关键洞察与结论（要点式），\n");
+        prompt.append("2) 再给出量化的统计摘要（单/多选列出 Top 项及占比，说明多选总和可能超过100%），\n");
+        prompt.append("3) 对于文本题，归纳高频观点并给出典型原句示例（注意脱敏），\n");
+        prompt.append("4) 最后输出可执行建议。\n");
+        prompt.append("语气专业、简洁，避免重复。\n\n");
+
+        prompt.append("【问卷信息】\n");
+        prompt.append("标题：").append(s.getTitle()).append("\n");
+        prompt.append("截止时间：").append(s.getDeadline() == null ? "-" : new java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(s.getDeadline())).append("\n");
+        prompt.append("题目数：").append(s.getItems() == null ? 0 : s.getItems().size()).append("\n");
+        prompt.append("提交人数：").append(submitCount).append("\n\n");
+
+        // 问题与统计
+        if (s.getItems() != null && !s.getItems().isEmpty()) {
+            prompt.append("【题目与统计】\n");
+            for (SurveyItem it : s.getItems()) {
+                prompt.append("- 题目：").append(it.getTitle()).append(" [").append(typeName(it.getType())).append("]");
+                if (it.getRequired() != null && it.getRequired() == 1) prompt.append("(必填)");
+                prompt.append("\n");
+                if (it.getType() != null && (it.getType() == 2 || it.getType() == 3)) {
+                    // 选择题：输出每个选项及票数
+                    if (it.getOptions() != null) {
+                        int sum = 0;
+                        for (SurveyOption op : it.getOptions()) {
+                            if (op.getVoteCount() != null) sum += op.getVoteCount();
+                        }
+                        for (SurveyOption op : it.getOptions()) {
+                            int cnt = op.getVoteCount() == null ? 0 : op.getVoteCount();
+                            String pct = sum > 0 ? String.format("%.1f%%", cnt * 100.0 / sum) : "0.0%";
+                            prompt.append("  · ").append(op.getLabel()).append(": ").append(cnt).append(" (约").append(pct).append(")\n");
+                        }
+                        if (it.getType() == 3) {
+                            prompt.append("  注：多选题各选项计数为被选择次数，总和可能大于提交人数\n");
+                        }
+                    }
+                }
+            }
+            prompt.append("\n");
+        }
+
+        // 文本题示例抽样（最多每题 10 条，总计 200 条）
+        if (textRows != null && !textRows.isEmpty()) {
+            prompt.append("【文本题示例（抽样）】\n");
+            java.util.Map<Long, java.util.List<String>> samples = new java.util.HashMap<>();
+            for (java.util.Map<String, Object> r : textRows) {
+                Long itemId = r.get("itemId") instanceof Number ? ((Number) r.get("itemId")).longValue() : toLong(r.get("itemId"));
+                String text = r.get("valueText") == null ? null : String.valueOf(r.get("valueText"));
+                if (itemId == null || text == null || text.trim().isEmpty()) continue;
+                java.util.List<String> lst = samples.computeIfAbsent(itemId, k -> new java.util.ArrayList<>());
+                if (lst.size() < 10) lst.add(text.trim());
+            }
+            int totalAdded = 0;
+            for (SurveyItem it : s.getItems()) {
+                if (it.getType() != null && it.getType() == 1) {
+                    java.util.List<String> lst = samples.get(it.getId());
+                    if (lst != null && !lst.isEmpty()) {
+                        prompt.append("- ").append(it.getTitle()).append("：\n");
+                        for (String t : lst) {
+                            prompt.append("  · ").append(limitLen(t, 200)).append("\n");
+                            totalAdded++;
+                            if (totalAdded >= 200) break;
+                        }
+                    }
+                }
+                if (totalAdded >= 200) break;
+            }
+            prompt.append("\n");
+        }
+
+        if (extraPrompt != null && !extraPrompt.trim().isEmpty()) {
+            prompt.append("【补充要求】\n").append(extraPrompt.trim()).append("\n");
+        }
+
+        // 调用智普 AI
+        try {
+            ai.z.openapi.ZhipuAiClient client = ai.z.openapi.ZhipuAiClient.builder().build();
+            java.util.List<ai.z.openapi.service.model.ChatMessage> msgs = new java.util.ArrayList<>();
+            msgs.add(ai.z.openapi.service.model.ChatMessage.builder()
+                    .role(ai.z.openapi.service.model.ChatMessageRole.SYSTEM.value())
+                    .content("你是一个中文数据分析助手，擅长问卷与文本归纳。")
+                    .build());
+            msgs.add(ai.z.openapi.service.model.ChatMessage.builder()
+                    .role(ai.z.openapi.service.model.ChatMessageRole.USER.value())
+                    .content(prompt.toString())
+                    .build());
+            ai.z.openapi.service.model.ChatCompletionCreateParams req = ai.z.openapi.service.model.ChatCompletionCreateParams.builder()
+                    .model("glm-4.5-flash")
+                    .messages(msgs)
+                    .temperature(0.3f)
+                    .maxTokens(1500)
+                    .build();
+            ai.z.openapi.service.model.ChatCompletionResponse resp = client.chat().createChatCompletion(req);
+            if (resp != null && resp.isSuccess()) {
+                Object m = resp.getData().getChoices().get(0).getMessage().getContent();
+                return m == null ? "" : String.valueOf(m);
+            } else {
+                String msg = resp == null ? "AI 响应为空" : resp.getMsg();
+                throw new ServiceException("AI 处理失败：" + msg);
+            }
+        } catch (ServiceException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new ServiceException("AI 调用异常：" + e.getMessage());
+        }
+    }
+
+    private String typeName(Integer t) {
+        if (t == null || t == 1) return "文本";
+        if (t == 2) return "单选";
+        if (t == 3) return "多选";
+        return String.valueOf(t);
+    }
+
+    private String limitLen(String s, int n) {
+        if (s == null) return "";
+        if (s.length() <= n) return s;
+        return s.substring(0, n) + "...";
+    }
+
     /**
      * 统计每个选项的票数并回填到 Survey 对象（仅选择题）。
      */

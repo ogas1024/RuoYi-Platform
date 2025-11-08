@@ -55,6 +55,13 @@
             <artifactId>spring-test</artifactId>
             <scope>test</scope>
         </dependency>
+
+<!--        智谱AI Java SDK-->
+        <dependency>
+            <groupId>ai.z.openapi</groupId>
+            <artifactId>zai-sdk</artifactId>
+            <version>0.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>

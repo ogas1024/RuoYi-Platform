@@ -1,16 +1,10 @@
 <template>
   <div class="app-container">
     <el-form :inline="true" :model="q" class="mb8">
-      <el-form-item label="申请ID">
-        <el-input v-model="q.bookingId" clearable style="width:150px"/>
-      </el-form-item>
       <el-form-item label="楼房">
         <el-select v-model="q.buildingId" clearable filterable style="width:220px" @change="getList">
           <el-option v-for="b in buildings" :key="b.id" :label="b.buildingName" :value="b.id"/>
         </el-select>
-      </el-form-item>
-      <el-form-item label="房间ID">
-        <el-input v-model="q.roomId" clearable style="width:150px"/>
       </el-form-item>
       <el-form-item label="申请人">
         <el-input v-model="q.applicantUserName" clearable style="width:180px" placeholder="按用户名筛选"/>
@@ -22,8 +16,6 @@
     </el-form>
 
     <el-table :data="list" v-loading="loading" border>
-      <el-table-column prop="id" label="ID" width="80"/>
-      <el-table-column prop="roomId" label="房间ID" width="100"/>
       <el-table-column prop="applicantNickName" label="申请人昵称" width="140"/>
       <el-table-column prop="applicantUserName" label="申请人用户名" width="160"/>
       <el-table-column prop="startTime" label="开始时间" width="180"/>

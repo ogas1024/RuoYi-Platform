@@ -12,7 +12,6 @@
 
     <el-table :data="list" v-loading="loading" border>
       <el-table-column type="selection" width="55"/>
-      <el-table-column prop="id" label="ID" width="80"/>
       <el-table-column prop="isbn13" label="ISBN-13" width="140"/>
       <el-table-column prop="title" label="标题"/>
       <el-table-column prop="author" label="作者" width="160"/>

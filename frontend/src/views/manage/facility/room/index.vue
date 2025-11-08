@@ -17,7 +17,6 @@
     </el-form>
 
     <el-table :data="list" v-loading="loading" border>
-      <el-table-column prop="id" label="ID" width="80"/>
       <el-table-column prop="roomName" label="房间"/>
       <el-table-column prop="capacity" label="容量" width="100"/>
       <el-table-column prop="status" label="状态" width="100">

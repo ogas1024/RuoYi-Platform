@@ -50,4 +50,19 @@
         GROUP BY o.id
     </select>
 
+    <!-- 文本题答案明细（用于 AI 汇总示例抽样） -->
+    <select id="selectTextAnswersBySurveyId" resultType="java.util.HashMap">
+        select i.id   as itemId,
+               i.title as itemTitle,
+               ai.value_text as valueText
+        from tb_survey_answer_item ai
+                 join tb_survey_item i on i.id = ai.item_id
+        where i.survey_id = #{surveyId}
+          and ai.del_flag = '0'
+          and i.del_flag = '0'
+          and ai.value_text is not null
+          and ai.value_text &lt;&gt; ''
+        order by ai.create_time asc
+    </select>
+
 </mapper>

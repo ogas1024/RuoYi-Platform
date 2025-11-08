@@ -17,4 +17,9 @@ public interface SurveyAnswerItemMapper {
     List<java.util.Map<String, Object>> countOptionVotes(@Param("surveyId") Long surveyId);
 
     int deleteByAnswerId(@Param("answerId") Long answerId);
+
+    /**
+     * 按问卷ID查询所有文本题的作答（itemId、itemTitle、valueText）。
+     */
+    java.util.List<java.util.Map<String, Object>> selectTextAnswersBySurveyId(@Param("surveyId") Long surveyId);
 }

@@ -138,4 +138,22 @@ public class SurveyController extends BaseController {
         if (n == -409) return error("仅草稿可发布");
         return toAjax(n);
     }
+
+    /**
+     * 生成 AI 汇总报告
+     */
+    @Log(title = "问卷", businessType = BusinessType.OTHER)
+    @PreAuthorize("@ss.hasPermi('manage:survey:summary')")
+    @PostMapping("/{id}/ai-summary")
+    public AjaxResult aiSummary(@PathVariable Long id, @RequestBody(required = false) Map<String, Object> body) {
+        String extra = body == null ? null : String.valueOf(body.getOrDefault("extraPrompt", ""));
+        try {
+            String text = service.aiSummaryReport(id, extra);
+            java.util.Map<String, Object> res = new java.util.HashMap<>();
+            res.put("text", text);
+            return success(res);
+        } catch (ServiceException e) {
+            return error(e.getMessage());
+        }
+    }
 }

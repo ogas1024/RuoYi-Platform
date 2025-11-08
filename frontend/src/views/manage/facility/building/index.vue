@@ -22,7 +22,6 @@
 
     <el-table :data="list" v-loading="loading" border @selection-change="sel=>selection = sel">
       <el-table-column type="selection" width="50"/>
-      <el-table-column prop="id" label="ID" width="80"/>
       <el-table-column prop="buildingName" label="名称"/>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">

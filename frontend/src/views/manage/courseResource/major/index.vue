@@ -14,7 +14,6 @@
       </el-form-item>
     </el-form>
     <el-table v-loading="loading" border stripe :data="list">
-      <el-table-column label="ID" prop="id" width="80"/>
       <el-table-column label="专业名称" prop="majorName" min-width="200"/>
       <el-table-column label="状态" prop="status" width="100">
         <template #default="scope">

@@ -14,7 +14,6 @@
         <el-button type="success" @click="openCreate">新建投票</el-button>
       </div>
       <el-table :data="list" v-loading="loading" style="width: 100%">
-        <el-table-column prop="id" label="ID" width="80"/>
         <el-table-column prop="title" label="标题" min-width="240">
           <template #default="scope">
             <div style="display:flex;align-items:center;gap:8px;">

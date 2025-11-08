@@ -19,7 +19,6 @@
       </el-form-item>
     </el-form>
     <el-table v-loading="loading" border stripe :data="list">
-      <el-table-column label="ID" prop="id" width="80"/>
       <el-table-column label="专业" min-width="200" prop="majorName">
         <template #default="scope">{{ scope.row.majorName || '-' }}</template>
       </el-table-column>

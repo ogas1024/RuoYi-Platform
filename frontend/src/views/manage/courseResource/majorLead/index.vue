@@ -36,7 +36,6 @@
         </el-table-column>
       </template>
       <template v-else>
-        <el-table-column label="ID" prop="id" width="80"/>
         <el-table-column label="专业" prop="majorName" width="180"/>
         <el-table-column label="用户名" prop="userName" width="160"/>
         <el-table-column label="昵称" prop="nickName" width="160"/>

@@ -17,7 +17,6 @@
     </el-form>
 
     <el-table :data="list" v-loading="loading" border>
-      <el-table-column prop="id" label="ID" width="80"/>
       <el-table-column prop="type" label="类型" width="90">
         <template #default="{ row }">
           <el-tag :type="row.type==='lost'?'danger':'success'">{{ row.type === 'lost' ? '丢失' : '捡到' }}</el-tag>

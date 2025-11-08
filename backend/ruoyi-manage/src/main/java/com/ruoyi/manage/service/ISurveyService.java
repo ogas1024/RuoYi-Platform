@@ -54,4 +54,12 @@ public interface ISurveyService {
      * 管理：指定用户的答卷详情（Survey + myAnswers）。
      */
     Survey surveyWithUserAnswers(Long id, Long userId);
+
+    /**
+     * 管理：生成 AI 汇总报告（基于问卷定义与已提交结果）。
+     * @param id 问卷ID
+     * @param extraPrompt 额外的提示词（可为空）
+     * @return AI 返回的中文报告文本
+     */
+    String aiSummaryReport(Long id, String extraPrompt);
 }

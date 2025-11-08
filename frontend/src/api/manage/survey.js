@@ -40,6 +40,13 @@ export function publishSurvey(id) {
     return request({url: `/manage/survey/${id}/publish`, method: 'put'})
 }
 
-export function aiSummary(id, extraPrompt) {
-    return request({url: `/manage/survey/${id}/ai-summary`, method: 'post', data: {extraPrompt}})
+export function aiSummary(id, extraPrompt, config = {}) {
+    // AI 汇总可能较慢，单次请求超时时间提高到 120s
+    return request({
+        url: `/manage/survey/${id}/ai-summary`,
+        method: 'post',
+        data: {extraPrompt},
+        timeout: 120000,
+        ...config
+    })
 }
