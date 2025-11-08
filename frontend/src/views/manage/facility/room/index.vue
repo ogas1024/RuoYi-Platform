@@ -82,13 +82,13 @@
     </el-dialog>
 
     <!-- 时间轴 ECharts -->
-    <el-dialog v-model="timelineOpen" title="时间轴（近30天）" width="880px">
+    <el-dialog v-model="timelineOpen" title="时间轴（近30天）" width="880px" @opened="onTimelineOpened">
       <div class="mb8">
         <el-date-picker v-model="timelineRange" type="daterange" range-separator="至" start-placeholder="开始日期"
                         end-placeholder="结束日期" value-format="YYYY-MM-DD HH:mm:ss"/>
         <el-button class="ml8" @click="loadTimeline">刷新</el-button>
       </div>
-      <TimelineChart :data="segments" :from="timelineRange && timelineRange[0]" :to="timelineRange && timelineRange[1]"
+      <TimelineChart ref="timelineRef" :data="segments" :from="timelineRange && timelineRange[0]" :to="timelineRange && timelineRange[1]"
                      @segment-click="openDetail"/>
     </el-dialog>
 
@@ -105,7 +105,7 @@
 </template>
 
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
+import {ref, reactive, onMounted, nextTick} from 'vue'
 import {
   buildingList,
   roomList,
@@ -124,7 +124,7 @@ import TimelineChart from '@/components/facility/TimelineChart.vue'
 import BookingDetailDialog from '@/components/facility/BookingDetailDialog.vue'
 
 const buildings = ref([])
-const q = reactive({buildingId: null, floorNo: 1})
+const q = reactive({buildingId: null, floorNo: null})
 const page = reactive({pageNum: 1, pageSize: 10})
 const list = ref([])
 const total = ref(0)
@@ -137,10 +137,12 @@ async function loadBuildings() {
 }
 
 async function getList() {
-  if (!q.buildingId || q.floorNo === undefined || q.floorNo === null) return
+  if (!q.buildingId) return
   loading.value = true
   try {
-    const {rows, total: t} = await roomList({buildingId: q.buildingId, floorNo: q.floorNo, ...page})
+    const params = {buildingId: q.buildingId, ...page}
+    if (q.floorNo !== null && q.floorNo !== undefined) params.floorNo = q.floorNo
+    const {rows, total: t} = await roomList(params)
     list.value = rows || []
     total.value = t || 0
   } finally {
@@ -149,7 +151,7 @@ async function getList() {
 }
 
 function resetQuery() {
-  Object.assign(q, {buildingId: buildings.value[0]?.id || null, floorNo: 1});
+  Object.assign(q, {buildingId: buildings.value[0]?.id || null, floorNo: null});
   getList()
 }
 
@@ -169,7 +171,7 @@ function openAdd() {
   Object.assign(form, {
     id: null,
     buildingId: q.buildingId,
-    floorNo: q.floorNo,
+    floorNo: q.floorNo ?? 1,
     roomName: '',
     capacity: null,
     equipmentTags: '',
@@ -210,6 +212,7 @@ const timelineOpen = ref(false)
 const currentRoomId = ref(null)
 const timelineRange = ref([])
 const segments = ref([])
+const timelineRef = ref(null)
 
 function openTimeline(row) {
   currentRoomId.value = row.id;
@@ -221,6 +224,13 @@ async function loadTimeline() {
   if (!currentRoomId.value) return
   const res = await roomTimeline(currentRoomId.value, {from: timelineRange.value?.[0], to: timelineRange.value?.[1]})
   segments.value = res.data?.segments || []
+}
+
+function onTimelineOpened() {
+  // 弹窗完全展开后强制重绘，避免 ECharts 初始化时容器不可见造成的 0 尺寸
+  nextTick(() => {
+    timelineRef.value && timelineRef.value.resize && timelineRef.value.resize()
+  })
 }
 
 // 点击段查询详情，复用 BookingDetailDialog（含操作按钮）

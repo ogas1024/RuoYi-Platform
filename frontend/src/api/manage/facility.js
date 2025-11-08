@@ -21,6 +21,10 @@ export function buildingRemove(ids) {
     return request({url: `/manage/facility/building/${ids}`, method: 'delete'})
 }
 
+export function buildingGantt(id, params) {
+    return request({url: `/manage/facility/building/${id}/gantt`, method: 'get', params})
+}
+
 // Room
 export function roomList(params) {
     return request({url: '/manage/facility/room/list', method: 'get', params})

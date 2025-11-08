@@ -27,11 +27,13 @@ public class FacilityRoomController extends BaseController {
     @PreAuthorize("@ss.hasPermi('manage:facility:room:list')")
     @GetMapping("/list")
     public TableDataInfo list(@RequestParam Long buildingId,
-                              @RequestParam Integer floorNo,
+                              @RequestParam(required = false) Integer floorNo,
                               @RequestParam(required = false) String status) {
         FacilityRoom q = new FacilityRoom();
         q.setBuildingIdEq(buildingId);
-        q.setFloorNoEq(floorNo);
+        if (floorNo != null) {
+            q.setFloorNoEq(floorNo);
+        }
         // 管理端：不强制仅返回启用；若传入 status 则按传入过滤
         if (status != null && !status.trim().isEmpty()) {
             q.setStatus(status.trim());

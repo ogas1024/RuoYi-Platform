@@ -18,17 +18,13 @@ const isWhiteList = (path) => {
 }
 
 // 判断是否为管理端路由（无角色用户禁止访问）
+// 策略：除 '/portal' 命名空间和 '/user/profile' 个人中心外，其余均视为管理端
 function isAdminLikePath(path) {
-    if (!path) return false
     try {
-        const p = String(path)
-        return p === '/'
-            || p === '/index'
-            || p.startsWith('/index')
-            || p.startsWith('/manage')
-            || p.startsWith('/system')
-            || p.startsWith('/monitor')
-            || p.startsWith('/tool')
+        const p = String(path || '')
+        // 门户与个人中心放行（允许门户用户访问个人中心）
+        if (p.startsWith('/portal') || p.startsWith('/user/profile')) return false
+        return true
     } catch (e) {
         return false
     }
@@ -38,7 +34,7 @@ router.beforeEach((to, from, next) => {
     NProgress.start()
     if (getToken()) {
         to.meta.title && useSettingsStore().setTitle(to.meta.title)
-        /* has token*/
+        /* 已登录 */
         if (to.path === '/login') {
             next({path: '/'})
             NProgress.done()

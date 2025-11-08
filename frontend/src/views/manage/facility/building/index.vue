@@ -30,13 +30,16 @@
         </template>
       </el-table-column>
       <el-table-column prop="remark" label="备注"/>
-      <el-table-column label="操作" width="200">
+      <el-table-column label="操作" width="320">
         <template #default="{ row }">
           <el-button size="small" text type="primary" @click="openEdit(row)"
                      v-hasPermi="['manage:facility:building:edit']">编辑
           </el-button>
           <el-button size="small" text type="danger" @click="remove(row)"
                      v-hasPermi="['manage:facility:building:remove']">删除
+          </el-button>
+          <el-button size="small" text type="success" @click="openGantt(row)"
+                     v-hasPermi="['manage:facility:building:gantt']">甘特图
           </el-button>
         </template>
       </el-table-column>
@@ -64,13 +67,51 @@
         <el-button type="primary" @click="submit">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 楼房甘特图弹窗 -->
+    <el-dialog v-model="ganttOpen" title="楼房甘特图（可选时间范围）" width="1080px" @opened="onGanttOpened">
+      <div class="mb8">
+        <el-date-picker v-model="ganttRange" type="datetimerange" range-separator="至"
+                        start-placeholder="开始日期" end-placeholder="结束日期"
+                        value-format="YYYY-MM-DD HH:mm:ss"/>
+        <el-button class="ml8" @click="loadGantt">刷新</el-button>
+      </div>
+      <MultiTimelineChart ref="ganttRef" :items="ganttItems" :from="ganttRange && ganttRange[0]" :to="ganttRange && ganttRange[1]"
+                          :row-height="32" @segment-click="openDetail"/>
+      <template #footer>
+        <el-button @click="ganttOpen=false">关闭</el-button>
+      </template>
+    </el-dialog>
+
+    <!-- 预约详情弹窗（复用） -->
+    <BookingDetailDialog
+        v-model="infoOpen"
+        :booking-id="currentBookingId"
+        :fetcher="fetchManageBooking"
+        :show-actions="true"
+        @approve="onApprove"
+        @reject="onReject"
+        @cancel="onCancel"
+    />
   </div>
 </template>
 
 <script setup>
-import {ref, reactive, onMounted} from 'vue'
-import {buildingList, buildingAdd, buildingUpdate, buildingRemove} from '@/api/manage/facility'
+import {ref, reactive, onMounted, nextTick} from 'vue'
+import {
+  buildingList,
+  buildingAdd,
+  buildingUpdate,
+  buildingRemove,
+  buildingGantt,
+  getBooking,
+  approveBooking,
+  rejectBooking,
+  cancelBookingManage
+} from '@/api/manage/facility'
 import {ElMessage, ElMessageBox} from 'element-plus'
+import MultiTimelineChart from '@/components/facility/MultiTimelineChart.vue'
+import BookingDetailDialog from '@/components/facility/BookingDetailDialog.vue'
 
 const loading = ref(false)
 const list = ref([])
@@ -131,11 +172,67 @@ async function batchRemove() {
 }
 
 onMounted(getList)
+
+// 甘特图（楼房维度）
+const ganttOpen = ref(false)
+const currentBuildingId = ref(null)
+const ganttRange = ref([])
+const ganttItems = ref([])
+const ganttRef = ref(null)
+
+function openGantt(row) {
+  currentBuildingId.value = row.id
+  ganttOpen.value = true
+  loadGantt()
+}
+
+async function loadGantt() {
+  if (!currentBuildingId.value) return
+  const {data} = await buildingGantt(currentBuildingId.value, {from: ganttRange.value?.[0], to: ganttRange.value?.[1]})
+  ganttItems.value = data?.items || []
+}
+
+function onGanttOpened() {
+  // 弹窗完成展示后触发图表重算尺寸，避免初始化时容器不可见导致宽高为0
+  nextTick(() => {
+    ganttRef.value && ganttRef.value.resize && ganttRef.value.resize()
+  })
+}
+
+// 预定详情复用（点击段）
+const infoOpen = ref(false)
+const currentBookingId = ref(null)
+function openDetail(id) {
+  currentBookingId.value = id
+  infoOpen.value = true
+}
+const fetchManageBooking = (id) => getBooking(id)
+async function onApprove(id) {
+  await approveBooking(id)
+  ElMessage.success('已通过')
+  infoOpen.value = false
+  loadGantt()
+}
+async function onReject({id, reason}) {
+  await rejectBooking(id, reason)
+  ElMessage.success('已驳回')
+  infoOpen.value = false
+  loadGantt()
+}
+async function onCancel(id) {
+  await ElMessageBox.confirm('确认取消该预约？', '提示')
+  await cancelBookingManage(id)
+  ElMessage.success('已取消')
+  infoOpen.value = false
+  loadGantt()
+}
 </script>
 
 <style scoped>
 .mb8 {
   margin-bottom: 8px;
 }
+.ml8 {
+  margin-left: 8px;
+}
 </style>
-

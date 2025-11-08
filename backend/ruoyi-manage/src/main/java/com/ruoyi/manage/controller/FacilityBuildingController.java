@@ -6,19 +6,26 @@ import com.ruoyi.common.core.domain.AjaxResult;
 import com.ruoyi.common.core.page.TableDataInfo;
 import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.manage.domain.FacilityBuilding;
+import com.ruoyi.manage.domain.FacilityRoom;
 import com.ruoyi.manage.service.IFacilityBuildingService;
+import com.ruoyi.manage.service.IFacilityBookingService;
+import com.ruoyi.manage.service.IFacilityRoomService;
+import com.ruoyi.manage.vo.TimelineSegmentVO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/manage/facility/building")
 public class FacilityBuildingController extends BaseController {
 
-    @Resource
+    @Autowired
     private IFacilityBuildingService service;
+    @Autowired
+    private IFacilityRoomService roomService;
+    @Autowired
+    private IFacilityBookingService bookingService;
 
     @PreAuthorize("@ss.hasPermi('manage:facility:building:list')")
     @GetMapping("/list")
@@ -58,5 +65,44 @@ public class FacilityBuildingController extends BaseController {
     @DeleteMapping("/{ids}")
     public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(service.deleteByIds(ids));
+    }
+
+    /**
+     * 楼房甘特图：聚合该楼房下所有房间的时间轴
+     */
+    @PreAuthorize("@ss.hasPermi('manage:facility:building:gantt')")
+    @GetMapping("/{id}/gantt")
+    public AjaxResult gantt(@PathVariable Long id,
+                            @RequestParam(required = false) java.util.Date from,
+                            @RequestParam(required = false) java.util.Date to,
+                            @RequestParam(required = false) String status) {
+        // 查询该楼房下的房间（默认仅展示启用房间，可通过 status 参数覆盖）
+        FacilityRoom q = new FacilityRoom();
+        q.setBuildingIdEq(id);
+        if (status != null && !status.trim().isEmpty()) {
+            // 仅当显式传入 status 时才过滤；默认不过滤，避免漏掉禁用房间的历史预约
+            q.setStatus(status.trim());
+        }
+        java.util.List<FacilityRoom> rooms = roomService.selectList(q);
+
+        java.util.List<java.util.Map<String, Object>> items = new java.util.ArrayList<>();
+        for (FacilityRoom r : rooms) {
+            java.util.List<TimelineSegmentVO> segs = bookingService.timeline(r.getId(), from, to);
+            java.util.Map<String, Object> m = new java.util.HashMap<>();
+            m.put("roomId", r.getId());
+            m.put("roomName", r.getRoomName());
+            m.put("floorNo", r.getFloorNo());
+            m.put("segments", segs);
+            items.add(m);
+        }
+
+        java.util.Map<String, Object> data = new java.util.HashMap<>();
+        data.put("buildingId", id);
+        java.util.Map<String, Object> range = new java.util.HashMap<>();
+        range.put("from", from);
+        range.put("to", to);
+        data.put("range", range);
+        data.put("items", items);
+        return success(data);
     }
 }

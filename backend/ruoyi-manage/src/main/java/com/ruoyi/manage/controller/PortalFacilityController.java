@@ -41,14 +41,16 @@ public class PortalFacilityController extends BaseController {
         return getDataTable(list);
     }
 
-    // 房间列表（仅启用）
+    // 房间列表（仅启用）。floorNo 可选，不传则返回该楼房全部楼层。
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/room/list")
-    public TableDataInfo rooms(@RequestParam Long buildingId, @RequestParam Integer floorNo) {
+    public TableDataInfo rooms(@RequestParam Long buildingId, @RequestParam(required = false) Integer floorNo) {
         startPage();
         FacilityRoom q = new FacilityRoom();
         q.setBuildingIdEq(buildingId);
-        q.setFloorNoEq(floorNo);
+        if (floorNo != null) {
+            q.setFloorNoEq(floorNo);
+        }
         q.setStatus("0");
         List<FacilityRoom> list = roomService.selectList(q);
         return getDataTable(list);

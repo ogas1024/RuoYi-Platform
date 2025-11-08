@@ -3,7 +3,7 @@
 </template>
 
 <script setup>
-import {ref, onMounted, onBeforeUnmount, watch} from 'vue'
+import {ref, onMounted, onBeforeUnmount, watch, nextTick} from 'vue'
 import * as echarts from 'echarts'
 
 const props = defineProps({
@@ -36,18 +36,44 @@ function renderItem(params, api) {
   return rectShape && {type: 'rect', shape: rectShape, style: api.style({fill: color})}
 }
 
+// 统一且安全地解析时间为时间戳（毫秒）
+function parseTs(v) {
+  if (!v) return null
+  if (v instanceof Date) {
+    const t = v.getTime()
+    return isNaN(t) ? null : t
+  }
+  if (typeof v === 'number') return v
+  if (typeof v === 'string') {
+    const s = v.trim()
+    if (!s) return null
+    if (/^\d{10,13}$/.test(s)) {
+      const n = Number(s)
+      return s.length === 13 ? n : n * 1000
+    }
+    const [datePart, timePart = '00:00:00'] = s.replace(/\//g, '-').split(/[ T]/)
+    const dms = datePart.split('-').map(Number)
+    const tms = timePart.split(':').map(Number)
+    if (dms.length >= 3) {
+      const [Y, M, D] = dms
+      const [h = 0, m = 0, sec = 0] = tms
+      const t = new Date(Y, (M || 1) - 1, D || 1, h, m, sec).getTime()
+      return isNaN(t) ? null : t
+    }
+    const t = new Date(s).getTime()
+    return isNaN(t) ? null : t
+  }
+  return null
+}
+
 function toSeriesData(list) {
   return (list || []).map(s => ({
-    value: [new Date(s.start).getTime(), new Date(s.end).getTime(), 0, s.status],
+    value: [parseTs(s.start), parseTs(s.end), 0, s.status],
     meta: {id: s.id, start: s.start, end: s.end, status: s.status}
   }))
 }
 
-function toTs(v) {
-  if (!v) return null;
-  const t = (v instanceof Date) ? v.getTime() : new Date(v).getTime();
-  return isNaN(t) ? null : t
-}
+const toTs = parseTs
 
 function init() {
   if (!root.value) return
@@ -67,6 +93,8 @@ function init() {
     yAxis: {type: 'category', data: ['占用'], axisTick: {show: false}, axisLine: {show: false}},
     series: [{type: 'custom', renderItem, encode: {x: [0, 1], y: 2}, data: toSeriesData(props.data)}]
   })
+  // 初次渲染后尝试调整尺寸（常见于父容器切换显示后）
+  nextTick(() => resize())
   chart.on('click', (params) => {
     const id = params?.data?.meta?.id;
     if (id) emit('segment-click', id)
@@ -79,6 +107,8 @@ function update() {
     xAxis: {min: toTs(props.from), max: toTs(props.to)},
     series: [{data: toSeriesData(props.data)}]
   })
+  // 数据或容器变化后，确保尺寸正确
+  resize()
 }
 
 onMounted(() => {
@@ -100,4 +130,7 @@ function resize() {
 
 watch(() => props.data, update, {deep: true})
 watch(() => [props.from, props.to], update)
+
+// 暴露方法，便于父组件在 el-dialog opened 后主动触发
+defineExpose({ resize })
 </script>

@@ -8,7 +8,7 @@
             type="text"
             size="large"
             auto-complete="off"
-            placeholder="账号"
+            placeholder="学号（16位数字）"
         >
           <template #prefix>
             <svg-icon icon-class="user" class="el-input__icon input-icon"/>
@@ -109,8 +109,8 @@ const equalToPassword = (rule, value, callback) => {
 
 const registerRules = {
   username: [
-    {required: true, trigger: "blur", message: "请输入您的账号"},
-    {min: 2, max: 20, message: "用户账号长度必须介于 2 和 20 之间", trigger: "blur"}
+    {required: true, trigger: "blur", message: "请输入学号"},
+    {pattern: /^\d{16}$/, message: "学号必须为16位数字，例如2023061001000318", trigger: "blur"}
   ],
   password: [
     {required: true, trigger: "blur", message: "请输入您的密码"},

@@ -39,7 +39,7 @@ import {ElMessage} from 'element-plus'
 
 const buildings = ref([])
 const selectedBuilding = ref(null)
-const floorNo = ref(1)
+const floorNo = ref(null)
 const rooms = ref([])
 
 async function loadBuildings() {
@@ -53,15 +53,12 @@ async function loadBuildings() {
 
 async function loadRooms() {
   rooms.value = []
-  if (!selectedBuilding.value || floorNo.value === null || floorNo.value === undefined) {
-    return ElMessage.info('请选择楼房与楼层')
+  if (!selectedBuilding.value) {
+    return ElMessage.info('请选择楼房')
   }
-  const {rows} = await listRooms({
-    buildingId: selectedBuilding.value,
-    floorNo: floorNo.value,
-    pageNum: 1,
-    pageSize: 100
-  })
+  const params = { buildingId: selectedBuilding.value, pageNum: 1, pageSize: 100 }
+  if (floorNo.value !== null && floorNo.value !== undefined) params.floorNo = floorNo.value
+  const {rows} = await listRooms(params)
   rooms.value = rows || []
 }
 
