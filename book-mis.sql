@@ -1985,3 +1985,28 @@ SELECT i.id, '羽毛球社', 2, 'admin', NOW() FROM tb_survey_item i WHERE i.tit
 ALTER TABLE `tb_survey`
   ADD COLUMN `pinned`      CHAR(1)     NOT NULL DEFAULT '0' COMMENT '是否置顶：0否 1是' AFTER `remark`,
   ADD COLUMN `pinned_time` DATETIME             DEFAULT NULL COMMENT '置顶时间' AFTER `pinned`;
+
+/* ======================================================================
+   变更记录
+   日期：2025-11-08
+   模块：投票（最简实现，复用问卷）
+   说明：投票场景直接复用问卷表组 tb_survey*（单/多选题）。本次不涉及DDL变更；
+         管理端详情新增选项票数统计（后端通过 JSON_CONTAINS 聚合，不新增统计表）。
+         追加一份“投票示例”数据便于联调。
+====================================================================== */
+
+-- 示例：投票（单选）
+INSERT INTO `tb_survey` (`title`, `status`, `visible_all`, `deadline`, `remark`, `create_by`, `create_time`)
+VALUES ('校园食堂口味投票（示例）', '1', '1', DATE_ADD(NOW(), INTERVAL 30 DAY), '示例：单选投票，展示票数统计', 'admin', NOW());
+
+-- 题目：单选题
+INSERT INTO `tb_survey_item` (`survey_id`, `title`, `type`, `required`, `sort_no`, `create_by`, `create_time`)
+SELECT s.id, '你更喜欢哪家食堂？', 2, '1', 0, 'admin', NOW() FROM tb_survey s WHERE s.title='校园食堂口味投票（示例）';
+
+-- 选项
+INSERT INTO `tb_survey_option` (`item_id`, `label`, `sort_no`, `create_by`, `create_time`)
+SELECT i.id, '一食堂', 0, 'admin', NOW() FROM tb_survey_item i WHERE i.title='你更喜欢哪家食堂？' AND i.type=2;
+INSERT INTO `tb_survey_option` (`item_id`, `label`, `sort_no`, `create_by`, `create_time`)
+SELECT i.id, '二食堂', 1, 'admin', NOW() FROM tb_survey_item i WHERE i.title='你更喜欢哪家食堂？' AND i.type=2;
+INSERT INTO `tb_survey_option` (`item_id`, `label`, `sort_no`, `create_by`, `create_time`)
+SELECT i.id, '三食堂', 2, 'admin', NOW() FROM tb_survey_item i WHERE i.title='你更喜欢哪家食堂？' AND i.type=2;

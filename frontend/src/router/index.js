@@ -115,6 +115,32 @@ export const constantRoutes = [
       }
     ]
   },
+  // 管理端：投票（独立页面，复用问卷接口）
+  {
+    path: '/manage/vote',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageVoteIndex',
+        component: () => import('@/views/manage/vote/List.vue'),
+        meta: { title: '投票管理' }
+      },
+      {
+        path: 'archive',
+        name: 'ManageVoteArchive',
+        component: () => import('@/views/manage/vote/List.vue'),
+        meta: { title: '投票归档' }
+      },
+      {
+        path: 'new',
+        name: 'ManageVoteNew',
+        component: () => import('@/views/manage/vote/Create.vue'),
+        meta: { title: '新建投票' }
+      }
+    ]
+  },
   // 门户（普通用户）常量路由：使用独立布局，不依赖后台菜单
   {
     path: '/portal',
@@ -272,6 +298,26 @@ export const constantRoutes = [
         name: 'PortalSurveyMy',
         component: () => import('@/views/portal/survey/My.vue'),
         meta: { title: '我填写的' }
+      }
+      ,
+      // 投票门户（独立页面，复用问卷接口）
+      {
+        path: 'vote',
+        name: 'PortalVote',
+        component: () => import('@/views/portal/vote/List.vue'),
+        meta: { title: '投票' }
+      },
+      {
+        path: 'vote/fill',
+        name: 'PortalVoteFill',
+        component: () => import('@/views/portal/vote/Fill.vue'),
+        meta: { title: '参与投票' }
+      },
+      {
+        path: 'vote/my',
+        name: 'PortalVoteMy',
+        component: () => import('@/views/portal/vote/My.vue'),
+        meta: { title: '我的投票' }
       }
     ]
   },

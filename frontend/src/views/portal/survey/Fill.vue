@@ -15,19 +15,21 @@
           <small style="margin-left:8px; color:#909399">[{{ typeLabel(it.type) }}]</small>
         </div>
         <div>
-          <el-input v-if="it.type===1" v-model="answers[it.id].valueText" type="textarea" :rows="2" placeholder="请输入" />
-          <el-radio-group v-else-if="it.type===2" v-model="answers[it.id].optionIds">
+          <el-input v-if="it.type===1 && answers[it.id]" v-model="answers[it.id].valueText" type="textarea" :rows="2" placeholder="请输入" />
+          <el-radio-group v-else-if="it.type===2 && answers[it.id]" v-model="answers[it.id].optionIds">
             <el-radio v-for="op in it.options" :key="op.id" :label="op.id">{{ op.label }}</el-radio>
           </el-radio-group>
-          <el-checkbox-group v-else-if="it.type===3" v-model="answers[it.id].optionIds">
+          <el-checkbox-group v-else-if="it.type===3 && answers[it.id]" v-model="answers[it.id].optionIds">
             <el-checkbox v-for="op in it.options" :key="op.id" :label="op.id">{{ op.label }}</el-checkbox>
           </el-checkbox-group>
+          <div v-else style="color:#909399;">加载中...</div>
         </div>
       </div>
       <el-button type="primary" @click="submit" :disabled="expired || detail.status===2">提交</el-button>
       <span v-if="expired" style="margin-left:8px; color:#f56c6c;">已过截止时间，不能提交</span>
       <span v-else-if="detail.status===2" style="margin-left:8px; color:#909399;">问卷已归档，不能提交</span>
     </el-form>
+    <!-- 表单为问卷；不显示投票结果柱状图（与投票页面区分） -->
   </div>
 </template>
 
@@ -47,6 +49,12 @@ const expired = computed(()=>{
   if (!detail.value || !detail.value.deadline) return false
   return new Date(detail.value.deadline).getTime() < Date.now()
 })
+
+function hasSubmitted(){
+  const m = detail.value && detail.value.myAnswers
+  if (!m) return false
+  try { return Object.keys(m).length > 0 } catch(e){ return false }
+}
 
 function initAnswers(){
   if (!detail.value) return
@@ -78,13 +86,14 @@ function load(){
 }
 
 function submit(){
+  const wasSubmitted = hasSubmitted()
   const payload = Object.values(answers).map(x=>{
     if (Array.isArray(x.optionIds)) return { itemId:x.itemId, optionIds:x.optionIds }
     if (typeof x.optionIds === 'number') return { itemId:x.itemId, optionIds:[x.optionIds] }
     return { itemId:x.itemId, valueText:x.valueText||'' }
   })
   submitSurvey(id, payload).then(()=>{
-    ElMessage.success('已提交')
+    ElMessage.success(wasSubmitted ? '已修改' : '已提交')
     load()
   })
 }

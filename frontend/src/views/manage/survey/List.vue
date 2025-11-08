@@ -107,8 +107,21 @@
     </el-dialog>
 
     <!-- 详情弹窗（只读） -->
-    <el-dialog v-model="detailVisible" title="问卷详情" width="960px">
-      <div v-if="detail" style="display:flex; gap:16px; align-items:flex-start;">
+    <el-dialog
+      v-model="detailVisible"
+      title="问卷详情"
+      width="960px"
+      append-to-body
+      destroy-on-close
+      :before-close="onDetailBeforeClose"
+      :close-on-click-modal="true"
+      :close-on-press-escape="true"
+      :z-index="3000">
+      <!-- 加载态骨架屏：避免 v-loading 遮罩阻断关闭交互 -->
+      <div v-if="detailLoading" style="padding: 12px 4px;">
+        <el-skeleton :rows="6" animated />
+      </div>
+      <div v-else-if="detail" style="display:flex; gap:16px; align-items:flex-start;">
         <div style="flex:1;">
           <p><b>标题：</b>{{ detail.title }}</p>
           <p><b>截止：</b>{{ detail.deadline || '-' }}</p>
@@ -118,6 +131,7 @@
               <div>{{ i.title }} <small v-if="i.required===1" style="color:#f56c6c">(必填)</small>
                 <span style="margin-left:8px; color:#909399;">[{{ typeLabel(i.type) }}]</span>
               </div>
+              <!-- 仅显示选项，不做统计展示 -->
               <div v-if="i.options && i.options.length>0" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:6px;">
                 <el-tag v-for="op in i.options" :key="op.id">{{ op.label }}</el-tag>
               </div>
@@ -143,6 +157,9 @@
           </el-card>
         </div>
       </div>
+      <template #footer>
+        <el-button @click="detailVisible=false">关闭</el-button>
+      </template>
     </el-dialog>
 
     <!-- 用户答卷弹窗 -->
@@ -164,11 +181,12 @@
     </el-dialog>
 
     <!-- 延期对话框：使用时间选择器 -->
-    <el-dialog v-model="extendVisible" title="延期" width="420px">
+    <el-dialog v-model="extendVisible" title="延期" width="420px" append-to-body :z-index="3000">
       <div>
         <p v-if="extendRow"><b>当前截止：</b>{{ extendRow.deadline || '-' }}</p>
         <el-date-picker v-model="extendDeadline" type="datetime" placeholder="选择新的截止时间"
-                        format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss" />
+                        format="YYYY-MM-DD HH:mm:ss" value-format="YYYY-MM-DD HH:mm:ss"
+                        :teleported="true" popper-class="manage-extend-popper" />
         <p style="margin-top:8px; color:#909399;">新截止时间必须晚于当前截止时间</p>
       </div>
       <template #footer>
@@ -198,6 +216,7 @@ const form = reactive({ title: '', deadline: '', visibleAll: 1, items: [] })
 
 const detailVisible = ref(false)
 const detail = ref(null)
+const detailLoading = ref(false)
 const submitUsers = ref([])
 const userAns = ref(null)
 const userAnsName = ref('')
@@ -290,9 +309,37 @@ function save() {
 function openDetail(row) {
   userAns.value = null
   userAnsName.value = ''
-  getSurvey(row.id).then(res => { detail.value = res.data; detailVisible.value = true })
-  listSubmittedUsers(row.id).then(res => { submitUsers.value = res.data || [] })
+  submitUsers.value = []
+  detail.value = { title: '', items: [] }
+  detailVisible.value = true
+  detailLoading.value = true
+  const rid = row.id
+  // 超时兜底，避免遮罩长时间存在
+  const stopLoadingTimer = setTimeout(() => {
+    if (detailLoading.value) detailLoading.value = false
+  }, 8000)
+  getSurvey(rid)
+    .then(res => {
+      const data = (res && res.data) ? res.data : null
+      if (!data) {
+        ElMessage.error('未获取到问卷详情')
+        detail.value = { title: '', items: [] }
+      } else {
+        const items = Array.isArray(data.items) ? data.items : []
+        for (const it of items) {
+          if (!Array.isArray(it.options)) it.options = []
+        }
+        data.items = items
+        detail.value = data
+      }
+    })
+    .catch(() => { ElMessage.error('无法查看详情：请检查数据或权限') })
+    .finally(() => { clearTimeout(stopLoadingTimer); detailLoading.value = false })
+  // 提交用户列表异步加载
+  listSubmittedUsers(rid).then(res => { submitUsers.value = res.data || [] }).catch(()=>{})
 }
+
+function onDetailBeforeClose(done){ detailLoading.value = false; done && done() }
 
 function extend(row) {
   extendRow.value = row
@@ -344,3 +391,8 @@ function doPublish(row){
   publishSurvey(row.id).then(()=>{ ElMessage.success('已发布'); load() })
 }
 </script>
+
+<style>
+/* 提升延期弹窗内日期选择器的浮层层级，避免被 Dialog 遮挡 */
+.manage-extend-popper { z-index: 4000 !important; }
+</style>

@@ -84,6 +84,18 @@
         <span>我填写的</span>
       </el-menu-item>
     </el-sub-menu>
+    <el-sub-menu index="vote">
+      <template #title>
+        <el-icon><Edit /></el-icon>
+        <span>投票</span>
+      </template>
+      <el-menu-item index="/portal/vote">
+        <span>投票列表</span>
+      </el-menu-item>
+      <el-menu-item index="/portal/vote/my">
+        <span>我的投票</span>
+      </el-menu-item>
+    </el-sub-menu>
   </el-menu>
 </template>
 

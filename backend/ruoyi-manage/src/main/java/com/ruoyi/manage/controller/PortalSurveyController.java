@@ -23,6 +23,8 @@ public class PortalSurveyController extends BaseController {
     private com.ruoyi.manage.mapper.SurveyAnswerMapper answerMapper;
     @Resource
     private com.ruoyi.manage.mapper.SurveyMapper surveyMapper;
+    @Resource
+    private com.ruoyi.manage.mapper.SurveyAnswerItemMapper answerItemMapper;
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/list")
@@ -39,10 +41,44 @@ public class PortalSurveyController extends BaseController {
     @GetMapping("/{id}")
     public AjaxResult detail(@PathVariable Long id) {
         Survey s = service.detail(id, false);
-        if (s == null || s.getStatus() == null || s.getStatus() != 1) return error("问卷不存在或未发布");
+        // 门户详情：允许已发布(1)与已归档(2)查看；删除或草稿均不可见
+        if (s == null || s.getStatus() == null || (s.getStatus() != 1 && s.getStatus() != 2)) {
+            return error("问卷不存在或未发布");
+        }
         Map<Long, Object> my = service.loadMyAnswers(id, getUserId());
         s.setMyAnswers(my);
+        // 门户：仅在“投票结束”（过期或归档）后返回选项统计。
+        boolean ended = (s.getDeadline() != null && new Date().after(s.getDeadline())) || (s.getStatus() != null && s.getStatus() == 2);
+        if (ended) {
+            try {
+                java.util.List<java.util.Map<String, Object>> rows = answerMapper2().countOptionVotes(id);
+                java.util.Map<Long, Integer> cntMap = new java.util.HashMap<>();
+                for (java.util.Map<String, Object> r : rows) {
+                    Object oid = r.get("optionId"); Object c = r.get("cnt");
+                    if (oid != null && c != null) {
+                        Long key = oid instanceof Number ? ((Number) oid).longValue() : Long.parseLong(String.valueOf(oid));
+                        Integer val = c instanceof Number ? ((Number) c).intValue() : Integer.parseInt(String.valueOf(c));
+                        cntMap.put(key, val);
+                    }
+                }
+                if (s.getItems() != null) {
+                    for (com.ruoyi.manage.domain.SurveyItem it : s.getItems()) {
+                        if (it.getOptions() != null) {
+                            for (com.ruoyi.manage.domain.SurveyOption op : it.getOptions()) {
+                                Integer v = cntMap.get(op.getId());
+                                if (v != null) op.setVoteCount(v);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ignore) {}
+        }
         return success(s);
+    }
+
+    // 本类已有 answerMapper 字段为 SurveyAnswerMapper，这里通过注入的 AnswerItemMapper 获取统计能力
+    private com.ruoyi.manage.mapper.SurveyAnswerItemMapper answerMapper2() {
+        return this.answerItemMapper;
     }
 
     @PreAuthorize("isAuthenticated()")

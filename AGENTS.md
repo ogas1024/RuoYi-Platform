@@ -3,7 +3,7 @@
 - 以模块为单位快速交付，做到可运行、可测试、可提交。
 - 你的个性化要求优先：小白友好、逐模块推进、你先建表、我生成代码但遵循 RuoYi 规范。
 - 后端仅改动 `backend/ruoyi-manage`；前端仅改动 `frontend`；全部 SQL 写到根目录 `book-mis.sql`，表名均以 `tb_` 前缀。
-- 技术栈：**Ruoyi-Vue 框架 + Spring Boot 3 + Vue3 + Element-Plus + MySQL + Redis + 阿里云 OSS**（但尽量弱化对 RuoYi 的强依赖；代码由代理生成、遵循 RuoYi 目录与风格）如需任何 RuoYi 后台手动操作，我提供详细教程。
+- 技术栈：**Ruoyi-Vue 框架 + Spring Boot 3 + Vue3 + Element-Plus + ECharts + MySQL + Redis + 阿里云 OSS**（但尽量弱化对 RuoYi 的强依赖；代码由代理生成、遵循 RuoYi 目录与风格）如需任何 RuoYi 后台手动操作，我提供详细教程。
 - 系统环境为CachyOS
 
 ### 角色分工

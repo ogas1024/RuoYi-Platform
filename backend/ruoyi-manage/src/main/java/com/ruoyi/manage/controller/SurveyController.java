@@ -25,6 +25,8 @@ public class SurveyController extends BaseController {
     private ISurveyService service;
     @Resource
     private SurveyAnswerMapper answerMapper;
+    @Resource
+    private com.ruoyi.manage.mapper.SurveyAnswerItemMapper answerItemMapper;
 
     @PreAuthorize("@ss.hasPermi('manage:survey:list')")
     @GetMapping("/list")
@@ -38,7 +40,33 @@ public class SurveyController extends BaseController {
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable Long id) {
         Survey s = service.detail(id, true);
-        return s == null ? error("问卷不存在") : success(s);
+        if (s == null) return error("问卷不存在");
+        // 管理详情：补充每个选项的票数统计（仅选择题）。
+        try {
+            java.util.List<java.util.Map<String, Object>> rows = answerItemMapper.countOptionVotes(id);
+            java.util.Map<Long, Integer> cntMap = new java.util.HashMap<>();
+            for (java.util.Map<String, Object> r : rows) {
+                if (r == null) continue;
+                Object oid = r.get("optionId");
+                Object c = r.get("cnt");
+                if (oid != null && c != null) {
+                    Long key = oid instanceof Number ? ((Number) oid).longValue() : Long.parseLong(String.valueOf(oid));
+                    Integer val = c instanceof Number ? ((Number) c).intValue() : Integer.parseInt(String.valueOf(c));
+                    cntMap.put(key, val);
+                }
+            }
+            if (s.getItems() != null) {
+                for (com.ruoyi.manage.domain.SurveyItem it : s.getItems()) {
+                    if (it.getOptions() != null) {
+                        for (com.ruoyi.manage.domain.SurveyOption op : it.getOptions()) {
+                            Integer v = cntMap.get(op.getId());
+                            if (v != null) op.setVoteCount(v);
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignore) {}
+        return success(s);
     }
 
     /** 提交用户列表：用于管理侧详情页展示已提交用户 */

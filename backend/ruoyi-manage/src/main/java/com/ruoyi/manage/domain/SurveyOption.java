@@ -1,5 +1,6 @@
 package com.ruoyi.manage.domain;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.ruoyi.common.core.domain.BaseEntity;
 import lombok.Data;
 
@@ -13,5 +14,7 @@ public class SurveyOption extends BaseEntity {
     private String value;
     private Integer sortNo;
     private String delFlag;
-}
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private Integer voteCount; // 管理详情中返回的统计数
+}

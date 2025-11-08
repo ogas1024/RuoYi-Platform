@@ -29,9 +29,21 @@
         )
     </insert>
 
-    <delete id="deleteByAnswerId">
-        delete from tb_survey_answer_item where answer_id = #{answerId}
-    </delete>
+  <delete id="deleteByAnswerId">
+      delete from tb_survey_answer_item where answer_id = #{answerId}
+  </delete>
+
+  <!-- 统计：每个选项被选择的次数（仅针对选择题答案 value_option_ids） -->
+  <select id="countOptionVotes" resultType="java.util.HashMap">
+    SELECT o.id AS optionId, COUNT(*) AS cnt
+    FROM tb_survey_answer_item ai
+    JOIN tb_survey_item i ON i.id = ai.item_id
+    JOIN tb_survey_option o ON o.item_id = i.id
+    WHERE i.survey_id = #{surveyId}
+      AND ai.del_flag = '0' AND o.del_flag = '0'
+      AND ai.value_option_ids IS NOT NULL
+      AND JSON_CONTAINS(ai.value_option_ids, CAST(o.id AS JSON))
+    GROUP BY o.id
+  </select>
 
 </mapper>
-
