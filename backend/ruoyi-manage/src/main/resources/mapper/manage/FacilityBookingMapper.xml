@@ -6,6 +6,8 @@
         <id property="id" column="id"/>
         <result property="roomId" column="room_id"/>
         <result property="applicantId" column="applicant_id"/>
+        <result property="applicantUserName" column="applicant_user_name"/>
+        <result property="applicantNickName" column="applicant_nick_name"/>
         <result property="purpose" column="purpose"/>
         <result property="startTime" column="start_time"/>
         <result property="endTime" column="end_time"/>
@@ -95,13 +97,14 @@
 
     <!-- 审核列表：仅 pending，支持按楼栋/房间/申请人/时间范围筛选 -->
     <select id="selectAuditList" resultMap="BookingResult">
-        select b.* from tb_facility_booking b
+        select b.*, u.user_name as applicant_user_name, u.nick_name as applicant_nick_name from tb_facility_booking b
         <if test="buildingId != null">
             inner join tb_facility_room r on r.id = b.room_id
         </if>
         <if test="buildingId != null">
             inner join tb_facility_building bd on bd.id = r.building_id
         </if>
+        left join sys_user u on u.user_id = b.applicant_id
         where b.del_flag='0' and b.status = '0'
         <if test="bookingId != null">and b.id = #{bookingId}</if>
         <if test="roomId != null">and b.room_id = #{roomId}</if>

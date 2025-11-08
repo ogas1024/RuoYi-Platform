@@ -6,7 +6,6 @@
       </el-button>
     </div>
     <el-table :data="list" v-loading="loading" border>
-      <el-table-column prop="userId" label="用户ID" width="120"/>
       <el-table-column prop="username" label="用户名"/>
       <el-table-column prop="nickname" label="昵称"/>
       <el-table-column label="操作" width="120">
@@ -20,8 +19,8 @@
 
     <el-dialog v-model="showAdd" title="新增图书管理员" width="420px" append-to-body>
       <el-form label-width="100px">
-        <el-form-item label="用户ID">
-          <el-input v-model.number="userId" placeholder="请输入用户ID"/>
+        <el-form-item label="用户名">
+          <el-input v-model="userName" placeholder="请输入用户名（test01/学号）"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -38,7 +37,7 @@ import {listLibrarian, addLibrarian, removeLibrarian} from '@/api/manage/librari
 
 const loading = ref(false)
 const list = ref([])
-const userId = ref(null)
+const userName = ref('')
 const showAdd = ref(false)
 
 const getList = async () => {
@@ -51,9 +50,9 @@ const getList = async () => {
   }
 }
 const appoint = async () => {
-  if (!userId.value) return;
-  await addLibrarian(userId.value);
-  userId.value = null;
+  if (!userName.value) return;
+  await addLibrarian(userName.value);
+  userName.value = '';
   showAdd.value = false;
   getList()
 }

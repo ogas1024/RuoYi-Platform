@@ -115,9 +115,16 @@ public class FacilityBookingController extends BaseController {
                                    @RequestParam(required = false) Long buildingId,
                                    @RequestParam(required = false) Long roomId,
                                    @RequestParam(required = false) Long applicantId,
+                                   @RequestParam(required = false, name = "applicantUserName") String applicantUserName,
                                    @RequestParam(required = false) java.util.Date from,
                                    @RequestParam(required = false) java.util.Date to) {
         startPage();
+        // 支持用户名筛选：解析为 applicantId
+        if ((applicantId == null || applicantId == 0) && applicantUserName != null && !applicantUserName.trim().isEmpty()) {
+            Long uid = com.ruoyi.common.utils.spring.SpringUtils.getBean(com.ruoyi.manage.mapper.SysLinkageMapper.class)
+                    .selectUserIdByUserName(applicantUserName.trim());
+            if (uid != null) applicantId = uid;
+        }
         java.util.List<com.ruoyi.manage.domain.FacilityBooking> list = service.auditList(bookingId, buildingId, roomId, applicantId, from, to);
         return getDataTable(list);
     }

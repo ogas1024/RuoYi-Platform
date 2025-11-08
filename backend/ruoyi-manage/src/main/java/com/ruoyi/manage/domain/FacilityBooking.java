@@ -13,6 +13,9 @@ public class FacilityBooking extends BaseEntity {
     private Long id;
     private Long roomId;
     private Long applicantId;
+    // 展示字段：申请人账号/昵称（审核列表）
+    private String applicantUserName;
+    private String applicantNickName;
     private String purpose;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;

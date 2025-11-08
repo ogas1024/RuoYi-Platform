@@ -205,7 +205,14 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
             }
         }
         int rows = mapper.offline(id, auditor, DateUtils.getNowDate(), reason);
-        if (rows > 0) log("OFFLINE", id, "SUCCESS", reason);
+        if (rows > 0) {
+            log("OFFLINE", id, "SUCCESS", reason);
+            // 下架时自动取消“最佳”（如有）
+            int unbest = mapper.unsetBest(id);
+            if (unbest > 0) {
+                log("UNBEST", id, "SUCCESS", "autoByOffline");
+            }
+        }
         return rows;
     }
 

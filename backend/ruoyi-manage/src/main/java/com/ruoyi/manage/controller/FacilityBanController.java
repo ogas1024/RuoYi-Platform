@@ -21,9 +21,11 @@ public class FacilityBanController extends BaseController {
 
     @PreAuthorize("@ss.hasPermi('manage:facility:ban:list')")
     @GetMapping("/list")
-    public TableDataInfo list(@RequestParam(required = false) String status, @RequestParam(required = false) Long userId) {
+    public TableDataInfo list(@RequestParam(required = false) String status,
+                              @RequestParam(required = false) Long userId,
+                              @RequestParam(required = false, name = "username") String username) {
         startPage();
-        List<FacilityBan> list = service.list(status, userId);
+        List<FacilityBan> list = service.list(status, userId, username);
         return getDataTable(list);
     }
 
@@ -33,6 +35,12 @@ public class FacilityBanController extends BaseController {
     public AjaxResult add(@RequestBody FacilityBan data) {
         data.setCreateBy(getUsername());
         data.setStatus(data.getStatus() == null ? "0" : data.getStatus());
+        // 支持用用户名提交
+        if ((data.getUserId() == null || data.getUserId() == 0) && data.getUsername() != null && !data.getUsername().trim().isEmpty()) {
+            Long uid = com.ruoyi.common.utils.spring.SpringUtils.getBean(com.ruoyi.manage.mapper.SysLinkageMapper.class)
+                    .selectUserIdByUserName(data.getUsername().trim());
+            if (uid != null) data.setUserId(uid);
+        }
         return toAjax(service.ban(data));
     }
 

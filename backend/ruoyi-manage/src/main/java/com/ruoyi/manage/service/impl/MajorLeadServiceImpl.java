@@ -27,17 +27,24 @@ public class MajorLeadServiceImpl implements IMajorLeadService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insert(MajorLead data) {
-        // 0) 校验用户存在
+        // 0) 允许通过用户名选择用户
+        if (data.getUserId() == null && data.getUserName() != null && !data.getUserName().trim().isEmpty()) {
+            Long uid = sysLinkageMapper.selectUserIdByUserName(data.getUserName().trim());
+            if (uid != null) {
+                data.setUserId(uid);
+            }
+        }
+        // 1) 校验用户存在
         Integer userExists = (data.getUserId() == null) ? 0 : sysLinkageMapper.existsUser(data.getUserId());
         if (userExists == null || userExists == 0) {
             throw new ServiceException("用户不存在或已被删除: " + data.getUserId());
         }
-        // 1) 先插入映射（存在唯一键 (major_id, user_id)）
+        // 2) 先插入映射（存在唯一键 (major_id, user_id)）
         int rows = mapper.insert(data);
         if (rows <= 0) {
             return rows;
         }
-        // 2) 为该用户授予 RuoYi 角色：major_lead
+        // 3) 为该用户授予 RuoYi 角色：major_lead
         Long roleId = sysLinkageMapper.selectRoleIdByKey("major_lead");
         if (roleId == null) {
             throw new ServiceException("系统未配置角色标识 major_lead，请在‘系统管理-角色管理’中创建后重试");

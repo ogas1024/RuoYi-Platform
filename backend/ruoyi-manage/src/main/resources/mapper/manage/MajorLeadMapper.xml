@@ -8,6 +8,8 @@
         <result property="id" column="id"/>
         <result property="majorId" column="major_id"/>
         <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="nickName" column="nick_name"/>
         <result property="remark" column="remark"/>
         <result property="createBy" column="create_by"/>
         <result property="createTime" column="create_time"/>
@@ -27,9 +29,12 @@
                ml.update_by,
                ml.update_time,
                ml.del_flag,
-               m.major_name
+               m.major_name,
+               u.user_name as user_name,
+               u.nick_name as nick_name
         from tb_major_lead ml
                  left join tb_major m on m.id = ml.major_id
+                 left join sys_user u on u.user_id = ml.user_id
     </sql>
 
     <select id="selectById" parameterType="long" resultMap="MajorLeadResult">
@@ -43,6 +48,12 @@
             ml.del_flag = '0'
             <if test="majorId != null">and ml.major_id = #{majorId}</if>
             <if test="userId != null">and ml.user_id = #{userId}</if>
+            <if test="userName != null and userName != ''">
+                and exists (
+                select 1 from sys_user su
+                where su.user_id = ml.user_id and su.user_name like concat('%', #{userName}, '%') and su.del_flag = '0'
+                )
+            </if>
         </where>
         order by ml.id desc
     </select>

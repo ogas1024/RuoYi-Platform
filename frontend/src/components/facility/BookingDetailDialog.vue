@@ -5,9 +5,7 @@
       <el-descriptions-item label="申请ID">{{ info.id }}</el-descriptions-item>
       <el-descriptions-item label="房间">{{ meta.roomName || '-' }}（ID: {{ info.roomId }}）</el-descriptions-item>
       <el-descriptions-item label="楼房">{{ meta.buildingName || '-' }}</el-descriptions-item>
-      <el-descriptions-item label="申请人">{{ meta.applicantName || '-' }}（ID: {{
-          info.applicantId
-        }}）
+      <el-descriptions-item label="申请人">{{ meta.applicantName || '-' }}
       </el-descriptions-item>
       <el-descriptions-item label="状态">{{ meta.statusText || statusText(info.status) }}</el-descriptions-item>
       <el-descriptions-item label="开始时间">{{ info.startTime }}</el-descriptions-item>
@@ -17,12 +15,12 @@
     <div class="mt-12">
       <div style="font-weight:600;margin:8px 0;">使用人</div>
       <el-table :data="users" size="small" border>
-        <el-table-column prop="userId" label="用户ID" width="160"/>
         <el-table-column prop="isApplicant" label="申请人" width="100">
           <template #default="{ row }">
             <el-tag :type="row.isApplicant==='1'?'success':'info'">{{ row.isApplicant === '1' ? '是' : '否' }}</el-tag>
           </template>
         </el-table-column>
+        <!-- 不展示用户ID，后端如需可扩展返回用户名/昵称字段后再补充展示 -->
       </el-table>
     </div>
     <template #footer>

@@ -10,9 +10,6 @@
           <el-option v-for="m in majors" :key="m.id" :label="m.majorName" :value="m.id"/>
         </el-select>
       </el-form-item>
-      <el-form-item label="用户ID">
-        <el-input v-model.number="queryParams.userId" style="width:160px"/>
-      </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
         <el-button icon="Refresh" @click="resetQuery">重置</el-button>
@@ -20,7 +17,6 @@
     </el-form>
     <el-table v-loading="loading" border stripe :data="list">
       <template v-if="isAllRoleView">
-        <el-table-column label="用户ID" prop="userId" width="120"/>
         <el-table-column label="用户名" prop="userName" width="180"/>
         <el-table-column label="昵称" prop="nickName" width="180"/>
         <el-table-column label="已绑定专业" min-width="220">
@@ -30,7 +26,7 @@
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="220">
           <template #default="scope">
-            <el-button link type="primary" icon="Plus" @click="openAdd(scope.row.userId)"
+            <el-button link type="primary" icon="Plus" @click="openAdd(scope.row.userName)"
                        v-hasPermi="['manage:majorLead:add']">绑定到专业
             </el-button>
             <el-button link type="danger" icon="Remove" @click="retire(scope.row.userId)"
@@ -42,7 +38,8 @@
       <template v-else>
         <el-table-column label="ID" prop="id" width="80"/>
         <el-table-column label="专业" prop="majorName" width="180"/>
-        <el-table-column label="用户ID" prop="userId" width="120"/>
+        <el-table-column label="用户名" prop="userName" width="160"/>
+        <el-table-column label="昵称" prop="nickName" width="160"/>
         <el-table-column label="备注" prop="remark" min-width="200"/>
         <el-table-column label="操作" fixed="right" width="160">
           <template #default="scope">
@@ -63,8 +60,8 @@
             <el-option v-for="m in majors" :key="m.id" :label="m.majorName" :value="m.id"/>
           </el-select>
         </el-form-item>
-        <el-form-item label="用户ID" prop="userId">
-          <el-input v-model.number="form.userId"/>
+        <el-form-item label="用户名" prop="userName">
+          <el-input v-model="form.userName" placeholder="请输入用户名（test01/学号）"/>
         </el-form-item>
         <el-form-item label="备注">
           <el-input v-model="form.remark"/>
@@ -94,22 +91,22 @@ const loading = ref(false)
 const total = ref(0)
 const list = ref([])
 const isAllRoleView = ref(true)
-const queryParams = reactive({pageNum: 1, pageSize: 10, majorId: undefined, userId: undefined})
+const queryParams = reactive({pageNum: 1, pageSize: 10, majorId: undefined, userName: ''})
 const majors = ref([])
 
 const open = ref(false)
 const formRef = ref()
-const form = reactive({majorId: undefined, userId: undefined, remark: ''})
+const form = reactive({majorId: undefined, userName: '', remark: ''})
 const rules = {
   majorId: [{required: true, message: '请填写专业ID', trigger: 'blur'}],
-  userId: [{required: true, message: '请填写用户ID', trigger: 'blur'}]
+  userName: [{required: true, message: '请填写用户名', trigger: 'blur'}]
 }
 
 const getList = async () => {
   loading.value = true
   try {
-    // 当未选择专业且未按用户ID过滤时，展示所有拥有 major_lead 角色的用户
-    isAllRoleView.value = !queryParams.majorId && !queryParams.userId
+    // 当未选择专业且未按用户名过滤时，展示所有拥有 major_lead 角色的用户
+    isAllRoleView.value = !queryParams.majorId && !queryParams.userName
     if (isAllRoleView.value) {
       const resp = await listMajorLeadRoleUsers({
         pageNum: queryParams.pageNum,
@@ -133,11 +130,11 @@ const handleQuery = () => {
 }
 const resetQuery = () => {
   queryParams.majorId = undefined;
-  queryParams.userId = undefined;
+  queryParams.userName = '';
   handleQuery()
 }
-const openAdd = (uid) => {
-  Object.assign(form, {majorId: queryParams.majorId, userId: uid || undefined, remark: ''});
+const openAdd = (uname) => {
+  Object.assign(form, {majorId: queryParams.majorId, userName: uname || '', remark: ''});
   open.value = true
 }
 const submitForm = () => {

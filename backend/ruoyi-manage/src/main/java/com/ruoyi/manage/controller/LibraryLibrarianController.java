@@ -10,6 +10,7 @@ import com.ruoyi.manage.service.ILibraryLibrarianService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import com.ruoyi.manage.mapper.SysLinkageMapper;
 import java.util.List;
 import java.util.Map;
 
@@ -19,6 +20,8 @@ public class LibraryLibrarianController extends BaseController {
 
     @Autowired
     private ILibraryLibrarianService service;
+    @Autowired
+    private SysLinkageMapper sysLinkageMapper;
 
     @PreAuthorize("@ss.hasPermi('manage:libraryLibrarian:list')")
     @GetMapping("/list")
@@ -32,8 +35,23 @@ public class LibraryLibrarianController extends BaseController {
     @PreAuthorize("@ss.hasPermi('manage:libraryLibrarian:add')")
     @PostMapping
     public AjaxResult add(@RequestBody Map<String, Object> body) {
-        Long userId = body == null ? null : (body.get("userId") instanceof Number ? ((Number) body.get("userId")).longValue() : null);
-        if (userId == null) return error("userId 必填");
+        Long userId = null;
+        if (body != null) {
+            Object uidVal = body.get("userId");
+            if (uidVal instanceof Number) userId = ((Number) uidVal).longValue();
+            // 兼容按用户名指定
+            if (userId == null) {
+                Object uname = body.get("username");
+                if (uname != null) {
+                    String userName = String.valueOf(uname);
+                    if (!userName.isEmpty()) {
+                        Long resolved = sysLinkageMapper.selectUserIdByUserName(userName);
+                        userId = resolved;
+                    }
+                }
+            }
+        }
+        if (userId == null) return error("请提供有效的用户名");
         return toAjax(service.appoint(userId, getUsername()));
     }
 

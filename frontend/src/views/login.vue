@@ -8,7 +8,7 @@
             type="text"
             size="large"
             auto-complete="off"
-            placeholder="学号（16位数字）"
+            placeholder="请输入学号（16位数字）"
         >
           <template #prefix>
             <svg-icon icon-class="user" class="el-input__icon input-icon"/>
@@ -90,15 +90,8 @@ const loginForm = ref({
   uuid: ""
 })
 
-const validateStudentIdOrAdmin = (rule, value, callback) => {
-  if (!value) return callback(new Error("请输入学号"))
-  const isStudentId = /^\d{16}$/.test(value)
-  if (isStudentId || value === 'admin' || value === 'manager') return callback()
-  callback(new Error("学号必须为16位数字，例如2023061001000318"))
-}
-
 const loginRules = {
-  username: [{required: true, validator: validateStudentIdOrAdmin, trigger: "blur"}],
+  username: [{ required: true, trigger: "blur", message: "请输入学号" }],
   password: [{required: true, trigger: "blur", message: "请输入您的密码"}],
   code: [{required: true, trigger: "change", message: "请输入验证码"}]
 }

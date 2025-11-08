@@ -5,6 +5,8 @@
     <resultMap id="BanResult" type="com.ruoyi.manage.domain.FacilityBan">
         <id property="id" column="id"/>
         <result property="userId" column="user_id"/>
+        <result property="username" column="username"/>
+        <result property="nickname" column="nickname"/>
         <result property="reason" column="reason"/>
         <result property="status" column="status"/>
         <result property="expireTime" column="expire_time"/>
@@ -27,13 +29,16 @@
     </delete>
 
     <select id="selectList" resultMap="BanResult">
-        select * from tb_facility_ban
+        select b.*, u.user_name as username, u.nick_name as nickname
+        from tb_facility_ban b
+        left join sys_user u on u.user_id = b.user_id
         <where>
-            del_flag='0'
-            <if test="status != null and status != ''">and status = #{status}</if>
-            <if test="userId != null">and user_id = #{userId}</if>
+            b.del_flag='0'
+            <if test="status != null and status != ''">and b.status = #{status}</if>
+            <if test="userId != null">and b.user_id = #{userId}</if>
+            <if test="username != null and username != ''">and u.user_name like concat('%', #{username}, '%')</if>
         </where>
-        order by id desc
+        order by b.id desc
     </select>
 
     <select id="countActive" resultType="int">
@@ -46,4 +51,3 @@
     </select>
 
 </mapper>
-

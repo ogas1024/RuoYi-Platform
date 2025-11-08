@@ -67,7 +67,6 @@
         </div>
         <el-table v-loading="scoreLoading" border stripe :data="scoreList" size="small">
           <el-table-column label="#" prop="rank" width="60"/>
-          <el-table-column label="用户ID" prop="userId" width="100"/>
           <el-table-column label="用户" min-width="140">
             <template #default="scope">
               <el-link type="primary" @click="openAllWorks(scope.row)">{{ scope.row.username }}</el-link>

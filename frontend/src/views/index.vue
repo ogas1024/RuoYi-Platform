@@ -401,7 +401,7 @@ async function loadLibTopUsers() {
   try {
     const res = await libTopUsers(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
-    const names = list.map(i => i.nickname || i.username || `用户#${i.userId}`)
+    const names = list.map(i => i.nickname || i.username || '匿名')
     const counts = list.map(i => (i.downloadCount ?? i.passedCount ?? 0))
     if (!libUserTopChart) libUserTopChart = echarts.init(libUserTopRef.value)
     libUserTopChart.setOption({
@@ -439,7 +439,7 @@ async function loadCrTopScoreUsers() {
   try {
     const res = await crTopUsers(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
-    const names = list.map(i => i.username || `用户#${i.userId}`)
+    const names = list.map(i => i.username || '匿名')
     const counts = list.map(i => (i.totalScore ?? 0))
     if (!crUserScoreTopChart) crUserScoreTopChart = echarts.init(crUserScoreTopRef.value)
     crUserScoreTopChart.setOption({
@@ -458,7 +458,7 @@ async function loadCrTopDownloadUsers() {
   try {
     const res = await crTopDlUsers(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
-    const names = list.map(i => i.nickname || i.username || `用户#${i.userId}`)
+    const names = list.map(i => i.nickname || i.username || '匿名')
     const counts = list.map(i => (i.passedCount ?? i.downloadCount ?? 0))
     if (!crUserDlTopChart) crUserDlTopChart = echarts.init(crUserDlTopRef.value)
     crUserDlTopChart.setOption({
@@ -477,7 +477,7 @@ async function loadLibTopUploadUsers() {
   try {
     const res = await libTopUploadUsers(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
-    const names = list.map(i => i.nickname || i.username || `用户#${i.userId}`)
+    const names = list.map(i => i.nickname || i.username || '匿名')
     const counts = list.map(i => (i.passedCount ?? 0))
     if (!libUserUploadTopChart) libUserUploadTopChart = echarts.init(libUserUploadTopRef.value)
     libUserUploadTopChart.setOption({

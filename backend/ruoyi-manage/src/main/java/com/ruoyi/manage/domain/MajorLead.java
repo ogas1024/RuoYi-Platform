@@ -10,8 +10,11 @@ public class MajorLead extends BaseEntity {
     private Long id;
     private Long majorId;
     private Long userId;
+    // 仅用于查询/提交：按用户名选择用户
+    private String userName;
+    // 展示字段
+    private String nickName;
     private String remark;
     private String delFlag; // 0存在 2删除
-    // 展示字段
     private String majorName;
 }

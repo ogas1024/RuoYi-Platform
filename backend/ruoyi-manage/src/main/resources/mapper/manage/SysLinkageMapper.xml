@@ -38,6 +38,14 @@
           and del_flag = '0'
     </select>
 
+    <select id="selectUserIdByUserName" parameterType="string" resultType="long">
+        select user_id
+        from sys_user
+        where user_name = #{userName}
+          and del_flag = '0'
+        limit 1
+    </select>
+
     <select id="selectUserNameNickName" parameterType="long" resultType="map">
         select user_name as username, nick_name as nickname
         from sys_user

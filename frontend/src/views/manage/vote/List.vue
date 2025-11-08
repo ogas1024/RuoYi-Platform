@@ -108,8 +108,7 @@
               <el-empty v-if="!submitUsers.length" description="暂无提交"/>
               <el-timeline v-else>
                 <el-timeline-item v-for="u in submitUsers" :key="u.userId" :timestamp="u.submitTime">
-                  <el-link type="primary" @click="viewUserAns(u)">{{ u.nickName || u.userName }}<small
-                      style="margin-left:6px;color:#909399;">#{{ u.userId }}</small></el-link>
+                  <el-link type="primary" @click="viewUserAns(u)">{{ u.nickName || u.userName || '匿名' }}</el-link>
                 </el-timeline-item>
               </el-timeline>
             </el-scrollbar>
@@ -328,7 +327,7 @@ watch(() => route.path, () => {
 })
 
 function viewUserAns(u) {
-  userAnsName.value = u.nickName || u.userName || ('#' + u.userId)
+  userAnsName.value = u.nickName || u.userName || '匿名'
   getVoteUserAnswers(detail.value.id, u.userId).then(res => {
     userAns.value = res.data;
     ansVisible.value = true

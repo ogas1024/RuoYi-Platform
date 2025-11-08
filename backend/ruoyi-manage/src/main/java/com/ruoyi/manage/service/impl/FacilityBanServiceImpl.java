@@ -26,7 +26,12 @@ public class FacilityBanServiceImpl implements IFacilityBanService {
 
     @Override
     public List<FacilityBan> list(String status, Long userId) {
-        return mapper.selectList(status, userId);
+        return mapper.selectList(status, userId, null);
+    }
+
+    @Override
+    public List<FacilityBan> list(String status, Long userId, String username) {
+        return mapper.selectList(status, userId, username);
     }
 
     @Override

@@ -9,10 +9,10 @@
             @keyup.enter="handleQuery"
         />
       </el-form-item>
-      <el-form-item label="用户ID" prop="userId">
+      <el-form-item label="用户名" prop="userName">
         <el-input
-            v-model="queryParams.userId"
-            placeholder="请输入用户ID"
+            v-model="queryParams.userName"
+            placeholder="请输入用户名"
             clearable
             @keyup.enter="handleQuery"
         />
@@ -121,7 +121,8 @@
       <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="主键" align="center" prop="id"/>
       <el-table-column label="订单编号" align="center" prop="orderNumber"/>
-      <el-table-column label="用户ID" align="center" prop="userId"/>
+      <el-table-column label="用户名" align="center" prop="userName"/>
+      <el-table-column label="昵称" align="center" prop="nickName"/>
       <el-table-column label="订单总金额" align="center" prop="totalAmount"/>
       <el-table-column label="订单状态：pending-待支付，paid-已支付，shipped-已发货，received-已收货，cancelled-已取消"
                        align="center" prop="status"/>
@@ -206,7 +207,7 @@ const data = reactive({
     pageNum: 1,
     pageSize: 10,
     orderNumber: null,
-    userId: null,
+    userName: null,
     totalAmount: null,
     status: null,
     paymentTime: null,
@@ -243,6 +244,7 @@ function reset() {
     id: null,
     orderNumber: null,
     userId: null,
+    userName: null,
     totalAmount: null,
     status: null,
     paymentTime: null,

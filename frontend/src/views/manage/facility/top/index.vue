@@ -23,7 +23,7 @@
         <el-card>
           <div class="card-title">用户预约总时长 Top</div>
           <el-table :data="users" size="small" border>
-            <el-table-column prop="userId" label="用户ID" width="120"/>
+            <el-table-column prop="userName" label="用户名" width="160"/>
             <el-table-column prop="nickName" label="昵称/名称"/>
             <el-table-column prop="totalMinutes" label="累计分钟" width="120"/>
           </el-table>
@@ -59,4 +59,3 @@ onMounted(load)
   margin-bottom: 8px;
 }
 </style>
-

@@ -8,6 +8,8 @@
         <result property="id" column="id"/>
         <result property="orderNumber" column="order_number"/>
         <result property="userId" column="user_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="nickName" column="nick_name"/>
         <result property="totalAmount" column="total_amount"/>
         <result property="status" column="status"/>
         <result property="paymentTime" column="payment_time"/>
@@ -19,18 +21,21 @@
     </resultMap>
 
     <sql id="selectOrdersVo">
-        select id,
-               order_number,
-               user_id,
-               total_amount,
-               status,
-               payment_time,
-               shipping_time,
-               receive_time,
-               cancel_time,
-               notes,
-               created_at
-        from tb_orders
+        select t.id,
+               t.order_number,
+               t.user_id,
+               u.user_name as user_name,
+               u.nick_name as nick_name,
+               t.total_amount,
+               t.status,
+               t.payment_time,
+               t.shipping_time,
+               t.receive_time,
+               t.cancel_time,
+               t.notes,
+               t.created_at
+        from tb_orders t
+        left join sys_user u on u.user_id = t.user_id
     </sql>
 
     <select id="selectOrdersList" parameterType="Orders" resultMap="OrdersResult">
@@ -38,6 +43,7 @@
         <where>
             <if test="orderNumber != null  and orderNumber != ''">and order_number = #{orderNumber}</if>
             <if test="userId != null ">and user_id = #{userId}</if>
+            <if test="userName != null and userName != ''">and u.user_name like concat('%', #{userName}, '%')</if>
             <if test="totalAmount != null ">and total_amount = #{totalAmount}</if>
             <if test="status != null  and status != ''">and status = #{status}</if>
             <if test="paymentTime != null ">and payment_time = #{paymentTime}</if>

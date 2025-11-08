@@ -107,4 +107,23 @@ class CourseResourceServiceImplTest {
         verify(mapper, times(1)).reject(eq(8L), anyString(), any(), anyString());
         verify(logMapper, atLeastOnce()).insert(any());
     }
+
+    @Test
+    void offline_shouldUnsetBestOnSuccess() {
+        CourseResource r = new CourseResource();
+        r.setId(66L);
+        r.setUploaderId(123L); // 当前登录用户
+        r.setStatus(1); // 已上架
+        when(mapper.selectById(66L)).thenReturn(r);
+        when(mapper.offline(eq(66L), anyString(), any(), anyString())).thenReturn(1);
+        when(mapper.unsetBest(66L)).thenReturn(1);
+        when(logMapper.insert(any())).thenReturn(1);
+
+        int rows = service.offline(66L, "admin", "测试下架");
+
+        assertEquals(1, rows);
+        verify(mapper, times(1)).offline(eq(66L), anyString(), any(), anyString());
+        verify(mapper, times(1)).unsetBest(66L);
+        verify(logMapper, atLeastOnce()).insert(any());
+    }
 }

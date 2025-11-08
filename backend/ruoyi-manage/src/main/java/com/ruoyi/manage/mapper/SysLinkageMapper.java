@@ -20,6 +20,11 @@ public interface SysLinkageMapper {
     Integer existsUser(@Param("userId") Long userId);
 
     /**
+     * 通过用户名精确查询用户ID（user_name）
+     */
+    Long selectUserIdByUserName(@Param("userName") String userName);
+
+    /**
      * 查询系统用户的账号与昵称
      */
     java.util.Map<String, Object> selectUserNameNickName(@Param("userId") Long userId);

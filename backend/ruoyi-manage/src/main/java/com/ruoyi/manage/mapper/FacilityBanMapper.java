@@ -10,8 +10,7 @@ public interface FacilityBanMapper {
 
     int deleteById(@Param("id") Long id);
 
-    List<FacilityBan> selectList(@Param("status") String status, @Param("userId") Long userId);
+    List<FacilityBan> selectList(@Param("status") String status, @Param("userId") Long userId, @Param("username") String username);
 
     int countActive(@Param("userId") Long userId);
 }
-

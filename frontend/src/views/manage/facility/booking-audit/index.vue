@@ -12,8 +12,8 @@
       <el-form-item label="房间ID">
         <el-input v-model="q.roomId" clearable style="width:150px"/>
       </el-form-item>
-      <el-form-item label="申请人ID">
-        <el-input v-model="q.applicantId" clearable style="width:150px"/>
+      <el-form-item label="申请人">
+        <el-input v-model="q.applicantUserName" clearable style="width:180px" placeholder="按用户名筛选"/>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="getList">搜索</el-button>
@@ -24,7 +24,8 @@
     <el-table :data="list" v-loading="loading" border>
       <el-table-column prop="id" label="ID" width="80"/>
       <el-table-column prop="roomId" label="房间ID" width="100"/>
-      <el-table-column prop="applicantId" label="申请人" width="100"/>
+      <el-table-column prop="applicantNickName" label="申请人昵称" width="140"/>
+      <el-table-column prop="applicantUserName" label="申请人用户名" width="160"/>
       <el-table-column prop="startTime" label="开始时间" width="180"/>
       <el-table-column prop="endTime" label="结束时间" width="180"/>
       <el-table-column prop="purpose" label="目的"/>
@@ -58,7 +59,7 @@ import {buildingList, auditList, approveBooking, rejectBooking} from '@/api/mana
 import {ElMessage} from 'element-plus'
 
 const buildings = ref([])
-const q = reactive({bookingId: '', buildingId: null, roomId: '', applicantId: ''})
+const q = reactive({bookingId: '', buildingId: null, roomId: '', applicantUserName: ''})
 const page = reactive({pageNum: 1, pageSize: 10})
 const list = ref([])
 const total = ref(0)
@@ -72,7 +73,7 @@ async function loadBuildings() {
 async function getList() {
   loading.value = true
   try {
-    const {rows, total: t} = await auditList({...q, ...page})
+  const {rows, total: t} = await auditList({...q, ...page})
     list.value = rows || []
     total.value = t || 0
   } finally {
@@ -81,7 +82,7 @@ async function getList() {
 }
 
 function reset() {
-  Object.assign(q, {buildingId: null, roomId: '', applicantId: ''});
+  Object.assign(q, {buildingId: null, roomId: '', applicantUserName: ''});
   getList()
 }
 

@@ -163,8 +163,7 @@
               <el-empty v-if="!submitUsers.length" description="暂无提交"/>
               <el-timeline v-else>
                 <el-timeline-item v-for="u in submitUsers" :key="u.userId" :timestamp="u.submitTime">
-                  <el-link type="primary" @click="viewUserAns(u)">{{ u.nickName || u.userName }}<small
-                      style="margin-left:6px;color:#909399;">#{{ u.userId }}</small></el-link>
+                  <el-link type="primary" @click="viewUserAns(u)">{{ u.nickName || u.userName || '匿名' }}</el-link>
                 </el-timeline-item>
               </el-timeline>
             </el-scrollbar>
@@ -172,6 +171,7 @@
         </div>
       </div>
       <template #footer>
+        <el-button v-hasPermi="['manage:survey:summary']" type="success" @click="openAiSummary" :disabled="!detail || !detail.id">AI汇总报告</el-button>
         <el-button @click="detailVisible=false">关闭</el-button>
       </template>
     </el-dialog>
@@ -229,6 +229,7 @@ import {
   pinSurvey,
   publishSurvey
 } from '@/api/manage/survey'
+import { aiSummary } from '@/api/manage/survey'
 import {ElMessageBox, ElMessage} from 'element-plus'
 
 const loading = ref(false)
@@ -251,6 +252,12 @@ const ansVisible = ref(false)
 const extendVisible = ref(false)
 const extendDeadline = ref('')
 const extendRow = ref(null)
+
+// AI 汇总
+const aiVisible = ref(false)
+const aiLoading = ref(false)
+const aiExtra = ref('')
+const aiText = ref('')
 
 function applyRouteDefault() {
   // 根据路由区分默认视图：/index -> 已发布；/archive -> 已归档
@@ -418,7 +425,7 @@ watch(() => route.path, () => {
 })
 
 function viewUserAns(u) {
-  userAnsName.value = u.nickName || u.userName || ('#' + u.userId)
+  userAnsName.value = u.nickName || u.userName || '匿名'
   getUserAnswers(detail.value.id, u.userId).then(res => {
     userAns.value = res.data;
     ansVisible.value = true
@@ -454,9 +461,27 @@ function confirmExtend() {
 
 function doPublish(row) {
   publishSurvey(row.id).then(() => {
-    ElMessage.success('已发布');
-    load()
-  })
+  ElMessage.success('已发布');
+  load()
+})
+}
+
+function openAiSummary() {
+  aiExtra.value = ''
+  aiText.value = ''
+  aiVisible.value = true
+}
+
+function genAiNow() {
+  if (!detail.value || !detail.value.id) return
+  aiLoading.value = true
+  aiText.value = ''
+  aiSummary(detail.value.id, aiExtra.value).then(res => {
+    aiText.value = (res && res.data && res.data.text) ? res.data.text : ''
+    if (!aiText.value) ElMessage.warning('AI 未返回内容，请稍后重试')
+  }).catch(e => {
+    ElMessage.error((e && e.msg) || '生成失败，请检查后端日志与 ZAI_API_KEY 配置')
+  }).finally(() => aiLoading.value = false)
 }
 </script>
 

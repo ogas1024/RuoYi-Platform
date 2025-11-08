@@ -30,6 +30,9 @@ public class Orders extends BaseEntity {
      */
     @Excel(name = "用户ID")
     private Long userId;
+    // 展示与查询辅助字段（非持久化）
+    private String userName;
+    private String nickName;
 
     /**
      * 订单总金额

@@ -1,8 +1,8 @@
 <template>
   <div class="app-container">
     <el-form :inline="true" :model="q" class="mb8">
-      <el-form-item label="用户ID">
-        <el-input v-model="q.userId" clearable style="width:160px"/>
+      <el-form-item label="用户名">
+        <el-input v-model="q.username" clearable style="width:200px"/>
       </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="q.status" clearable style="width:160px">
@@ -19,7 +19,8 @@
 
     <el-table :data="list" v-loading="loading" border>
       <el-table-column prop="id" label="ID" width="80"/>
-      <el-table-column prop="userId" label="用户ID" width="120"/>
+      <el-table-column prop="username" label="用户名" width="160"/>
+      <el-table-column prop="nickname" label="昵称"/>
       <el-table-column prop="reason" label="原因"/>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="{ row }">
@@ -40,8 +41,8 @@
 
     <el-dialog v-model="open" title="新增封禁" width="520px">
       <el-form :model="form" label-width="100px">
-        <el-form-item label="用户ID">
-          <el-input v-model="form.userId"/>
+        <el-form-item label="用户名">
+          <el-input v-model="form.username" placeholder="请输入用户名（test01/学号）"/>
         </el-form-item>
         <el-form-item label="原因">
           <el-input v-model="form.reason" type="textarea" :rows="3"/>
@@ -69,7 +70,7 @@ import {ref, reactive, onMounted} from 'vue'
 import {banList, banAdd, banRemove} from '@/api/manage/facility'
 import {ElMessage, ElMessageBox} from 'element-plus'
 
-const q = reactive({userId: '', status: ''})
+const q = reactive({username: '', status: ''})
 const page = reactive({pageNum: 1, pageSize: 10})
 const loading = ref(false)
 const list = ref([])
@@ -87,20 +88,20 @@ async function getList() {
 }
 
 function reset() {
-  Object.assign(q, {userId: '', status: ''});
+  Object.assign(q, {username: '', status: ''});
   getList()
 }
 
 const open = ref(false)
-const form = reactive({userId: '', reason: '', status: '0', expireTime: ''})
+const form = reactive({username: '', reason: '', status: '0', expireTime: ''})
 
 function openAdd() {
-  Object.assign(form, {userId: '', reason: '', status: '0', expireTime: ''});
+  Object.assign(form, {username: '', reason: '', status: '0', expireTime: ''});
   open.value = true
 }
 
 async function submit() {
-  if (!form.userId || !form.reason) return ElMessage.error('请完善表单');
+  if (!form.username || !form.reason) return ElMessage.error('请完善表单');
   await banAdd(form);
   ElMessage.success('已保存');
   open.value = false;
@@ -122,4 +123,3 @@ onMounted(getList)
   margin-bottom: 8px;
 }
 </style>
-
