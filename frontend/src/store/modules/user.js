@@ -15,7 +15,9 @@ const useUserStore = defineStore(
       nickName: '',
       avatar: '',
       roles: [],
-      permissions: []
+      permissions: [],
+      // 无角色用户仅允许访问门户
+      portalOnly: false
     }),
     actions: {
       // 登录
@@ -43,11 +45,16 @@ const useUserStore = defineStore(
             if (!isHttp(avatar)) {
               avatar = (isEmpty(avatar)) ? defAva : import.meta.env.VITE_APP_BASE_API + avatar
             }
-            if (res.roles && res.roles.length > 0) { // 验证返回的roles是否是一个非空数组
+            const hasRoles = Array.isArray(res.roles) && res.roles.length > 0
+            if (hasRoles) {
               this.roles = res.roles
               this.permissions = res.permissions
+              this.portalOnly = false
             } else {
+              // 后端未分配任何角色：标记为门户用户，并给一个占位角色避免依赖报错
               this.roles = ['ROLE_DEFAULT']
+              this.permissions = []
+              this.portalOnly = true
             }
             this.id = user.userId
             this.name = user.userName

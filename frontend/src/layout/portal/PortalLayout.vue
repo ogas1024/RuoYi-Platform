@@ -2,7 +2,7 @@
   <el-container class="portal-layout">
     <el-header class="portal-header">
       <div class="left" @click="goHome">
-        <div class="logo">CampusShare</div>
+        <div class="logo">学院生活平台</div>
       </div>
       <div class="crumb">
         <el-breadcrumb separator="/">

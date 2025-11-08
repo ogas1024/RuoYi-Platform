@@ -29,8 +29,9 @@
       <el-table-column label="上传者" prop="uploaderName" width="120"/>
       <el-table-column label="下载数" prop="downloadCount" width="100"/>
       <el-table-column label="上架时间" prop="publishTime" width="180"/>
-      <el-table-column label="操作" fixed="right" width="380">
+      <el-table-column label="操作" fixed="right" width="460">
         <template #default="scope">
+          <el-button link type="primary" icon="View" @click="openDetail(scope.row)" v-hasPermi="['manage:courseResource:query']">查看</el-button>
           <el-button link type="primary" icon="Download" @click="downloadRow(scope.row)" v-hasPermi="['manage:courseResource:download']">下载</el-button>
           <el-button link :type="scope.row.isBest===1?'info':'success'" icon="Star" @click="toggleBest(scope.row)" v-hasPermi="['manage:courseResource:best']">{{ scope.row.isBest===1?'取消最佳':'设为最佳' }}</el-button>
           <el-button link type="warning" icon="Bottom" @click="openOffline(scope.row)" v-hasPermi="['manage:courseResource:offline']">下架</el-button>
@@ -55,6 +56,24 @@
         <el-button type="primary" @click="submitForm">保存</el-button>
       </template>
     </el-dialog>
+
+    <!-- 详情对话框 -->
+    <el-dialog v-model="detailOpen" title="资源详情" width="720px" append-to-body>
+      <el-descriptions :column="2" border size="small">
+        <el-descriptions-item label="资源名称" :span="2">{{ detail.resourceName }}</el-descriptions-item>
+        <el-descriptions-item label="状态"><el-tag type="success">已上架</el-tag></el-descriptions-item>
+        <el-descriptions-item label="类型">{{ detail.resourceType===1?'外链':'文件' }}</el-descriptions-item>
+        <el-descriptions-item label="专业">{{ detail.majorName || detail.majorId }}</el-descriptions-item>
+        <el-descriptions-item label="课程">{{ detail.courseName || detail.courseId }}</el-descriptions-item>
+        <el-descriptions-item label="上传者">{{ detail.uploaderName }}</el-descriptions-item>
+        <el-descriptions-item label="上架时间">{{ detail.publishTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="下载次数">{{ detail.downloadCount || 0 }}</el-descriptions-item>
+        <el-descriptions-item label="简介" :span="2">{{ detail.description || '（无）' }}</el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <el-button @click="detailOpen=false">关 闭</el-button>
+      </template>
+    </el-dialog>
   </div>
 
     <el-dialog v-model="offlineOpen" title="下架原因" width="460px" append-to-body>
@@ -72,7 +91,7 @@
 
 <script setup name="ResourceApproved">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
-import { listResource, updateResource, delResource, offlineResource, setBestResource, unsetBestResource } from '@/api/manage/courseResource'
+import { listResource, updateResource, delResource, offlineResource, setBestResource, unsetBestResource, getResource } from '@/api/manage/courseResource'
 import { getToken } from '@/utils/auth'
 import { listMajor } from '@/api/manage/major'
 import { listMyMajors } from '@/api/manage/majorLead'
@@ -90,6 +109,8 @@ const open = ref(false)
 const formRef = ref()
 const form = reactive({ id: undefined, resourceName: '', description: '' })
 const rules = { resourceName: [{ required: true, message: '请填写资源名称', trigger: 'blur' }], description: [{ required: true, message: '请填写简介', trigger: 'blur' }] }
+const detailOpen = ref(false)
+const detail = ref({})
 
 const getList = async () => {
   loading.value = true
@@ -105,6 +126,15 @@ const downloadRow = (row) => {
   const token = getToken()
   const url = `${import.meta.env.VITE_APP_BASE_API}/manage/courseResource/${row.id}/download?token=${encodeURIComponent(token)}`
   window.open(url, '_blank')
+}
+const openDetail = async (row) => {
+  try {
+    const { data } = await getResource(row.id)
+    detail.value = data || row
+  } catch (e) {
+    detail.value = row || {}
+  }
+  detailOpen.value = true
 }
 const editRow = (row) => { Object.assign(form, { id: row.id, resourceName: row.resourceName, description: row.description }); open.value = true }
 const submitForm = () => {

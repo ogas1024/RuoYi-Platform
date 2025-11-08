@@ -1,7 +1,7 @@
 {
   "name": "ruoyi",
   "version": "3.9.0",
-  "description": "图书管理系统",
+  "description": "学院生活平台",
   "author": "若依",
   "license": "MIT",
   "type": "module",

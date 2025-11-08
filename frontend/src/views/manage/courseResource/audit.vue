@@ -24,8 +24,9 @@
       </el-table-column>
       <el-table-column label="上传者" prop="uploaderName" width="120"/>
       <el-table-column label="提交时间" prop="createTime" width="180"/>
-      <el-table-column label="操作" fixed="right" width="220">
+      <el-table-column label="操作" fixed="right" width="300">
         <template #default="scope">
+          <el-button link type="primary" icon="View" @click="openDetail(scope.row)" v-hasPermi="['manage:courseResource:query']">查看</el-button>
           <el-button link type="primary" icon="Download" @click="downloadRow(scope.row)" v-hasPermi="['manage:courseResource:download']">下载</el-button>
           <el-button link type="success" icon="CircleCheck" @click="approve(scope.row)">通过</el-button>
           <el-button link type="danger" icon="Close" @click="openReject(scope.row)">驳回</el-button>
@@ -34,6 +35,23 @@
     </el-table>
     <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList"/>
   </div>
+    <!-- 详情对话框 -->
+    <el-dialog v-model="detailOpen" title="资源详情" width="720px" append-to-body>
+      <el-descriptions :column="2" border size="small">
+        <el-descriptions-item label="资源名称" :span="2">{{ detail.resourceName }}</el-descriptions-item>
+        <el-descriptions-item label="状态"><el-tag type="warning">待审核</el-tag></el-descriptions-item>
+        <el-descriptions-item label="类型">{{ detail.resourceType===1?'外链':'文件' }}</el-descriptions-item>
+        <el-descriptions-item label="专业">{{ detail.majorName || detail.majorId }}</el-descriptions-item>
+        <el-descriptions-item label="课程">{{ detail.courseName || detail.courseId }}</el-descriptions-item>
+        <el-descriptions-item label="上传者">{{ detail.uploaderName }}</el-descriptions-item>
+        <el-descriptions-item label="提交时间">{{ detail.createTime || '-' }}</el-descriptions-item>
+        <el-descriptions-item label="简介" :span="2">{{ detail.description || '（无）' }}</el-descriptions-item>
+      </el-descriptions>
+      <template #footer>
+        <el-button @click="detailOpen=false">关 闭</el-button>
+      </template>
+    </el-dialog>
+
     <el-dialog v-model="rejectOpen" title="驳回原因" width="460px" append-to-body>
       <el-form ref="rejectFormRef" :model="rejectForm" :rules="rejectRules" label-width="80px">
         <el-form-item label="原因" prop="reason">
@@ -49,7 +67,7 @@
 
 <script setup name="ResourceAudit">
 import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
-import { listResource, approveResource, rejectResource } from '@/api/manage/courseResource'
+import { listResource, approveResource, rejectResource, getResource } from '@/api/manage/courseResource'
 import { getToken } from '@/utils/auth'
 import { listMajor } from '@/api/manage/major'
 import { listMyMajors } from '@/api/manage/majorLead'
@@ -62,6 +80,8 @@ const list = ref([])
 const queryParams = reactive({ pageNum: 1, pageSize: 10, status: 0, majorId: undefined, courseId: undefined })
 const allowedMajors = ref([])
 const userStore = useUserStore()
+const detailOpen = ref(false)
+const detail = ref({})
 
 const getList = async () => {
   loading.value = true
@@ -90,6 +110,15 @@ const downloadRow = (row) => {
   const token = getToken()
   const url = `${import.meta.env.VITE_APP_BASE_API}/manage/courseResource/${row.id}/download?token=${encodeURIComponent(token)}`
   window.open(url)
+}
+const openDetail = async (row) => {
+  try {
+    const { data } = await getResource(row.id)
+    detail.value = data || row
+  } catch (e) {
+    detail.value = row || {}
+  }
+  detailOpen.value = true
 }
 const approve = async (row) => { await approveResource(row.id); proxy.$modal.msgSuccess('已通过'); getList() }
 // 驳回弹窗

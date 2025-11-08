@@ -58,8 +58,21 @@ public class LibraryLibrarianServiceImpl implements ILibraryLibrarianService {
     @Override
     @Transactional
     public int dismiss(Long[] userIds, String operator) {
-        int n = mapper.deleteByUserIds(userIds);
+        // 为避免“仅有角色、无记录”场景下返回0导致前端提示失败，这里按“受影响的用户数”返回
         Long roleId = sysLinkageMapper.selectRoleIdByKey(ROLE_KEY);
+        int affectedUsers = 0;
+        // 预先记录每个用户是否存在绑定记录或角色，用于成功判定
+        java.util.Map<Long, Boolean> hadAnyBinding = new java.util.HashMap<>();
+        for (Long uid : userIds) {
+            boolean hadRecord = (mapper.countByUserId(uid) != null && mapper.countByUserId(uid) > 0);
+            boolean hadRole = roleId != null && (sysLinkageMapper.existsUserRole(uid, roleId) != null && sysLinkageMapper.existsUserRole(uid, roleId) > 0);
+            hadAnyBinding.put(uid, hadRecord || hadRole);
+        }
+
+        // 删除自定义表记录（若存在）
+        mapper.deleteByUserIds(userIds);
+
+        // 若无任何剩余记录，则撤销角色（保持与列表联动一致）
         if (roleId != null) {
             for (Long uid : userIds) {
                 Integer remains = mapper.countByUserId(uid);
@@ -68,6 +81,11 @@ public class LibraryLibrarianServiceImpl implements ILibraryLibrarianService {
                 }
             }
         }
-        return n;
+
+        // 统计受影响的用户：原先拥有记录或角色的都计为1（幂等操作也视为成功）
+        for (Long uid : userIds) {
+            if (Boolean.TRUE.equals(hadAnyBinding.get(uid))) affectedUsers++;
+        }
+        return affectedUsers;
     }
 }

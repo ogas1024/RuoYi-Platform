@@ -1,6 +1,5 @@
 <template>
   <div class="app-container">
-    <el-alert title="待审核（status=0）" type="info" show-icon class="mb8"/>
     <el-table :data="list" v-loading="loading" border>
       <el-table-column prop="id" label="ID" width="80"/>
       <el-table-column prop="isbn13" label="ISBN-13" width="140"/>

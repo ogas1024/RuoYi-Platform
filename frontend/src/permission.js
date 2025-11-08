@@ -17,6 +17,23 @@ const isWhiteList = (path) => {
   return whiteList.some(pattern => isPathMatch(pattern, path))
 }
 
+// 判断是否为管理端路由（无角色用户禁止访问）
+function isAdminLikePath(path) {
+  if (!path) return false
+  try {
+    const p = String(path)
+    return p === '/'
+      || p === '/index'
+      || p.startsWith('/index')
+      || p.startsWith('/manage')
+      || p.startsWith('/system')
+      || p.startsWith('/monitor')
+      || p.startsWith('/tool')
+  } catch (e) {
+    return false
+  }
+}
+
 router.beforeEach((to, from, next) => {
   NProgress.start()
   if (getToken()) {
@@ -40,7 +57,17 @@ router.beforeEach((to, from, next) => {
                 router.addRoute(route) // 动态添加可访问路由表
               }
             })
-            next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
+            const user = useUserStore()
+            if (user.portalOnly) {
+              // 无角色用户：强制跳转门户（若当前目标为管理端或根路径）
+              if (isAdminLikePath(to.path) || to.path === '/' || to.path === '/index') {
+                next({ path: '/portal', replace: true })
+              } else {
+                next({ ...to, replace: true })
+              }
+            } else {
+              next({ ...to, replace: true }) // hack方法 确保addRoutes已完成
+            }
           })
         }).catch(err => {
           useUserStore().logOut().then(() => {
@@ -49,7 +76,16 @@ router.beforeEach((to, from, next) => {
           })
         })
       } else {
-        next()
+        const user = useUserStore()
+        if (user.portalOnly && isAdminLikePath(to.path)) {
+          // 已登录且为门户用户，禁止进入管理端
+          if (to.path !== '/portal') {
+            ElMessage.warning('当前账号未分配角色，仅可访问门户')
+          }
+          next({ path: '/portal' })
+        } else {
+          next()
+        }
       }
     }
   } else {
