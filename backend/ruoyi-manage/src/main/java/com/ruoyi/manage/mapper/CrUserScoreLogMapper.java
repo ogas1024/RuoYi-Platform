@@ -15,11 +15,11 @@ public interface CrUserScoreLogMapper {
                                  @Param("now") java.util.Date now);
 
     int insertBestLogIfAbsent(@Param("userId") Long userId,
-                               @Param("username") String username,
-                               @Param("majorId") Long majorId,
-                               @Param("resourceId") Long resourceId,
-                               @Param("delta") Integer delta,
-                               @Param("operator") String operator,
-                               @Param("now") java.util.Date now);
+                              @Param("username") String username,
+                              @Param("majorId") Long majorId,
+                              @Param("resourceId") Long resourceId,
+                              @Param("delta") Integer delta,
+                              @Param("operator") String operator,
+                              @Param("now") java.util.Date now);
 }
 

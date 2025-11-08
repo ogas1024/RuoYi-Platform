@@ -18,8 +18,7 @@ import com.ruoyi.manage.service.ICategoryService;
  * @date 2025-10-10
  */
 @Service
-public class CategoryServiceImpl implements ICategoryService
-{
+public class CategoryServiceImpl implements ICategoryService {
     @Autowired
     private CategoryMapper categoryMapper;
 
@@ -30,8 +29,7 @@ public class CategoryServiceImpl implements ICategoryService
      * @return 图书类别
      */
     @Override
-    public Category selectCategoryById(Long id)
-    {
+    public Category selectCategoryById(Long id) {
         return categoryMapper.selectCategoryById(id);
     }
 
@@ -42,8 +40,7 @@ public class CategoryServiceImpl implements ICategoryService
      * @return 图书类别
      */
     @Override
-    public List<Category> selectCategoryList(Category category)
-    {
+    public List<Category> selectCategoryList(Category category) {
         return categoryMapper.selectCategoryList(category);
     }
 
@@ -54,8 +51,7 @@ public class CategoryServiceImpl implements ICategoryService
      * @return 结果
      */
     @Override
-    public int insertCategory(Category category)
-    {
+    public int insertCategory(Category category) {
         return categoryMapper.insertCategory(category);
     }
 
@@ -66,8 +62,7 @@ public class CategoryServiceImpl implements ICategoryService
      * @return 结果
      */
     @Override
-    public int updateCategory(Category category)
-    {
+    public int updateCategory(Category category) {
         return categoryMapper.updateCategory(category);
     }
 
@@ -78,8 +73,7 @@ public class CategoryServiceImpl implements ICategoryService
      * @return 结果
      */
     @Override
-    public int deleteCategoryByIds(Long[] ids)
-    {
+    public int deleteCategoryByIds(Long[] ids) {
         return categoryMapper.deleteCategoryByIds(ids);
     }
 
@@ -90,16 +84,14 @@ public class CategoryServiceImpl implements ICategoryService
      * @return 结果
      */
     @Override
-    public int deleteCategoryById(Long id)
-    {
+    public int deleteCategoryById(Long id) {
         return categoryMapper.deleteCategoryById(id);
     }
 
     @Override
     public boolean checkNameUnique(Category category) {
         Category data = categoryMapper.selectCategoryByName(category.getCategoryName());
-        if (StringUtils.isNotNull(data) && category.getId()!= data.getId())
-        {
+        if (StringUtils.isNotNull(data) && category.getId() != data.getId()) {
             return false;
         }
         return true;

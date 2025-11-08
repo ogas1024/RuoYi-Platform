@@ -38,16 +38,16 @@
       <el-table-column label="姓名" align="center" prop="nickName"/>
       <el-table-column label="角色" align="center" prop="roleName"/>
       <el-table-column label="状态" align="center" key="status">
-<!--        <template #default="scope">-->
-<!--          <el-switch-->
-<!--              v-model="scope.row.status"-->
-<!--              active-value="0"-->
-<!--              inactive-value="1"-->
-<!--              @change="handleStatusChange(scope.row)"-->
-<!--          ></el-switch>-->
-<!--        </template>-->
+        <!--        <template #default="scope">-->
+        <!--          <el-switch-->
+        <!--              v-model="scope.row.status"-->
+        <!--              active-value="0"-->
+        <!--              inactive-value="1"-->
+        <!--              @change="handleStatusChange(scope.row)"-->
+        <!--          ></el-switch>-->
+        <!--        </template>-->
         <template #default="scope">
-          <dict-tag :options="sys_normal_disable" :value="scope.row.status" />
+          <dict-tag :options="sys_normal_disable" :value="scope.row.status"/>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
@@ -84,7 +84,7 @@
         <el-row>
           <el-col :span="24">
             <el-form-item label="用户姓名" prop="nickName">
-              <el-input v-model="form.nickName" placeholder="请输入用户姓名" maxlength="30" />
+              <el-input v-model="form.nickName" placeholder="请输入用户姓名" maxlength="30"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -92,7 +92,10 @@
           <el-col :span="12">
             <el-form-item label="状态">
               <el-radio-group v-model="form.status">
-                <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{ dict.label }}</el-radio>
+                <el-radio v-for="dict in sys_normal_disable" :key="dict.value" :value="dict.value">{{
+                    dict.label
+                  }}
+                </el-radio>
               </el-radio-group>
             </el-form-item>
           </el-col>
@@ -120,7 +123,7 @@
 import {listUser, addUser} from "@/api/manage/user"
 
 const {proxy} = getCurrentInstance()
-const { sys_normal_disable } = proxy.useDict("sys_normal_disable")
+const {sys_normal_disable} = proxy.useDict("sys_normal_disable")
 const userList = ref([])
 const open = ref(false)
 const loading = ref(true)
@@ -138,16 +141,16 @@ const data = reactive({
   },
   rules: {
     userName: [
-      { required: true, message: "用户名称不能为空", trigger: "blur" }
+      {required: true, message: "用户名称不能为空", trigger: "blur"}
     ],
     nickName: [
-      { required: true, message: "用户姓名不能为空", trigger: "blur" }
+      {required: true, message: "用户姓名不能为空", trigger: "blur"}
     ],
     password: [
-      { required: true, message: "密码不能为空", trigger: "blur" }
+      {required: true, message: "密码不能为空", trigger: "blur"}
     ],
     roleId: [
-      { required: true, message: "角色不能为空", trigger: "blur" }
+      {required: true, message: "角色不能为空", trigger: "blur"}
     ]
   }
 })

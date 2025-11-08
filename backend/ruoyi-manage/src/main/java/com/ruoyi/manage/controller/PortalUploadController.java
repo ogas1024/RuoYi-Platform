@@ -8,6 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.Arrays;
@@ -31,7 +32,7 @@ public class PortalUploadController {
     private final IOssService ossService;
 
     // 默认图片策略（兼容旧行为）
-    private static final Set<String> DEFAULT_IMG_EXT = new HashSet<>(Arrays.asList("jpg","jpeg","png","webp"));
+    private static final Set<String> DEFAULT_IMG_EXT = new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "webp"));
     private static final long DEFAULT_IMG_MAX = 2L * 1024 * 1024; // 2MB
 
     // 场景化策略
@@ -41,24 +42,29 @@ public class PortalUploadController {
         final String defaultDir;     // 默认目录
         final boolean requireImage;  // 是否要求 image/* MIME（仅图片类）
         final boolean defaultPublicUrl; // 默认返回公开URL
+
         Policy(Set<String> exts, long maxBytes, String dir, boolean requireImage, boolean publicUrl) {
-            this.exts = exts; this.maxBytes = maxBytes; this.defaultDir = dir;
-            this.requireImage = requireImage; this.defaultPublicUrl = publicUrl;
+            this.exts = exts;
+            this.maxBytes = maxBytes;
+            this.defaultDir = dir;
+            this.requireImage = requireImage;
+            this.defaultPublicUrl = publicUrl;
         }
     }
 
     private static final java.util.Map<String, Policy> POLICIES = new java.util.HashMap<>();
+
     static {
         // 失物招领-图片
-        POLICIES.put("lostfound.image", new Policy(new HashSet<>(Arrays.asList("jpg","jpeg","png","webp")), 2L * 1024 * 1024, "lostfound", true, true));
+        POLICIES.put("lostfound.image", new Policy(new HashSet<>(Arrays.asList("jpg", "jpeg", "png", "webp")), 2L * 1024 * 1024, "lostfound", true, true));
         // 通知公告-附件（门户一般无需，此处预留）
-        POLICIES.put("notice.attachment", new Policy(new HashSet<>(Arrays.asList("pdf","doc","docx","xls","xlsx","png","jpg","jpeg","zip")), 20L * 1024 * 1024, "notice", false, true));
+        POLICIES.put("notice.attachment", new Policy(new HashSet<>(Arrays.asList("pdf", "doc", "docx", "xls", "xlsx", "png", "jpg", "jpeg", "zip")), 20L * 1024 * 1024, "notice", false, true));
         // 数字图书馆-PDF 主文件
         POLICIES.put("library.pdf", new Policy(new HashSet<>(Arrays.asList("pdf")), 100L * 1024 * 1024, "library/pdf", false, true));
         // 数字图书馆-补充格式
-        POLICIES.put("library.extra", new Policy(new HashSet<>(Arrays.asList("epub","mobi","zip")), 100L * 1024 * 1024, "library/extra", false, true));
+        POLICIES.put("library.extra", new Policy(new HashSet<>(Arrays.asList("epub", "mobi", "zip")), 100L * 1024 * 1024, "library/extra", false, true));
         // 课程资源-压缩包
-        POLICIES.put("resource.archive", new Policy(new HashSet<>(Arrays.asList("zip","rar","7z","tar","gz","bz2","xz")), 100L * 1024 * 1024, "resource", false, true));
+        POLICIES.put("resource.archive", new Policy(new HashSet<>(Arrays.asList("zip", "rar", "7z", "tar", "gz", "bz2", "xz")), 100L * 1024 * 1024, "resource", false, true));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -99,7 +105,8 @@ public class PortalUploadController {
                         }
                     }
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+            }
         }
         if (sc != null) {
             sc = sc.trim();
@@ -169,7 +176,7 @@ public class PortalUploadController {
         String s = dir == null ? "" : dir.trim();
         s = s.replace('\\', '/');
         while (s.startsWith("/")) s = s.substring(1);
-        while (s.endsWith("/")) s = s.substring(0, s.length()-1);
+        while (s.endsWith("/")) s = s.substring(0, s.length() - 1);
         if (s.contains("..")) throw new ServiceException("非法目录");
         // 简单过滤非常规字符
         s = s.replaceAll("[^a-zA-Z0-9_./-]", "");

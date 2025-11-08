@@ -23,14 +23,22 @@ import java.util.List;
 @RequestMapping("/portal/facility")
 public class PortalFacilityController extends BaseController {
 
-    @Resource private IFacilityBuildingService buildingService;
-    @Resource private IFacilityRoomService roomService;
-    @Resource private IFacilityBookingService bookingService;
-    @Resource private com.ruoyi.manage.mapper.FacilityBookingMapper bookingMapper;
-    @Resource private com.ruoyi.manage.mapper.FacilityBookingUserMapper bookingUserMapper;
-    @Resource private com.ruoyi.manage.mapper.FacilityRoomMapper roomMapper;
-    @Resource private com.ruoyi.manage.mapper.FacilityBuildingMapper buildingMapper;
-    @Resource private com.ruoyi.manage.mapper.UserMapper userMapper;
+    @Resource
+    private IFacilityBuildingService buildingService;
+    @Resource
+    private IFacilityRoomService roomService;
+    @Resource
+    private IFacilityBookingService bookingService;
+    @Resource
+    private com.ruoyi.manage.mapper.FacilityBookingMapper bookingMapper;
+    @Resource
+    private com.ruoyi.manage.mapper.FacilityBookingUserMapper bookingUserMapper;
+    @Resource
+    private com.ruoyi.manage.mapper.FacilityRoomMapper roomMapper;
+    @Resource
+    private com.ruoyi.manage.mapper.FacilityBuildingMapper buildingMapper;
+    @Resource
+    private com.ruoyi.manage.mapper.UserMapper userMapper;
 
     // 楼房列表（仅正常）
     @PreAuthorize("isAuthenticated()")
@@ -74,7 +82,8 @@ public class PortalFacilityController extends BaseController {
         HashMap<String, Object> res = new HashMap<>();
         res.put("roomId", id);
         HashMap<String, Object> range = new HashMap<>();
-        range.put("from", from); range.put("to", to);
+        range.put("from", from);
+        range.put("to", to);
         res.put("range", range);
         res.put("segments", segs);
         return success(res);
@@ -110,7 +119,9 @@ public class PortalFacilityController extends BaseController {
                     try {
                         FacilityRoom r = roomMapper.selectById(rid);
                         rn = r != null ? r.getRoomName() : null;
-                    } catch (Exception ignored) { rn = null; }
+                    } catch (Exception ignored) {
+                        rn = null;
+                    }
                     roomNameMap.put(rid, rn);
                 }
                 b.setRoomName(rn);
@@ -166,7 +177,8 @@ public class PortalFacilityController extends BaseController {
                 com.ruoyi.manage.domain.FacilityBuilding bd = buildingMapper.selectById(room.getBuildingId());
                 if (bd != null) buildingName = bd.getBuildingName();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         meta.put("roomName", roomName);
         meta.put("buildingName", buildingName);
         // 申请人昵称/用户名
@@ -179,7 +191,8 @@ public class PortalFacilityController extends BaseController {
                 com.ruoyi.manage.domain.User u = us.get(0);
                 applicantName = (u.getNickName() != null && !u.getNickName().isEmpty()) ? u.getNickName() : u.getUserName();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         meta.put("applicantName", applicantName);
         // 状态文字
         String statusText;

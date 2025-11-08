@@ -105,7 +105,7 @@
           </el-col>
           <el-col :span="12">
             <el-form-item label="主营类别" prop="categoryId">
-              <el-select v-model="form.categoryId"   style="width: 100%"    placeholder="请选择类别"  clearable  >
+              <el-select v-model="form.categoryId" style="width: 100%" placeholder="请选择类别" clearable>
                 <el-option
                     v-for="item in categoryList"
                     :key="item.id"
@@ -130,7 +130,8 @@
 
 <script setup name="Shops">
 import {listShops, getShops, delShops, addShops, updateShops} from "@/api/manage/shops"
-import { listCategory } from "@/api/manage/category"
+import {listCategory} from "@/api/manage/category"
+
 const {proxy} = getCurrentInstance()
 
 const shopsList = ref([])
@@ -156,22 +157,22 @@ const data = reactive({
   },
   rules: {
     userName: [
-      { required: true, message: "用户名称不能为空", trigger: "blur" }
+      {required: true, message: "用户名称不能为空", trigger: "blur"}
     ],
     password: [
-      { required: true, message: "密码不能为空", trigger: "blur" }
+      {required: true, message: "密码不能为空", trigger: "blur"}
     ],
     shopName: [
-      { required: true, message: "店名不能为空", trigger: "blur" }
+      {required: true, message: "店名不能为空", trigger: "blur"}
     ],
     contactPerson: [
-      { required: true, message: "联系人不能为空", trigger: "blur" }
+      {required: true, message: "联系人不能为空", trigger: "blur"}
     ],
     categoryId: [
-      { required: true, message: "主营类别不能为空", trigger: "blur" }
+      {required: true, message: "主营类别不能为空", trigger: "blur"}
     ],
     contactPhone: [
-      { required: true, message: "联系方式不能为空", trigger: "blur" }
+      {required: true, message: "联系方式不能为空", trigger: "blur"}
     ]
   }
 })
@@ -286,11 +287,12 @@ function handleExport() {
 }
 
 function getCategoryList() {
-  const loadAll = { pageNum: 1, pageSize: 1000 }
+  const loadAll = {pageNum: 1, pageSize: 1000}
   listCategory(loadAll).then(response => {
     categoryList.value = response.rows
   })
 }
+
 getList()
 getCategoryList()
 </script>

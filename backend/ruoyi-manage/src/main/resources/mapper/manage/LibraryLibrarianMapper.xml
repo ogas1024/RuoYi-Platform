@@ -23,42 +23,43 @@
     -->
     <select id="selectList" parameterType="com.ruoyi.manage.domain.LibraryLibrarian" resultMap="LibraryLibrarianResult">
         select
-            l.id as id,
-            u.user_id as user_id,
-            coalesce(l.username, u.user_name) as username,
-            coalesce(l.nickname, u.nick_name) as nickname,
-            l.remark as remark,
-            l.create_by as create_by,
-            l.create_time as create_time,
-            l.update_by as update_by,
-            l.update_time as update_time,
-            l.del_flag as del_flag
+        l.id as id,
+        u.user_id as user_id,
+        coalesce(l.username, u.user_name) as username,
+        coalesce(l.nickname, u.nick_name) as nickname,
+        l.remark as remark,
+        l.create_by as create_by,
+        l.create_time as create_time,
+        l.update_by as update_by,
+        l.update_time as update_time,
+        l.del_flag as del_flag
         from sys_user u
         inner join sys_user_role ur on u.user_id = ur.user_id
         inner join sys_role r on r.role_id = ur.role_id and (r.role_key = 'librarian' or r.role_name = '图书管理员')
         left join tb_library_librarian l on l.user_id = u.user_id and l.del_flag = '0'
         <where>
             u.del_flag = '0'
-            <if test="userId != null"> and u.user_id = #{userId}</if>
+            <if test="userId != null">and u.user_id = #{userId}</if>
             <if test="username != null and username != ''">
                 and (
-                    u.user_name like concat('%', #{username}, '%')
-                    or (l.username is not null and l.username like concat('%', #{username}, '%'))
+                u.user_name like concat('%', #{username}, '%')
+                or (l.username is not null and l.username like concat('%', #{username}, '%'))
                 )
             </if>
             <if test="nickname != null and nickname != ''">
                 and (
-                    u.nick_name like concat('%', #{nickname}, '%')
-                    or (l.nickname is not null and l.nickname like concat('%', #{nickname}, '%'))
+                u.nick_name like concat('%', #{nickname}, '%')
+                or (l.nickname is not null and l.nickname like concat('%', #{nickname}, '%'))
                 )
             </if>
         </where>
         order by coalesce(l.id, u.user_id) desc
     </select>
 
-    <insert id="insert" parameterType="com.ruoyi.manage.domain.LibraryLibrarian" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.LibraryLibrarian" useGeneratedKeys="true"
+            keyProperty="id">
         insert into tb_library_librarian(user_id, username, nickname, remark, create_by, create_time, del_flag)
-        values(#{userId}, #{username}, #{nickname}, #{remark}, #{createBy}, #{createTime}, '0')
+        values (#{userId}, #{username}, #{nickname}, #{remark}, #{createBy}, #{createTime}, '0')
     </insert>
 
     <delete id="deleteByUserIds">
@@ -67,7 +68,9 @@
     </delete>
 
     <select id="countByUserId" parameterType="long" resultType="int">
-        select count(1) from tb_library_librarian where user_id = #{userId}
+        select count(1)
+        from tb_library_librarian
+        where user_id = #{userId}
     </select>
 
     <!-- moved under mapper/manage for consistency -->

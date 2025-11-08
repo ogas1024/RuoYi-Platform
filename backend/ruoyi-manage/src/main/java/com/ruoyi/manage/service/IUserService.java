@@ -7,7 +7,10 @@ import java.util.List;
 
 public interface IUserService {
     public List<User> selectUserList(User user);
+
     public int deleteUserById(Long userId);
+
     public Long insertUser(User user);
-    public boolean checkUserNameUnique(String userName,Long userId);
+
+    public boolean checkUserNameUnique(String userName, Long userId);
 }

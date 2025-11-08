@@ -27,7 +27,8 @@
         <el-input v-model="form.keywords" placeholder="逗号分隔"/>
       </el-form-item>
       <el-form-item label="简介">
-        <el-input v-model="form.summary" type="textarea" :rows="4" maxlength="1000" show-word-limit placeholder="请输入简介"/>
+        <el-input v-model="form.summary" type="textarea" :rows="4" maxlength="1000" show-word-limit
+                  placeholder="请输入简介"/>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="save">保存修改</el-button>
@@ -41,7 +42,7 @@
         <div class="pdf-info">
           <span class="fmt">PDF</span>
           <el-link :href="pdfAsset.fileUrl" target="_blank" type="primary">查看链接</el-link>
-          <span class="size" v-if="pdfAsset.fileSize">{{ (pdfAsset.fileSize/1024/1024).toFixed(2) }} MB</span>
+          <span class="size" v-if="pdfAsset.fileSize">{{ (pdfAsset.fileSize / 1024 / 1024).toFixed(2) }} MB</span>
         </div>
         <el-popconfirm title="确认删除当前 PDF 吗？删除后请重新上传" @confirm="removePdf">
           <template #reference>
@@ -74,7 +75,7 @@
       </div>
       <el-table :data="extraAssets" class="mt12" size="small" border>
         <el-table-column prop="assetType" label="类型" width="80">
-          <template #default="{ row }">{{ row.assetType==='0'?'文件':'外链' }}</template>
+          <template #default="{ row }">{{ row.assetType === '0' ? '文件' : '外链' }}</template>
         </el-table-column>
         <el-table-column prop="format" label="格式" width="100"/>
         <el-table-column prop="fileUrl" label="文件URL"/>
@@ -94,21 +95,41 @@
 </template>
 
 <script setup>
-import { ref, onMounted, getCurrentInstance } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import { getLibraryPortal, updateLibraryPortal, addAssetLibraryPortal, removeAssetLibraryPortal } from '@/api/portal/library'
-import { uploadOssPortal } from '@/api/portal/upload'
+import {ref, onMounted, getCurrentInstance} from 'vue'
+import {useRoute, useRouter} from 'vue-router'
+import {
+  getLibraryPortal,
+  updateLibraryPortal,
+  addAssetLibraryPortal,
+  removeAssetLibraryPortal
+} from '@/api/portal/library'
+import {uploadOssPortal} from '@/api/portal/upload'
 
 const route = useRoute()
 const router = useRouter()
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 const loading = ref(false)
 const formRef = ref()
-const form = ref({ id: undefined, isbn13: '', title: '', author: '', publisher: '', publishYear: null, language: '', keywords: '', summary: '' })
+const form = ref({
+  id: undefined,
+  isbn13: '',
+  title: '',
+  author: '',
+  publisher: '',
+  publishYear: null,
+  language: '',
+  keywords: '',
+  summary: ''
+})
 const rules = {
-  isbn13: [ { required: true, message: '请输入 ISBN-13', trigger: 'blur' }, { min: 13, max: 13, message: '长度 13 位', trigger: 'blur' } ],
-  title: [ { required: true, message: '请输入书名', trigger: 'blur' } ],
-  author: [ { required: true, message: '请输入作者', trigger: 'blur' } ]
+  isbn13: [{required: true, message: '请输入 ISBN-13', trigger: 'blur'}, {
+    min: 13,
+    max: 13,
+    message: '长度 13 位',
+    trigger: 'blur'
+  }],
+  title: [{required: true, message: '请输入书名', trigger: 'blur'}],
+  author: [{required: true, message: '请输入作者', trigger: 'blur'}]
 }
 const pdfAsset = ref(null)
 const extraAssets = ref([])
@@ -118,22 +139,36 @@ const load = async () => {
   loading.value = true
   try {
     const id = route.query.id
-    const { data } = await getLibraryPortal(id)
+    const {data} = await getLibraryPortal(id)
     const b = data?.book || data?.library || {}
-    form.value = { id: b.id, isbn13: b.isbn13, title: b.title, author: b.author, publisher: b.publisher, publishYear: b.publishYear, language: b.language, keywords: b.keywords, summary: b.summary }
+    form.value = {
+      id: b.id,
+      isbn13: b.isbn13,
+      title: b.title,
+      author: b.author,
+      publisher: b.publisher,
+      publishYear: b.publishYear,
+      language: b.language,
+      keywords: b.keywords,
+      summary: b.summary
+    }
     const arr = data?.assets || []
     pdfAsset.value = arr.find(a => a.assetType === '0' && String(a.format).toLowerCase() === 'pdf') || null
     extraAssets.value = arr.filter(a => !(a.assetType === '0' && String(a.format).toLowerCase() === 'pdf'))
-  } finally { loading.value = false }
+  } finally {
+    loading.value = false
+  }
 }
 
 const save = () => {
   formRef.value.validate(async valid => {
     if (!valid) return
-    if (!pdfAsset.value) { return proxy.$modal.msgError('请先上传书籍 PDF（必传）') }
+    if (!pdfAsset.value) {
+      return proxy.$modal.msgError('请先上传书籍 PDF（必传）')
+    }
     await updateLibraryPortal(form.value)
     proxy.$modal.msgSuccess('已保存修改，进入待审核')
-    router.push({ path: '/portal/library/contributions' })
+    router.push({path: '/portal/library/contributions'})
   })
 }
 const resetLocal = () => load()
@@ -143,35 +178,69 @@ const doUploadPdf = async (options) => {
   const file = options.file
   const sizeLimit = 100 * 1024 * 1024
   const ext = file.name.split('.').pop().toLowerCase()
-  if (ext !== 'pdf') { proxy.$modal.msgError('仅允许上传 PDF 作为主文件'); return options.onError(new Error('invalid ext')) }
-  if (file.size > sizeLimit) { proxy.$modal.msgError('文件超过 100MB，请改为外链方式'); return options.onError(new Error('too large')) }
+  if (ext !== 'pdf') {
+    proxy.$modal.msgError('仅允许上传 PDF 作为主文件');
+    return options.onError(new Error('invalid ext'))
+  }
+  if (file.size > sizeLimit) {
+    proxy.$modal.msgError('文件超过 100MB，请改为外链方式');
+    return options.onError(new Error('too large'))
+  }
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOssPortal(fd, { scene: 'library.pdf', dir: `library/${form.value.id || 'temp'}`, publicUrl: true })
+    const {data} = await uploadOssPortal(fd, {
+      scene: 'library.pdf',
+      dir: `library/${form.value.id || 'temp'}`,
+      publicUrl: true
+    })
     const url = data.url || data.publicUrl || data
-    const payload = { assetType: '0', format: 'pdf', fileUrl: url, fileSize: file.size, fileHash: data.sha256 || data.etag || '' }
+    const payload = {
+      assetType: '0',
+      format: 'pdf',
+      fileUrl: url,
+      fileSize: file.size,
+      fileHash: data.sha256 || data.etag || ''
+    }
     const res = await addAssetLibraryPortal(form.value.id, payload)
     pdfAsset.value = res?.data || payload
     options.onSuccess(data)
-  } catch (e) { options.onError(e) }
+  } catch (e) {
+    options.onError(e)
+  }
 }
 
 // 上传补充文件（非 PDF）
 const doUploadExtra = async (options) => {
   const file = options.file
   const sizeLimit = 100 * 1024 * 1024
-  const allowed = ['epub','mobi','zip']
+  const allowed = ['epub', 'mobi', 'zip']
   const ext = file.name.split('.').pop().toLowerCase()
-  if (!allowed.includes(ext)) { proxy.$modal.msgError('仅允许上传 pdf/epub/mobi/zip'); return options.onError(new Error('invalid ext')) }
-  if (file.size > sizeLimit) { proxy.$modal.msgError('文件超过 100MB，请改为外链方式'); return options.onError(new Error('too large')) }
+  if (!allowed.includes(ext)) {
+    proxy.$modal.msgError('仅允许上传 pdf/epub/mobi/zip');
+    return options.onError(new Error('invalid ext'))
+  }
+  if (file.size > sizeLimit) {
+    proxy.$modal.msgError('文件超过 100MB，请改为外链方式');
+    return options.onError(new Error('too large'))
+  }
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOssPortal(fd, { scene: 'library.extra', dir: `library/${form.value.id || 'temp'}`, publicUrl: true })
+    const {data} = await uploadOssPortal(fd, {
+      scene: 'library.extra',
+      dir: `library/${form.value.id || 'temp'}`,
+      publicUrl: true
+    })
     const url = data.url || data.publicUrl || data
     // 直接提交到后端新增资产
-    const payload = { assetType: '0', format: ext, fileUrl: url, fileSize: file.size, fileHash: data.sha256 || data.etag || '' }
+    const payload = {
+      assetType: '0',
+      format: ext,
+      fileUrl: url,
+      fileSize: file.size,
+      fileHash: data.sha256 || data.etag || ''
+    }
     const res = await addAssetLibraryPortal(form.value.id, payload)
     const created = res?.data || payload
     extraAssets.value.push(created)
@@ -182,33 +251,87 @@ const doUploadExtra = async (options) => {
 }
 const addLinkAsset = async () => {
   if (!linkUrl.value) return proxy.$modal.msgError('请填写外链URL')
-  const res = await addAssetLibraryPortal(form.value.id, { assetType: '1', linkUrl: linkUrl.value })
-  const created = res?.data || { assetType: '1', format: '', fileUrl: '', linkUrl: linkUrl.value }
+  const res = await addAssetLibraryPortal(form.value.id, {assetType: '1', linkUrl: linkUrl.value})
+  const created = res?.data || {assetType: '1', format: '', fileUrl: '', linkUrl: linkUrl.value}
   extraAssets.value.push(created)
   linkUrl.value = ''
 }
 const removeExtra = async (row) => {
-  try { await removeAssetLibraryPortal(form.value.id, row.id); extraAssets.value = extraAssets.value.filter(a => a !== row) }
-  catch (e) { proxy.$modal.msgError('删除失败或无权限') }
+  try {
+    await removeAssetLibraryPortal(form.value.id, row.id);
+    extraAssets.value = extraAssets.value.filter(a => a !== row)
+  } catch (e) {
+    proxy.$modal.msgError('删除失败或无权限')
+  }
 }
 const removePdf = async () => {
   if (!pdfAsset.value) return
-  try { await removeAssetLibraryPortal(form.value.id, pdfAsset.value.id); pdfAsset.value = null }
-  catch (e) { proxy.$modal.msgError('删除失败或无权限') }
+  try {
+    await removeAssetLibraryPortal(form.value.id, pdfAsset.value.id);
+    pdfAsset.value = null
+  } catch (e) {
+    proxy.$modal.msgError('删除失败或无权限')
+  }
 }
 
 onMounted(load)
 </script>
 
 <style scoped>
-.upload-form { max-width: 720px; }
-.mt8 { margin-top: 8px; }
-.mt12 { margin-top: 12px; }
-.ml8 { margin-left: 8px; }
-.hint { margin-left: 8px; color: #909399; }
-.tip { color: #909399; margin-top: 8px; }
-.pdf-card { display: flex; align-items: center; justify-content: space-between; padding: 8px 12px; border: 1px solid #ebeef5; border-radius: 6px; background: #fafafa; max-width: 640px; }
-.pdf-info { display: flex; align-items: center; gap: 12px; }
-.fmt { display: inline-block; padding: 2px 6px; background: #409EFF; color: #fff; border-radius: 4px; font-size: 12px; }
-.size { color: #909399; font-size: 12px; }
+.upload-form {
+  max-width: 720px;
+}
+
+.mt8 {
+  margin-top: 8px;
+}
+
+.mt12 {
+  margin-top: 12px;
+}
+
+.ml8 {
+  margin-left: 8px;
+}
+
+.hint {
+  margin-left: 8px;
+  color: #909399;
+}
+
+.tip {
+  color: #909399;
+  margin-top: 8px;
+}
+
+.pdf-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid #ebeef5;
+  border-radius: 6px;
+  background: #fafafa;
+  max-width: 640px;
+}
+
+.pdf-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.fmt {
+  display: inline-block;
+  padding: 2px 6px;
+  background: #409EFF;
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.size {
+  color: #909399;
+  font-size: 12px;
+}
 </style>

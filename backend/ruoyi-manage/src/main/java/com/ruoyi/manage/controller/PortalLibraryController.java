@@ -33,10 +33,11 @@ public class PortalLibraryController extends BaseController {
         try {
             // 当查询“我的上传”时（携带 uploaderId 且等于当前用户），放宽为返回全部状态
             if (query != null && query.getUploaderId() != null && getUserId() != null
-                && query.getUploaderId().longValue() == getUserId().longValue()) {
+                    && query.getUploaderId().longValue() == getUserId().longValue()) {
                 onlyApproved = false;
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         List<Library> list = service.selectList(query, onlyApproved);
         return getDataTable(list);
     }
@@ -45,7 +46,9 @@ public class PortalLibraryController extends BaseController {
     @GetMapping("/{id}")
     public AjaxResult info(@PathVariable Long id) {
         Library data = service.selectById(id);
-        if (data == null) { return error("图书不存在"); }
+        if (data == null) {
+            return error("图书不存在");
+        }
         // 门户详情：已上架对所有登录用户可见；非上架仅允许上传者本人查看（用于“我的上传”编辑）
         if (data.getStatus() == null || data.getStatus() != 1) {
             Long uid = getUserId();
@@ -75,13 +78,27 @@ public class PortalLibraryController extends BaseController {
         List<LibraryAsset> assets = service.listAssets(id);
         LibraryAsset target = null;
         if (assetId != null) {
-            for (LibraryAsset a : assets) if (a.getId().equals(assetId)) { target = a; break; }
+            for (LibraryAsset a : assets)
+                if (a.getId().equals(assetId)) {
+                    target = a;
+                    break;
+                }
         } else {
-            String[] order = new String[]{"pdf","epub","mobi","zip"};
-            for (String fmt : order) { for (LibraryAsset a : assets) if ("0".equals(a.getAssetType()) && fmt.equalsIgnoreCase(a.getFormat())) { target = a; break; } if (target != null) break; }
+            String[] order = new String[]{"pdf", "epub", "mobi", "zip"};
+            for (String fmt : order) {
+                for (LibraryAsset a : assets)
+                    if ("0".equals(a.getAssetType()) && fmt.equalsIgnoreCase(a.getFormat())) {
+                        target = a;
+                        break;
+                    }
+                if (target != null) break;
+            }
             if (target == null && !assets.isEmpty()) target = assets.get(0);
         }
-        if (target == null) { response.sendError(404, "无可下载资产"); return; }
+        if (target == null) {
+            response.sendError(404, "无可下载资产");
+            return;
+        }
         service.incrDownload(id, assetId);
         String url = "0".equals(target.getAssetType()) ? target.getFileUrl() : target.getLinkUrl();
         response.setStatus(HttpServletResponse.SC_FOUND);

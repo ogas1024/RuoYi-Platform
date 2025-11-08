@@ -33,7 +33,7 @@ public class ScoreServiceImpl implements IScoreService {
         if (inserted > 0) {
             // 专业维度与全站维度各计一份
             scoreMapper.upsertScore(r.getUploaderId(), r.getUploaderName(), r.getMajorId(), SCORE_APPROVE, 1, 0, operator, now);
-            scoreMapper.upsertScore(r.getUploaderId(), r.getUploaderName(), 0L,            SCORE_APPROVE, 1, 0, operator, now);
+            scoreMapper.upsertScore(r.getUploaderId(), r.getUploaderName(), 0L, SCORE_APPROVE, 1, 0, operator, now);
         }
         return inserted > 0 ? SCORE_APPROVE : 0;
     }
@@ -46,7 +46,7 @@ public class ScoreServiceImpl implements IScoreService {
         int inserted = logMapper.insertBestLogIfAbsent(r.getUploaderId(), r.getUploaderName(), r.getMajorId(), r.getId(), SCORE_BEST, operator, now);
         if (inserted > 0) {
             scoreMapper.upsertScore(r.getUploaderId(), r.getUploaderName(), r.getMajorId(), SCORE_BEST, 0, 1, operator, now);
-            scoreMapper.upsertScore(r.getUploaderId(), r.getUploaderName(), 0L,            SCORE_BEST, 0, 1, operator, now);
+            scoreMapper.upsertScore(r.getUploaderId(), r.getUploaderName(), 0L, SCORE_BEST, 0, 1, operator, now);
         }
         return inserted > 0 ? SCORE_BEST : 0;
     }

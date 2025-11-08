@@ -9,6 +9,7 @@ import java.util.List;
 
 public interface FacilityRankingMapper {
     List<RoomRankVO> rankRooms(@Param("from") Date from, @Param("to") Date to, @Param("limit") Integer limit);
+
     List<UserRankVO> rankUsers(@Param("from") Date from, @Param("to") Date to, @Param("limit") Integer limit);
 }
 

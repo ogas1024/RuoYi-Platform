@@ -5,8 +5,7 @@ import com.ruoyi.common.core.domain.BaseEntity;
 import lombok.Data;
 
 @Data
-public class User extends BaseEntity
-{
+public class User extends BaseEntity {
     private static final long serialVersionUID = 1L;
     private Long userId;
     private Long roleId;

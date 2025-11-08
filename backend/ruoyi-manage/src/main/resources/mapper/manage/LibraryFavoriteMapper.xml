@@ -3,16 +3,23 @@
 <mapper namespace="com.ruoyi.manage.mapper.LibraryFavoriteMapper">
 
     <select id="exists" resultType="int">
-        select count(1) from tb_library_book_favorite where book_id = #{bookId} and user_id = #{userId}
+        select count(1)
+        from tb_library_book_favorite
+        where book_id = #{bookId}
+          and user_id = #{userId}
     </select>
 
-    <insert id="insert" parameterType="com.ruoyi.manage.domain.LibraryFavorite" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.LibraryFavorite" useGeneratedKeys="true"
+            keyProperty="id">
         insert into tb_library_book_favorite(book_id, user_id, create_by, create_time, del_flag)
-        values(#{bookId}, #{userId}, #{createBy}, #{createTime}, '0')
+        values (#{bookId}, #{userId}, #{createBy}, #{createTime}, '0')
     </insert>
 
     <delete id="delete">
-        delete from tb_library_book_favorite where book_id = #{bookId} and user_id = #{userId}
+        delete
+        from tb_library_book_favorite
+        where book_id = #{bookId}
+          and user_id = #{userId}
     </delete>
 
     <!-- moved under mapper/manage for consistency -->

@@ -58,7 +58,7 @@ public class PortalLostFoundController extends BaseController {
         body.setCreateBy(getUsername());
         int n = service.insert(body);
         if (n > 0) {
-            Map<String,Object> data = new HashMap<>();
+            Map<String, Object> data = new HashMap<>();
             data.put("id", body.getId());
             return success(data);
         }

@@ -17,20 +17,28 @@ public class LostItem extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     private Long id;
-    /** lost/ found */
+    /**
+     * lost/ found
+     */
     private String type;
     private String title;
     private String content;
-    /** 联系信息（≤50字） */
+    /**
+     * 联系信息（≤50字）
+     */
     private String contactInfo;
     private String location;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date lostTime;
 
     private Integer views;
-    /** 0草稿 1待审 2已发 3驳回 4下架 */
+    /**
+     * 0草稿 1待审 2已发 3驳回 4下架
+     */
     private Integer status;
-    /** 0/1 */
+    /**
+     * 0/1
+     */
     private Integer solvedFlag;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date publishTime;

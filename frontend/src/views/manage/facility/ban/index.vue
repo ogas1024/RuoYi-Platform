@@ -1,7 +1,9 @@
 <template>
   <div class="app-container">
     <el-form :inline="true" :model="q" class="mb8">
-      <el-form-item label="用户ID"><el-input v-model="q.userId" clearable style="width:160px"/></el-form-item>
+      <el-form-item label="用户ID">
+        <el-input v-model="q.userId" clearable style="width:160px"/>
+      </el-form-item>
       <el-form-item label="状态">
         <el-select v-model="q.status" clearable style="width:160px">
           <el-option label="生效" value="0"/>
@@ -20,28 +22,39 @@
       <el-table-column prop="userId" label="用户ID" width="120"/>
       <el-table-column prop="reason" label="原因"/>
       <el-table-column prop="status" label="状态" width="100">
-        <template #default="{ row }"><el-tag :type="row.status==='0'?'danger':'info'">{{ row.status==='0'?'生效':'失效' }}</el-tag></template>
+        <template #default="{ row }">
+          <el-tag :type="row.status==='0'?'danger':'info'">{{ row.status === '0' ? '生效' : '失效' }}</el-tag>
+        </template>
       </el-table-column>
       <el-table-column prop="expireTime" label="到期时间" width="180"/>
       <el-table-column label="操作" width="120">
         <template #default="{ row }">
-          <el-button size="small" text type="danger" @click="remove(row)" v-hasPermi="['manage:facility:ban:remove']">解除</el-button>
+          <el-button size="small" text type="danger" @click="remove(row)" v-hasPermi="['manage:facility:ban:remove']">
+            解除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total>0" :total="total" v-model:page="page.pageNum" v-model:limit="page.pageSize" @pagination="getList"/>
+    <pagination v-show="total>0" :total="total" v-model:page="page.pageNum" v-model:limit="page.pageSize"
+                @pagination="getList"/>
 
     <el-dialog v-model="open" title="新增封禁" width="520px">
       <el-form :model="form" label-width="100px">
-        <el-form-item label="用户ID"><el-input v-model="form.userId"/></el-form-item>
-        <el-form-item label="原因"><el-input v-model="form.reason" type="textarea" :rows="3"/></el-form-item>
+        <el-form-item label="用户ID">
+          <el-input v-model="form.userId"/>
+        </el-form-item>
+        <el-form-item label="原因">
+          <el-input v-model="form.reason" type="textarea" :rows="3"/>
+        </el-form-item>
         <el-form-item label="状态">
           <el-radio-group v-model="form.status">
             <el-radio label="0">生效</el-radio>
             <el-radio label="1">失效</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="到期时间"><el-date-picker v-model="form.expireTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/></el-form-item>
+        <el-form-item label="到期时间">
+          <el-date-picker v-model="form.expireTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="open=false">取消</el-button>
@@ -52,29 +65,61 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { banList, banAdd, banRemove } from '@/api/manage/facility'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {ref, reactive, onMounted} from 'vue'
+import {banList, banAdd, banRemove} from '@/api/manage/facility'
+import {ElMessage, ElMessageBox} from 'element-plus'
 
-const q = reactive({ userId:'', status:'' })
-const page = reactive({ pageNum:1, pageSize:10 })
+const q = reactive({userId: '', status: ''})
+const page = reactive({pageNum: 1, pageSize: 10})
 const loading = ref(false)
 const list = ref([])
 const total = ref(0)
 
-async function getList(){ loading.value = true; try{ const { rows, total: t } = await banList({ ...q, ...page }); list.value = rows||[]; total.value = t||0 } finally { loading.value=false } }
-function reset(){ Object.assign(q, { userId:'', status:'' }); getList() }
+async function getList() {
+  loading.value = true;
+  try {
+    const {rows, total: t} = await banList({...q, ...page});
+    list.value = rows || [];
+    total.value = t || 0
+  } finally {
+    loading.value = false
+  }
+}
+
+function reset() {
+  Object.assign(q, {userId: '', status: ''});
+  getList()
+}
 
 const open = ref(false)
-const form = reactive({ userId:'', reason:'', status:'0', expireTime:'' })
-function openAdd(){ Object.assign(form, { userId:'', reason:'', status:'0', expireTime:'' }); open.value = true }
-async function submit(){ if(!form.userId || !form.reason) return ElMessage.error('请完善表单'); await banAdd(form); ElMessage.success('已保存'); open.value=false; getList() }
-async function remove(row){ await ElMessageBox.confirm('确认解除？','提示'); await banRemove(row.id); ElMessage.success('已解除'); getList() }
+const form = reactive({userId: '', reason: '', status: '0', expireTime: ''})
+
+function openAdd() {
+  Object.assign(form, {userId: '', reason: '', status: '0', expireTime: ''});
+  open.value = true
+}
+
+async function submit() {
+  if (!form.userId || !form.reason) return ElMessage.error('请完善表单');
+  await banAdd(form);
+  ElMessage.success('已保存');
+  open.value = false;
+  getList()
+}
+
+async function remove(row) {
+  await ElMessageBox.confirm('确认解除？', '提示');
+  await banRemove(row.id);
+  ElMessage.success('已解除');
+  getList()
+}
 
 onMounted(getList)
 </script>
 
 <style scoped>
-.mb8{ margin-bottom:8px; }
+.mb8 {
+  margin-bottom: 8px;
+}
 </style>
 

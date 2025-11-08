@@ -6,23 +6,23 @@ import useUserStore from '@/store/modules/user'
  * @returns {Boolean}
  */
 export function checkPermi(value) {
-  if (value && value instanceof Array && value.length > 0) {
-    const permissions = useUserStore().permissions
-    const permissionDatas = value
-    const all_permission = "*:*:*"
+    if (value && value instanceof Array && value.length > 0) {
+        const permissions = useUserStore().permissions
+        const permissionDatas = value
+        const all_permission = "*:*:*"
 
-    const hasPermission = permissions.some(permission => {
-      return all_permission === permission || permissionDatas.includes(permission)
-    })
+        const hasPermission = permissions.some(permission => {
+            return all_permission === permission || permissionDatas.includes(permission)
+        })
 
-    if (!hasPermission) {
-      return false
+        if (!hasPermission) {
+            return false
+        }
+        return true
+    } else {
+        console.error(`need roles! Like checkPermi="['system:user:add','system:user:edit']"`)
+        return false
     }
-    return true
-  } else {
-    console.error(`need roles! Like checkPermi="['system:user:add','system:user:edit']"`)
-    return false
-  }
 }
 
 /**
@@ -31,22 +31,22 @@ export function checkPermi(value) {
  * @returns {Boolean}
  */
 export function checkRole(value) {
-  if (value && value instanceof Array && value.length > 0) {
-    const roles = useUserStore().roles
-    const permissionRoles = value
-    // 统一将 admin/super_admin 视为超管
-    const superAdmins = ["admin", "super_admin"]
+    if (value && value instanceof Array && value.length > 0) {
+        const roles = useUserStore().roles
+        const permissionRoles = value
+        // 统一将 admin/super_admin 视为超管
+        const superAdmins = ["admin", "super_admin"]
 
-    const hasRole = roles.some(role => {
-      return superAdmins.includes(role) || permissionRoles.includes(role)
-    })
+        const hasRole = roles.some(role => {
+            return superAdmins.includes(role) || permissionRoles.includes(role)
+        })
 
-    if (!hasRole) {
-      return false
+        if (!hasRole) {
+            return false
+        }
+        return true
+    } else {
+        console.error(`need roles! Like checkRole="['admin','editor']"`)
+        return false
     }
-    return true
-  } else {
-    console.error(`need roles! Like checkRole="['admin','editor']"`)
-    return false
-  }
 }

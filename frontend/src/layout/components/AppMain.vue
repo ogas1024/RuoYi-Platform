@@ -7,8 +7,8 @@
         </keep-alive>
       </transition>
     </router-view>
-    <iframe-toggle />
-    <copyright />
+    <iframe-toggle/>
+    <copyright/>
   </section>
 </template>
 

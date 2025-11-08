@@ -1,11 +1,11 @@
 <template>
   <el-scrollbar
-    ref="scrollContainer"
-    :vertical="false"
-    class="scroll-container"
-    @wheel.prevent="handleScroll"
+      ref="scrollContainer"
+      :vertical="false"
+      class="scroll-container"
+      @wheel.prevent="handleScroll"
   >
-    <slot />
+    <slot/>
   </el-scrollbar>
 </template>
 
@@ -13,7 +13,7 @@
 import useTagsViewStore from '@/store/modules/tagsView'
 
 const tagAndTagSpacing = ref(4)
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 
 const scrollWrapper = computed(() => proxy.$refs.scrollContainer.$refs.wrapRef)
 
@@ -97,9 +97,11 @@ defineExpose({
   position: relative;
   overflow: hidden;
   width: 100%;
+
   :deep(.el-scrollbar__bar) {
     bottom: 0px;
   }
+
   :deep(.el-scrollbar__wrap) {
     height: 39px;
   }

@@ -36,9 +36,15 @@
               <el-button type="primary" :loading="loading" @click="refresh">刷新</el-button>
             </div>
             <div class="quick-actions">
-              <el-button size="small" plain type="primary" @click="$router.push('/manage/course-resource/audit')">资源审核</el-button>
-              <el-button size="small" plain type="primary" @click="$router.push('/manage/library/audit')">图书审核</el-button>
-              <el-button size="small" plain type="primary" @click="$router.push('/manage/lostfound/audit')">失物审核</el-button>
+              <el-button size="small" plain type="primary"
+                         @click="$router.push('/manage/course-resource/audit')">资源审核
+              </el-button>
+              <el-button size="small" plain type="primary"
+                         @click="$router.push('/manage/library/audit')">图书审核
+              </el-button>
+              <el-button size="small" plain type="primary"
+                         @click="$router.push('/manage/lostfound/audit')">失物审核
+              </el-button>
             </div>
           </div>
         </el-card>
@@ -208,21 +214,21 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue'
+import {ref, onMounted, onBeforeUnmount} from 'vue'
 import request from '@/utils/request'
 import * as echarts from 'echarts'
-import { uploadTrend as apiUploadTrend } from '@/api/manage/courseResource'
-import { downloadTrend as apiDownloadTrend } from '@/api/manage/courseResource'
-import { topResources as crTopResources } from '@/api/manage/courseResource'
-import { topScoreUsers as crTopUsers } from '@/api/manage/courseResource'
-import { topDownloadUsers as crTopDlUsers } from '@/api/manage/courseResource'
-import { majorShare as crMajorShare } from '@/api/manage/courseResource'
-import { courseShare as crCourseShare } from '@/api/manage/courseResource'
-import { uploadTrend as libUploadTrend } from '@/api/manage/library'
-import { downloadTrend as libDownloadTrend } from '@/api/manage/library'
-import { topBooks as libTopBooks } from '@/api/manage/library'
-import { topDownloadUsers as libTopUsers } from '@/api/manage/library'
-import { topUploadUsers as libTopUploadUsers } from '@/api/manage/library'
+import {uploadTrend as apiUploadTrend} from '@/api/manage/courseResource'
+import {downloadTrend as apiDownloadTrend} from '@/api/manage/courseResource'
+import {topResources as crTopResources} from '@/api/manage/courseResource'
+import {topScoreUsers as crTopUsers} from '@/api/manage/courseResource'
+import {topDownloadUsers as crTopDlUsers} from '@/api/manage/courseResource'
+import {majorShare as crMajorShare} from '@/api/manage/courseResource'
+import {courseShare as crCourseShare} from '@/api/manage/courseResource'
+import {uploadTrend as libUploadTrend} from '@/api/manage/library'
+import {downloadTrend as libDownloadTrend} from '@/api/manage/library'
+import {topBooks as libTopBooks} from '@/api/manage/library'
+import {topDownloadUsers as libTopUsers} from '@/api/manage/library'
+import {topUploadUsers as libTopUploadUsers} from '@/api/manage/library'
 
 const stat = ref({
   crTotal: 0, crPending: 0, crApproved: 0,
@@ -265,7 +271,7 @@ let crMajorPieChart = null
 let crCoursePieChart = null
 
 async function getCount(url, params = {}) {
-  const res = await request.get(url, { params: { pageNum: 1, pageSize: 1, ...params }, silent: true })
+  const res = await request.get(url, {params: {pageNum: 1, pageSize: 1, ...params}, silent: true})
   return res && typeof res.total === 'number' ? res.total : 0
 }
 
@@ -274,15 +280,15 @@ async function loadStats() {
   try {
     const [crTotal, crPending, crApproved, libTotal, libPending, libApproved, lostAudit, lostOnline] = await Promise.all([
       getCount('/manage/courseResource/list', {}),
-      getCount('/manage/courseResource/list', { status: 0 }),
-      getCount('/manage/courseResource/list', { status: 1 }),
+      getCount('/manage/courseResource/list', {status: 0}),
+      getCount('/manage/courseResource/list', {status: 1}),
       getCount('/manage/library/list', {}),
-      getCount('/manage/library/list', { status: 0 }),
-      getCount('/manage/library/list', { status: 1 }),
+      getCount('/manage/library/list', {status: 0}),
+      getCount('/manage/library/list', {status: 1}),
       getCount('/manage/lostfound/audit/list', {}),
       getCount('/manage/lostfound/list', {})
     ])
-    stat.value = { crTotal, crPending, crApproved, libTotal, libPending, libApproved, lostAudit, lostOnline }
+    stat.value = {crTotal, crPending, crApproved, libTotal, libPending, libApproved, lostAudit, lostOnline}
   } finally {
     loading.value = false
   }
@@ -290,18 +296,18 @@ async function loadStats() {
 
 async function loadTrend() {
   try {
-    const res = await apiUploadTrend(trendDays.value, { headers: { silent: true } })
+    const res = await apiUploadTrend(trendDays.value, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const days = list.map(d => d.day)
     const counts = list.map(d => d.count)
     if (!trendChart) trendChart = echarts.init(trendRef.value)
     trendChart.setOption({
-      tooltip: { trigger: 'axis' },
-      grid: { left: 40, right: 20, top: 30, bottom: 30 },
-      xAxis: { type: 'category', data: days, boundaryGap: false },
-      yAxis: { type: 'value' },
+      tooltip: {trigger: 'axis'},
+      grid: {left: 40, right: 20, top: 30, bottom: 30},
+      xAxis: {type: 'category', data: days, boundaryGap: false},
+      yAxis: {type: 'value'},
       series: [
-        { type: 'line', data: counts, smooth: true, areaStyle: { opacity: 0.15 }, showSymbol: false, color: '#409EFF' }
+        {type: 'line', data: counts, smooth: true, areaStyle: {opacity: 0.15}, showSymbol: false, color: '#409EFF'}
       ]
     })
   } catch (e) {
@@ -311,18 +317,18 @@ async function loadTrend() {
 
 async function loadDownTrend() {
   try {
-    const res = await apiDownloadTrend(trendDays.value, { headers: { silent: true } })
+    const res = await apiDownloadTrend(trendDays.value, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const days = list.map(d => d.day)
     const counts = list.map(d => d.count)
     if (!downChart) downChart = echarts.init(downRef.value)
     downChart.setOption({
-      tooltip: { trigger: 'axis' },
-      grid: { left: 40, right: 20, top: 30, bottom: 30 },
-      xAxis: { type: 'category', data: days, boundaryGap: false },
-      yAxis: { type: 'value' },
+      tooltip: {trigger: 'axis'},
+      grid: {left: 40, right: 20, top: 30, bottom: 30},
+      xAxis: {type: 'category', data: days, boundaryGap: false},
+      yAxis: {type: 'value'},
       series: [
-        { type: 'line', data: counts, smooth: true, areaStyle: { opacity: 0.15 }, showSymbol: false, color: '#67C23A' }
+        {type: 'line', data: counts, smooth: true, areaStyle: {opacity: 0.15}, showSymbol: false, color: '#67C23A'}
       ]
     })
   } catch (e) {
@@ -332,18 +338,18 @@ async function loadDownTrend() {
 
 async function loadLibTrend() {
   try {
-    const res = await libUploadTrend(libTrendDays.value, { headers: { silent: true } })
+    const res = await libUploadTrend(libTrendDays.value, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const days = list.map(d => d.day)
     const counts = list.map(d => d.count)
     if (!libTrendChart) libTrendChart = echarts.init(libTrendRef.value)
     libTrendChart.setOption({
-      tooltip: { trigger: 'axis' },
-      grid: { left: 40, right: 20, top: 30, bottom: 30 },
-      xAxis: { type: 'category', data: days, boundaryGap: false },
-      yAxis: { type: 'value' },
+      tooltip: {trigger: 'axis'},
+      grid: {left: 40, right: 20, top: 30, bottom: 30},
+      xAxis: {type: 'category', data: days, boundaryGap: false},
+      yAxis: {type: 'value'},
       series: [
-        { type: 'line', data: counts, smooth: true, areaStyle: { opacity: 0.15 }, showSymbol: false, color: '#E6A23C' }
+        {type: 'line', data: counts, smooth: true, areaStyle: {opacity: 0.15}, showSymbol: false, color: '#E6A23C'}
       ]
     })
   } catch (e) {
@@ -353,18 +359,18 @@ async function loadLibTrend() {
 
 async function loadLibDownTrend() {
   try {
-    const res = await libDownloadTrend(libTrendDays.value, { headers: { silent: true } })
+    const res = await libDownloadTrend(libTrendDays.value, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const days = list.map(d => d.day)
     const counts = list.map(d => d.count)
     if (!libDownChart) libDownChart = echarts.init(libDownRef.value)
     libDownChart.setOption({
-      tooltip: { trigger: 'axis' },
-      grid: { left: 40, right: 20, top: 30, bottom: 30 },
-      xAxis: { type: 'category', data: days, boundaryGap: false },
-      yAxis: { type: 'value' },
+      tooltip: {trigger: 'axis'},
+      grid: {left: 40, right: 20, top: 30, bottom: 30},
+      xAxis: {type: 'category', data: days, boundaryGap: false},
+      yAxis: {type: 'value'},
       series: [
-        { type: 'line', data: counts, smooth: true, areaStyle: { opacity: 0.15 }, showSymbol: false, color: '#F56C6C' }
+        {type: 'line', data: counts, smooth: true, areaStyle: {opacity: 0.15}, showSymbol: false, color: '#F56C6C'}
       ]
     })
   } catch (e) {
@@ -374,17 +380,17 @@ async function loadLibDownTrend() {
 
 async function loadLibTopBooks() {
   try {
-    const res = await libTopBooks(5, { headers: { silent: true } })
+    const res = await libTopBooks(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const names = list.map(i => i.title || i.bookName || `#${i.id}`)
     const counts = list.map(i => (i.downloadCount ?? i.count ?? 0))
     if (!libBookTopChart) libBookTopChart = echarts.init(libBookTopRef.value)
     libBookTopChart.setOption({
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: 120, right: 20, top: 20, bottom: 20 },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category', data: names, inverse: true },
-      series: [{ type: 'bar', data: counts, barWidth: 18, itemStyle: { color: '#409EFF' } }]
+      tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+      grid: {left: 120, right: 20, top: 20, bottom: 20},
+      xAxis: {type: 'value'},
+      yAxis: {type: 'category', data: names, inverse: true},
+      series: [{type: 'bar', data: counts, barWidth: 18, itemStyle: {color: '#409EFF'}}]
     })
   } catch (e) {
     if (libBookTopChart) libBookTopChart.clear()
@@ -393,17 +399,17 @@ async function loadLibTopBooks() {
 
 async function loadLibTopUsers() {
   try {
-    const res = await libTopUsers(5, { headers: { silent: true } })
+    const res = await libTopUsers(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const names = list.map(i => i.nickname || i.username || `用户#${i.userId}`)
     const counts = list.map(i => (i.downloadCount ?? i.passedCount ?? 0))
     if (!libUserTopChart) libUserTopChart = echarts.init(libUserTopRef.value)
     libUserTopChart.setOption({
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: 120, right: 20, top: 20, bottom: 20 },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category', data: names, inverse: true },
-      series: [{ type: 'bar', data: counts, barWidth: 18, itemStyle: { color: '#67C23A' } }]
+      tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+      grid: {left: 120, right: 20, top: 20, bottom: 20},
+      xAxis: {type: 'value'},
+      yAxis: {type: 'category', data: names, inverse: true},
+      series: [{type: 'bar', data: counts, barWidth: 18, itemStyle: {color: '#67C23A'}}]
     })
   } catch (e) {
     if (libUserTopChart) libUserTopChart.clear()
@@ -412,17 +418,17 @@ async function loadLibTopUsers() {
 
 async function loadCrTopResources() {
   try {
-    const res = await crTopResources(5, 30, { headers: { silent: true } })
+    const res = await crTopResources(5, 30, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const names = list.map(i => i.resourceName || `#${i.id}`)
     const counts = list.map(i => (i.downloadCount ?? 0))
     if (!crTopChart) crTopChart = echarts.init(crTopRef.value)
     crTopChart.setOption({
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: 120, right: 20, top: 20, bottom: 20 },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category', data: names, inverse: true },
-      series: [{ type: 'bar', data: counts, barWidth: 18, itemStyle: { color: '#909399' } }]
+      tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+      grid: {left: 120, right: 20, top: 20, bottom: 20},
+      xAxis: {type: 'value'},
+      yAxis: {type: 'category', data: names, inverse: true},
+      series: [{type: 'bar', data: counts, barWidth: 18, itemStyle: {color: '#909399'}}]
     })
   } catch (e) {
     if (crTopChart) crTopChart.clear()
@@ -431,17 +437,17 @@ async function loadCrTopResources() {
 
 async function loadCrTopScoreUsers() {
   try {
-    const res = await crTopUsers(5, { headers: { silent: true } })
+    const res = await crTopUsers(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const names = list.map(i => i.username || `用户#${i.userId}`)
     const counts = list.map(i => (i.totalScore ?? 0))
     if (!crUserScoreTopChart) crUserScoreTopChart = echarts.init(crUserScoreTopRef.value)
     crUserScoreTopChart.setOption({
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: 120, right: 20, top: 20, bottom: 20 },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category', data: names, inverse: true },
-      series: [{ type: 'bar', data: counts, barWidth: 18, itemStyle: { color: '#a6c' } }]
+      tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+      grid: {left: 120, right: 20, top: 20, bottom: 20},
+      xAxis: {type: 'value'},
+      yAxis: {type: 'category', data: names, inverse: true},
+      series: [{type: 'bar', data: counts, barWidth: 18, itemStyle: {color: '#a6c'}}]
     })
   } catch (e) {
     if (crUserScoreTopChart) crUserScoreTopChart.clear()
@@ -450,17 +456,17 @@ async function loadCrTopScoreUsers() {
 
 async function loadCrTopDownloadUsers() {
   try {
-    const res = await crTopDlUsers(5, { headers: { silent: true } })
+    const res = await crTopDlUsers(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const names = list.map(i => i.nickname || i.username || `用户#${i.userId}`)
     const counts = list.map(i => (i.passedCount ?? i.downloadCount ?? 0))
     if (!crUserDlTopChart) crUserDlTopChart = echarts.init(crUserDlTopRef.value)
     crUserDlTopChart.setOption({
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: 120, right: 20, top: 20, bottom: 20 },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category', data: names, inverse: true },
-      series: [{ type: 'bar', data: counts, barWidth: 18, itemStyle: { color: '#91CC75' } }]
+      tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+      grid: {left: 120, right: 20, top: 20, bottom: 20},
+      xAxis: {type: 'value'},
+      yAxis: {type: 'category', data: names, inverse: true},
+      series: [{type: 'bar', data: counts, barWidth: 18, itemStyle: {color: '#91CC75'}}]
     })
   } catch (e) {
     if (crUserDlTopChart) crUserDlTopChart.clear()
@@ -469,17 +475,17 @@ async function loadCrTopDownloadUsers() {
 
 async function loadLibTopUploadUsers() {
   try {
-    const res = await libTopUploadUsers(5, { headers: { silent: true } })
+    const res = await libTopUploadUsers(5, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
     const names = list.map(i => i.nickname || i.username || `用户#${i.userId}`)
     const counts = list.map(i => (i.passedCount ?? 0))
     if (!libUserUploadTopChart) libUserUploadTopChart = echarts.init(libUserUploadTopRef.value)
     libUserUploadTopChart.setOption({
-      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-      grid: { left: 120, right: 20, top: 20, bottom: 20 },
-      xAxis: { type: 'value' },
-      yAxis: { type: 'category', data: names, inverse: true },
-      series: [{ type: 'bar', data: counts, barWidth: 18, itemStyle: { color: '#FAC858' } }]
+      tooltip: {trigger: 'axis', axisPointer: {type: 'shadow'}},
+      grid: {left: 120, right: 20, top: 20, bottom: 20},
+      xAxis: {type: 'value'},
+      yAxis: {type: 'category', data: names, inverse: true},
+      series: [{type: 'bar', data: counts, barWidth: 18, itemStyle: {color: '#FAC858'}}]
     })
   } catch (e) {
     if (libUserUploadTopChart) libUserUploadTopChart.clear()
@@ -488,14 +494,14 @@ async function loadLibTopUploadUsers() {
 
 async function loadCrMajorShare() {
   try {
-    const res = await crMajorShare(30, { headers: { silent: true } })
+    const res = await crMajorShare(30, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
-    const data = list.map(i => ({ name: i.name, value: i.value }))
+    const data = list.map(i => ({name: i.name, value: i.value}))
     if (!crMajorPieChart) crMajorPieChart = echarts.init(crMajorPieRef.value)
     crMajorPieChart.setOption({
-      tooltip: { trigger: 'item' },
-      legend: { top: 'bottom' },
-      series: [{ type: 'pie', radius: '70%', data }]
+      tooltip: {trigger: 'item'},
+      legend: {top: 'bottom'},
+      series: [{type: 'pie', radius: '70%', data}]
     })
   } catch (e) {
     if (crMajorPieChart) crMajorPieChart.clear()
@@ -504,25 +510,62 @@ async function loadCrMajorShare() {
 
 async function loadCrCourseShare() {
   try {
-    const res = await crCourseShare(30, { headers: { silent: true } })
+    const res = await crCourseShare(30, {headers: {silent: true}})
     const list = (res && Array.isArray(res.data)) ? res.data : []
-    const data = list.map(i => ({ name: i.name, value: i.value }))
+    const data = list.map(i => ({name: i.name, value: i.value}))
     if (!crCoursePieChart) crCoursePieChart = echarts.init(crCoursePieRef.value)
     crCoursePieChart.setOption({
-      tooltip: { trigger: 'item' },
-      legend: { top: 'bottom' },
-      series: [{ type: 'pie', radius: '70%', data }]
+      tooltip: {trigger: 'item'},
+      legend: {top: 'bottom'},
+      series: [{type: 'pie', radius: '70%', data}]
     })
   } catch (e) {
     if (crCoursePieChart) crCoursePieChart.clear()
   }
 }
 
-function resize() { if (trendChart) trendChart.resize(); if (downChart) downChart.resize() }
-function resizeLib() { if (libTrendChart) libTrendChart.resize(); if (libDownChart) libDownChart.resize(); if (libBookTopChart) libBookTopChart.resize(); if (libUserTopChart) libUserTopChart.resize(); if (libUserUploadTopChart) libUserUploadTopChart.resize() }
-function resizeCr() { if (crTopChart) crTopChart.resize(); if (crUserDlTopChart) crUserDlTopChart.resize(); if (crUserScoreTopChart) crUserScoreTopChart.resize(); if (crMajorPieChart) crMajorPieChart.resize(); if (crCoursePieChart) crCoursePieChart.resize() }
-function resizeAll() { resize(); resizeLib(); resizeCr() }
-function refresh() { loadStats(); loadTrend(); loadDownTrend(); loadCrTopResources(); loadCrTopDownloadUsers(); loadCrTopScoreUsers(); loadCrMajorShare(); loadCrCourseShare(); loadLibTrend(); loadLibDownTrend(); loadLibTopBooks(); loadLibTopUsers(); loadLibTopUploadUsers() }
+function resize() {
+  if (trendChart) trendChart.resize();
+  if (downChart) downChart.resize()
+}
+
+function resizeLib() {
+  if (libTrendChart) libTrendChart.resize();
+  if (libDownChart) libDownChart.resize();
+  if (libBookTopChart) libBookTopChart.resize();
+  if (libUserTopChart) libUserTopChart.resize();
+  if (libUserUploadTopChart) libUserUploadTopChart.resize()
+}
+
+function resizeCr() {
+  if (crTopChart) crTopChart.resize();
+  if (crUserDlTopChart) crUserDlTopChart.resize();
+  if (crUserScoreTopChart) crUserScoreTopChart.resize();
+  if (crMajorPieChart) crMajorPieChart.resize();
+  if (crCoursePieChart) crCoursePieChart.resize()
+}
+
+function resizeAll() {
+  resize();
+  resizeLib();
+  resizeCr()
+}
+
+function refresh() {
+  loadStats();
+  loadTrend();
+  loadDownTrend();
+  loadCrTopResources();
+  loadCrTopDownloadUsers();
+  loadCrTopScoreUsers();
+  loadCrMajorShare();
+  loadCrCourseShare();
+  loadLibTrend();
+  loadLibDownTrend();
+  loadLibTopBooks();
+  loadLibTopUsers();
+  loadLibTopUploadUsers()
+}
 
 onMounted(() => {
   loadStats()
@@ -542,28 +585,96 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
   window.removeEventListener('resize', resizeAll)
-  if (trendChart) { trendChart.dispose(); trendChart = null }
-  if (downChart) { downChart.dispose(); downChart = null }
-  if (libTrendChart) { libTrendChart.dispose(); libTrendChart = null }
-  if (libDownChart) { libDownChart.dispose(); libDownChart = null }
-  if (libBookTopChart) { libBookTopChart.dispose(); libBookTopChart = null }
-  if (libUserTopChart) { libUserTopChart.dispose(); libUserTopChart = null }
-  if (libUserUploadTopChart) { libUserUploadTopChart.dispose(); libUserUploadTopChart = null }
-  if (crTopChart) { crTopChart.dispose(); crTopChart = null }
-  if (crUserDlTopChart) { crUserDlTopChart.dispose(); crUserDlTopChart = null }
-  if (crUserScoreTopChart) { crUserScoreTopChart.dispose(); crUserScoreTopChart = null }
-  if (crMajorPieChart) { crMajorPieChart.dispose(); crMajorPieChart = null }
-  if (crCoursePieChart) { crCoursePieChart.dispose(); crCoursePieChart = null }
+  if (trendChart) {
+    trendChart.dispose();
+    trendChart = null
+  }
+  if (downChart) {
+    downChart.dispose();
+    downChart = null
+  }
+  if (libTrendChart) {
+    libTrendChart.dispose();
+    libTrendChart = null
+  }
+  if (libDownChart) {
+    libDownChart.dispose();
+    libDownChart = null
+  }
+  if (libBookTopChart) {
+    libBookTopChart.dispose();
+    libBookTopChart = null
+  }
+  if (libUserTopChart) {
+    libUserTopChart.dispose();
+    libUserTopChart = null
+  }
+  if (libUserUploadTopChart) {
+    libUserUploadTopChart.dispose();
+    libUserUploadTopChart = null
+  }
+  if (crTopChart) {
+    crTopChart.dispose();
+    crTopChart = null
+  }
+  if (crUserDlTopChart) {
+    crUserDlTopChart.dispose();
+    crUserDlTopChart = null
+  }
+  if (crUserScoreTopChart) {
+    crUserScoreTopChart.dispose();
+    crUserScoreTopChart = null
+  }
+  if (crMajorPieChart) {
+    crMajorPieChart.dispose();
+    crMajorPieChart = null
+  }
+  if (crCoursePieChart) {
+    crCoursePieChart.dispose();
+    crCoursePieChart = null
+  }
 })
 </script>
 
 <style scoped>
-.dashboard { padding: 0; }
-.metric { text-align: left; }
-.metric-title { font-size: 14px; color: #909399; }
-.metric-value { font-size: 28px; font-weight: 600; margin: 4px 0; }
-.metric-sub { font-size: 12px; color: #909399; }
-.quick-actions { margin-top: 6px; display: flex; gap: 6px; flex-wrap: wrap; }
-.module-row { margin-top: 16px; }
-.card-hd { display: flex; align-items: center; justify-content: space-between; }
+.dashboard {
+  padding: 0;
+}
+
+.metric {
+  text-align: left;
+}
+
+.metric-title {
+  font-size: 14px;
+  color: #909399;
+}
+
+.metric-value {
+  font-size: 28px;
+  font-weight: 600;
+  margin: 4px 0;
+}
+
+.metric-sub {
+  font-size: 12px;
+  color: #909399;
+}
+
+.quick-actions {
+  margin-top: 6px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.module-row {
+  margin-top: 16px;
+}
+
+.card-hd {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 </style>

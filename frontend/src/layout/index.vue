@@ -1,22 +1,22 @@
 <template>
   <div :class="classObj" class="app-wrapper" :style="{ '--current-color': theme }">
     <div v-if="device === 'mobile' && sidebar.opened" class="drawer-bg" @click="handleClickOutside"/>
-    <sidebar v-if="!sidebar.hide" class="sidebar-container" />
+    <sidebar v-if="!sidebar.hide" class="sidebar-container"/>
     <div :class="{ hasTagsView: needTagsView, sidebarHide: sidebar.hide }" class="main-container">
       <div :class="{ 'fixed-header': fixedHeader }">
-        <navbar @setLayout="setLayout" />
-        <tags-view v-if="needTagsView" />
+        <navbar @setLayout="setLayout"/>
+        <tags-view v-if="needTagsView"/>
       </div>
-      <app-main />
-      <settings ref="settingRef" />
+      <app-main/>
+      <settings ref="settingRef"/>
     </div>
   </div>
 </template>
 
 <script setup>
-import { useWindowSize } from '@vueuse/core'
+import {useWindowSize} from '@vueuse/core'
 import Sidebar from './components/Sidebar/index.vue'
-import { AppMain, Navbar, Settings, TagsView } from './components'
+import {AppMain, Navbar, Settings, TagsView} from './components'
 import useAppStore from '@/store/modules/app'
 import useSettingsStore from '@/store/modules/settings'
 
@@ -35,29 +35,30 @@ const classObj = computed(() => ({
   mobile: device.value === 'mobile'
 }))
 
-const { width, height } = useWindowSize()
+const {width, height} = useWindowSize()
 const WIDTH = 992 // refer to Bootstrap's responsive design
 
 watch(() => device.value, () => {
   if (device.value === 'mobile' && sidebar.value.opened) {
-    useAppStore().closeSideBar({ withoutAnimation: false })
+    useAppStore().closeSideBar({withoutAnimation: false})
   }
 })
 
 watchEffect(() => {
   if (width.value - 1 < WIDTH) {
     useAppStore().toggleDevice('mobile')
-    useAppStore().closeSideBar({ withoutAnimation: true })
+    useAppStore().closeSideBar({withoutAnimation: true})
   } else {
     useAppStore().toggleDevice('desktop')
   }
 })
 
 function handleClickOutside() {
-  useAppStore().closeSideBar({ withoutAnimation: false })
+  useAppStore().closeSideBar({withoutAnimation: false})
 }
 
 const settingRef = ref(null)
+
 function setLayout() {
   settingRef.value.openSetting()
 }

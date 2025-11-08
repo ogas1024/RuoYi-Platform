@@ -27,20 +27,29 @@
         <el-table-column label="操作" width="220">
           <template #default="scope">
             <el-button size="small" @click="openDetail(scope.row)">查看</el-button>
-            <el-button v-if="canCancel(scope.row)" type="danger" size="small" @click="doCancel(scope.row)">取消</el-button>
+            <el-button v-if="canCancel(scope.row)" type="danger" size="small" @click="doCancel(scope.row)">取消
+            </el-button>
             <el-button v-if="canEdit(scope.row)" size="small" @click="openEdit(scope.row)">修改</el-button>
-            <el-button v-if="canEndEarly(scope.row)" size="small" type="warning" @click="openEnd(scope.row)">提前结束</el-button>
+            <el-button v-if="canEndEarly(scope.row)" size="small" type="warning" @click="openEnd(scope.row)">提前结束
+            </el-button>
           </template>
         </el-table-column>
       </el-table>
-      <pagination v-show="total>0" :total="total" v-model:page="query.pageNum" v-model:limit="query.pageSize" @pagination="load"/>
+      <pagination v-show="total>0" :total="total" v-model:page="query.pageNum" v-model:limit="query.pageSize"
+                  @pagination="load"/>
     </el-card>
 
     <el-dialog v-model="showEdit" title="修改预约" width="520px">
       <el-form :model="editForm" label-width="100px">
-        <el-form-item label="使用目的"><el-input v-model="editForm.purpose"/></el-form-item>
-        <el-form-item label="开始时间"><el-date-picker v-model="editForm.startTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/></el-form-item>
-        <el-form-item label="结束时间"><el-date-picker v-model="editForm.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/></el-form-item>
+        <el-form-item label="使用目的">
+          <el-input v-model="editForm.purpose"/>
+        </el-form-item>
+        <el-form-item label="开始时间">
+          <el-date-picker v-model="editForm.startTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/>
+        </el-form-item>
+        <el-form-item label="结束时间">
+          <el-date-picker v-model="editForm.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showEdit=false">取消</el-button>
@@ -50,7 +59,9 @@
 
     <el-dialog v-model="showEnd" title="提前结束" width="420px">
       <el-form :model="endForm" label-width="100px">
-        <el-form-item label="结束时间"><el-date-picker v-model="endForm.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/></el-form-item>
+        <el-form-item label="结束时间">
+          <el-date-picker v-model="endForm.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/>
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="showEnd=false">取消</el-button>
@@ -58,60 +69,114 @@
       </template>
     </el-dialog>
   </div>
-    <BookingDetailDialog v-model="detailOpen" :booking-id="currentId" :fetcher="fetchPortalBooking" :show-actions="false" />
+  <BookingDetailDialog v-model="detailOpen" :booking-id="currentId" :fetcher="fetchPortalBooking"
+                       :show-actions="false"/>
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { myBookings, cancelBooking, updateBooking, endEarly, getBooking as getPortalBooking } from '@/api/portal/facility'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import {ref, reactive, onMounted} from 'vue'
+import {myBookings, cancelBooking, updateBooking, endEarly, getBooking as getPortalBooking} from '@/api/portal/facility'
+import {ElMessage, ElMessageBox} from 'element-plus'
 import BookingDetailDialog from '@/components/facility/BookingDetailDialog.vue'
 
 const status = ref('')
-const query = reactive({ pageNum: 1, pageSize: 10 })
+const query = reactive({pageNum: 1, pageSize: 10})
 const total = ref(0)
 const list = ref([])
 
-async function load(){
-  const { rows, total: t } = await myBookings({ ...query, status: status.value })
+async function load() {
+  const {rows, total: t} = await myBookings({...query, status: status.value})
   list.value = rows || []
   total.value = t || 0
 }
 
-function canCancel(r){ const st = String(r.status); return (st === '0' || st === '1') && new Date(r.startTime) > new Date() }
-function canEdit(r){ const st = String(r.status); return (st === '0' || st === '1' || st === '2') && new Date(r.startTime) > new Date() }
-function canEndEarly(r){ const st = String(r.status); return st === '1' || st === '4' }
+function canCancel(r) {
+  const st = String(r.status);
+  return (st === '0' || st === '1') && new Date(r.startTime) > new Date()
+}
 
-async function doCancel(r){
-  await ElMessageBox.confirm('确认要取消该预约？','提示')
+function canEdit(r) {
+  const st = String(r.status);
+  return (st === '0' || st === '1' || st === '2') && new Date(r.startTime) > new Date()
+}
+
+function canEndEarly(r) {
+  const st = String(r.status);
+  return st === '1' || st === '4'
+}
+
+async function doCancel(r) {
+  await ElMessageBox.confirm('确认要取消该预约？', '提示')
   await cancelBooking(r.id)
   ElMessage.success('已取消')
   load()
 }
 
 const showEdit = ref(false)
-const editForm = reactive({ id: null, purpose: '', startTime: '', endTime: '' })
-function openEdit(r){ Object.assign(editForm, { id: r.id, purpose: r.purpose, startTime: r.startTime, endTime: r.endTime }); showEdit.value = true }
-async function saveEdit(){ await updateBooking(editForm.id, editForm); ElMessage.success('已保存'); showEdit.value=false; load() }
+const editForm = reactive({id: null, purpose: '', startTime: '', endTime: ''})
+
+function openEdit(r) {
+  Object.assign(editForm, {id: r.id, purpose: r.purpose, startTime: r.startTime, endTime: r.endTime});
+  showEdit.value = true
+}
+
+async function saveEdit() {
+  await updateBooking(editForm.id, editForm);
+  ElMessage.success('已保存');
+  showEdit.value = false;
+  load()
+}
 
 const showEnd = ref(false)
-const endForm = reactive({ id: null, endTime: '' })
-function openEnd(r){ endForm.id = r.id; endForm.endTime = r.endTime; showEnd.value = true }
-async function saveEnd(){ await endEarly(endForm.id, { endTime: endForm.endTime }); ElMessage.success('操作成功'); showEnd.value=false; load() }
+const endForm = reactive({id: null, endTime: ''})
+
+function openEnd(r) {
+  endForm.id = r.id;
+  endForm.endTime = r.endTime;
+  showEnd.value = true
+}
+
+async function saveEnd() {
+  await endEarly(endForm.id, {endTime: endForm.endTime});
+  ElMessage.success('操作成功');
+  showEnd.value = false;
+  load()
+}
 
 onMounted(load)
 
 // 详情弹窗（门户只读）
 const detailOpen = ref(false)
 const currentId = ref(null)
-function openDetail(row){ currentId.value = row.id; detailOpen.value = true }
+
+function openDetail(row) {
+  currentId.value = row.id;
+  detailOpen.value = true
+}
+
 const fetchPortalBooking = (id) => getPortalBooking(id)
 
 // 状态展示（用户友好标签）
-const statusText = (s) => ({ '0':'待审核', '1':'已批准', '2':'已驳回', '3':'已取消', '4':'进行中', '5':'已完成' })[String(s)] || '-'
-const statusType = (s) => ({ '0':'warning', '1':'success', '2':'danger', '3':'info', '4':'success', '5':'info' })[String(s)] || 'info'
+const statusText = (s) => ({
+  '0': '待审核',
+  '1': '已批准',
+  '2': '已驳回',
+  '3': '已取消',
+  '4': '进行中',
+  '5': '已完成'
+})[String(s)] || '-'
+const statusType = (s) => ({
+  '0': 'warning',
+  '1': 'success',
+  '2': 'danger',
+  '3': 'info',
+  '4': 'success',
+  '5': 'info'
+})[String(s)] || 'info'
 </script>
 
 <style scoped>
-.filter{ margin-bottom:12px; }
+.filter {
+  margin-bottom: 12px;
+}
 </style>

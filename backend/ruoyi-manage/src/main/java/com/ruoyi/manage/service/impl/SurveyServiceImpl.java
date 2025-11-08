@@ -172,7 +172,12 @@ public class SurveyServiceImpl implements ISurveyService {
         if (survey.getVisibleAll() != null && survey.getVisibleAll() == 0) {
             List<SurveyScope> scopes = normalizeScopes(survey.getScopes());
             if (scopes.isEmpty()) throw new ServiceException("自定义范围至少选择一个角色/部门/岗位");
-            for (SurveyScope sc : scopes) { initChild(sc); sc.setSurveyId(survey.getId()); scopeMapper.insert(sc);}        }
+            for (SurveyScope sc : scopes) {
+                initChild(sc);
+                sc.setSurveyId(survey.getId());
+                scopeMapper.insert(sc);
+            }
+        }
         return 1;
     }
 
@@ -222,7 +227,8 @@ public class SurveyServiceImpl implements ISurveyService {
                 map.put(it.getItemId(), it.getValueText());
             } else if (StringUtils.isNotEmpty(it.getValueOptionIds())) {
                 try {
-                    List<Long> ids = M.readValue(it.getValueOptionIds(), new TypeReference<List<Long>>(){});
+                    List<Long> ids = M.readValue(it.getValueOptionIds(), new TypeReference<List<Long>>() {
+                    });
                     map.put(it.getItemId(), ids);
                 } catch (Exception e) {
                     // 解析失败则作为原始字符串返回
@@ -383,7 +389,11 @@ public class SurveyServiceImpl implements ISurveyService {
     private Long toLong(Object v) {
         if (v == null) return null;
         if (v instanceof Number) return ((Number) v).longValue();
-        try { return Long.parseLong(String.valueOf(v)); } catch (Exception e) { return null; }
+        try {
+            return Long.parseLong(String.valueOf(v));
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     private String objToString(Object v) {

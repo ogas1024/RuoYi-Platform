@@ -7,7 +7,7 @@
     </div>
     <el-form :inline="true" :model="queryParams" class="mb8">
       <el-form-item label="关键字">
-        <el-input v-model="queryParams.keyword" placeholder="资源名/简介/上传者" clearable @keyup.enter="handleQuery" />
+        <el-input v-model="queryParams.keyword" placeholder="资源名/简介/上传者" clearable @keyup.enter="handleQuery"/>
       </el-form-item>
       <el-form-item>
         <el-button type="primary" icon="Search" @click="handleQuery">搜索</el-button>
@@ -31,7 +31,8 @@
         </div>
       </div>
     </div>
-    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList"/>
+    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
+                @pagination="getList"/>
 
     <el-dialog v-model="open" title="分享资源" width="520px" append-to-body>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
@@ -57,7 +58,8 @@
           <el-input v-model="form.linkUrl" placeholder="https://..."/>
         </el-form-item>
         <el-form-item label="资源简介" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="4" maxlength="500" show-word-limit placeholder="请填写简介"/>
+          <el-input v-model="form.description" type="textarea" :rows="4" maxlength="500" show-word-limit
+                    placeholder="请填写简介"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -69,15 +71,16 @@
     <el-dialog v-model="detailVisible" title="资源详情" width="640px" append-to-body>
       <el-descriptions :column="2" border>
         <el-descriptions-item label="资源名称">{{ detail.resourceName }}</el-descriptions-item>
-        <el-descriptions-item label="资源类型">{{ detail.resourceType===1?'外链':'文件' }}</el-descriptions-item>
+        <el-descriptions-item label="资源类型">{{ detail.resourceType === 1 ? '外链' : '文件' }}</el-descriptions-item>
         <el-descriptions-item label="专业">{{ majorName }}</el-descriptions-item>
         <el-descriptions-item label="课程">{{ courseName }}</el-descriptions-item>
-        <el-descriptions-item label="最佳">{{ detail.isBest===1?'是':'否' }}</el-descriptions-item>
+        <el-descriptions-item label="最佳">{{ detail.isBest === 1 ? '是' : '否' }}</el-descriptions-item>
         <el-descriptions-item label="上传者">{{ detail.uploaderName }}</el-descriptions-item>
         <el-descriptions-item label="上传时间">{{ detail.createTime }}</el-descriptions-item>
         <el-descriptions-item label="上架时间">{{ detail.publishTime || '-' }}</el-descriptions-item>
         <el-descriptions-item label="下载次数">{{ detail.downloadCount || 0 }}</el-descriptions-item>
-        <el-descriptions-item v-if="(detail.status===2||detail.status===3) && detail.auditReason" label="原因" :span="2">
+        <el-descriptions-item v-if="(detail.status===2||detail.status===3) && detail.auditReason" label="原因"
+                              :span="2">
           <span class="reason-strong">{{ detail.auditReason }}</span>
         </el-descriptions-item>
       </el-descriptions>
@@ -94,10 +97,10 @@
 </template>
 
 <script setup name="ResourceList">
-import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
-import { useRoute } from 'vue-router'
-import { listResourcePortal, addResourcePortal } from '@/api/portal/resource'
-import { uploadOssPortal } from '@/api/portal/upload'
+import {ref, reactive, onMounted, getCurrentInstance} from 'vue'
+import {useRoute} from 'vue-router'
+import {listResourcePortal, addResourcePortal} from '@/api/portal/resource'
+import {uploadOssPortal} from '@/api/portal/upload'
 
 const route = useRoute()
 const majorId = Number(route.query.majorId)
@@ -105,24 +108,34 @@ const courseId = Number(route.query.courseId)
 const majorName = route.query.majorName || ''
 const courseName = route.query.courseName || ''
 
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 
 const loading = ref(false)
 const total = ref(0)
 const list = ref([])
-const queryParams = reactive({ pageNum: 1, pageSize: 10, majorId, courseId, status: 1, keyword: '' })
+const queryParams = reactive({pageNum: 1, pageSize: 10, majorId, courseId, status: 1, keyword: ''})
 
 const open = ref(false)
 const formRef = ref()
-const form = reactive({ majorId, courseId, resourceName: '', resourceType: 0, fileUrl: '', fileHash: '', fileSize: 0, linkUrl: '', description: '' })
+const form = reactive({
+  majorId,
+  courseId,
+  resourceName: '',
+  resourceType: 0,
+  fileUrl: '',
+  fileHash: '',
+  fileSize: 0,
+  linkUrl: '',
+  description: ''
+})
 const detailVisible = ref(false)
 const detail = ref({})
 const rules = {
-  resourceName: [{ required: true, message: '请填写资源名称', trigger: 'blur' }],
-  resourceType: [{ required: true, message: '请选择资源类型', trigger: 'change' }],
-  fileUrl: [{ required: () => form.resourceType===0, message: '请上传压缩包', trigger: 'change' }],
-  linkUrl: [{ required: () => form.resourceType===1, message: '请填写外链URL', trigger: 'blur' }],
-  description: [{ required: true, message: '请填写资源简介', trigger: 'blur' }]
+  resourceName: [{required: true, message: '请填写资源名称', trigger: 'blur'}],
+  resourceType: [{required: true, message: '请选择资源类型', trigger: 'change'}],
+  fileUrl: [{required: () => form.resourceType === 0, message: '请上传压缩包', trigger: 'change'}],
+  linkUrl: [{required: () => form.resourceType === 1, message: '请填写外链URL', trigger: 'blur'}],
+  description: [{required: true, message: '请填写资源简介', trigger: 'blur'}]
 }
 
 const getList = async () => {
@@ -131,17 +144,27 @@ const getList = async () => {
     const resp = await listResourcePortal(queryParams)
     list.value = resp.rows || []
     total.value = resp.total || 0
-  } finally { loading.value = false }
+  } finally {
+    loading.value = false
+  }
 }
 
-const handleQuery = () => { queryParams.pageNum = 1; getList() }
-const resetQuery = () => { queryParams.keyword = ''; handleQuery() }
-const openDialog = () => { open.value = true }
+const handleQuery = () => {
+  queryParams.pageNum = 1;
+  getList()
+}
+const resetQuery = () => {
+  queryParams.keyword = '';
+  handleQuery()
+}
+const openDialog = () => {
+  open.value = true
+}
 
 const doUpload = async (options) => {
   const file = options.file
   const sizeLimit = 100 * 1024 * 1024
-  const allowed = ['zip','rar','7z','tar','gz','bz2','xz']
+  const allowed = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz']
   const ext = file.name.split('.').pop().toLowerCase()
   if (!allowed.includes(ext)) {
     proxy.$modal.msgError('仅允许上传压缩包文件')
@@ -154,7 +177,11 @@ const doUpload = async (options) => {
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOssPortal(fd, { scene: 'resource.archive', dir: `resource/${majorId}/${courseId}`, publicUrl: true })
+    const {data} = await uploadOssPortal(fd, {
+      scene: 'resource.archive',
+      dir: `resource/${majorId}/${courseId}`,
+      publicUrl: true
+    })
     form.fileUrl = data.url || data.publicUrl || ''
     form.fileHash = data.sha256 || data.etag || ''
     form.fileSize = file.size
@@ -167,12 +194,14 @@ const doUpload = async (options) => {
 const submitForm = () => {
   formRef.value.validate(async (valid) => {
     if (!valid) return
-    const payload = { ...form }
+    const payload = {...form}
     if (payload.resourceType === 0) {
       if (!payload.fileHash) return proxy.$modal.msgError('缺少文件哈希，请重新上传')
       delete payload.linkUrl
     } else {
-      delete payload.fileUrl; delete payload.fileHash; delete payload.fileSize
+      delete payload.fileUrl;
+      delete payload.fileHash;
+      delete payload.fileSize
     }
     await addResourcePortal(payload)
     proxy.$modal.msgSuccess('提交成功，等待审核')
@@ -194,22 +223,110 @@ onMounted(getList)
 </script>
 
 <style scoped>
-.toolbar { margin-bottom: 10px; }
-.hint { margin-left: 8px; color: #909399; }
-.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
-.res-card { border: 1px solid #ebeef5; border-radius: 8px; padding: 12px; cursor: pointer; transition: box-shadow .2s ease; background: #fff; }
-.res-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
-.badge-best { position: absolute; right: 12px; top: 12px; background: #f56c6c; color: #fff; font-size: 12px; padding: 2px 6px; border-radius: 3px; }
-.res-card { position: relative; }
-.title { font-size: 16px; font-weight: 600; color: #303133; margin-bottom: 6px; }
-.desc { color: #606266; font-size: 13px; line-height: 1.5; max-height: 3.9em; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
-.meta { margin-top: 8px; color: #909399; font-size: 12px; }
-.meta .dot { margin: 0 6px; }
-.footer { margin-top: 10px; display: flex; align-items: center; justify-content: space-between; color: #409EFF; }
-.count { margin-left: 4px; color: #606266; }
-.label { color: #909399; }
-.detail-desc { margin-top: 14px; }
-.detail-label { font-weight: 600; margin-bottom: 6px; }
-.detail-content { white-space: pre-wrap; line-height: 1.6; }
-.reason-strong { color: #d43f3a; font-weight: 600; }
+.toolbar {
+  margin-bottom: 10px;
+}
+
+.hint {
+  margin-left: 8px;
+  color: #909399;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 12px;
+}
+
+.res-card {
+  border: 1px solid #ebeef5;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: box-shadow .2s ease;
+  background: #fff;
+}
+
+.res-card:hover {
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+.badge-best {
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  background: #f56c6c;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.res-card {
+  position: relative;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #303133;
+  margin-bottom: 6px;
+}
+
+.desc {
+  color: #606266;
+  font-size: 13px;
+  line-height: 1.5;
+  max-height: 3.9em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+}
+
+.meta {
+  margin-top: 8px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.meta .dot {
+  margin: 0 6px;
+}
+
+.footer {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: #409EFF;
+}
+
+.count {
+  margin-left: 4px;
+  color: #606266;
+}
+
+.label {
+  color: #909399;
+}
+
+.detail-desc {
+  margin-top: 14px;
+}
+
+.detail-label {
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.detail-content {
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.reason-strong {
+  color: #d43f3a;
+  font-weight: 600;
+}
 </style>

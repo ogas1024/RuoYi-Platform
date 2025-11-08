@@ -34,14 +34,13 @@ import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
  * 商铺信息Controller
- * 
+ *
  * @author 曾辉
  * @date 2025-10-12
  */
 @RestController
 @RequestMapping("/manage/shops")
-public class ShopsController extends BaseController
-{
+public class ShopsController extends BaseController {
     @Autowired
     private IShopsService shopsService;
 
@@ -53,8 +52,7 @@ public class ShopsController extends BaseController
      * 查询商铺信息列表
      */
     @GetMapping("/list")
-    public TableDataInfo list(Shops shops)
-    {
+    public TableDataInfo list(Shops shops) {
         startPage();
         List<Shops> list = shopsService.selectShopsList(shops);
         return getDataTable(list);
@@ -65,8 +63,7 @@ public class ShopsController extends BaseController
      */
     @Log(title = "商铺信息", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, Shops shops)
-    {
+    public void export(HttpServletResponse response, Shops shops) {
         List<Shops> list = shopsService.selectShopsList(shops);
         ExcelUtil<Shops> util = new ExcelUtil<Shops>(Shops.class);
         util.exportExcel(response, list, "商铺信息数据");
@@ -76,8 +73,7 @@ public class ShopsController extends BaseController
      * 获取商铺信息详细信息
      */
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
+    public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(shopsService.selectShopsById(id));
     }
 
@@ -86,8 +82,7 @@ public class ShopsController extends BaseController
      */
     @Log(title = "商铺信息", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody Shops shops)
-    {
+    public AjaxResult add(@RequestBody Shops shops) {
         final Long roleId = 101L;  //此处的角色ID为sys_role表中创建角色对应的role_id，请自行修改。
         User user = new User();
         user.setUserName(shops.getUserName());
@@ -95,11 +90,10 @@ public class ShopsController extends BaseController
         user.setNickName(shops.getShopName());
         user.setCreateBy(getUsername());
         user.setRoleId(roleId);
-        if (!userService.checkUserNameUnique(user.getUserName(),user.getUserId()))
-        {
+        if (!userService.checkUserNameUnique(user.getUserName(), user.getUserId())) {
             return error("新增用户'" + user.getUserName() + "'失败，用户名称已存在");
         }
-        Long userId= userService.insertUser(user);
+        Long userId = userService.insertUser(user);
         shops.setId(userId);   //将用户表主键赋给店铺表，以便后面的关联操作
         return toAjax(shopsService.insertShops(shops));
     }
@@ -109,8 +103,7 @@ public class ShopsController extends BaseController
      */
     @Log(title = "商铺信息", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody Shops shops)
-    {
+    public AjaxResult edit(@RequestBody Shops shops) {
         return toAjax(shopsService.updateShops(shops));
     }
 
@@ -118,9 +111,8 @@ public class ShopsController extends BaseController
      * 删除商铺信息
      */
     @Log(title = "商铺信息", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
+    @DeleteMapping("/{ids}")
+    public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(shopsService.deleteShopsByIds(ids));
     }
 }

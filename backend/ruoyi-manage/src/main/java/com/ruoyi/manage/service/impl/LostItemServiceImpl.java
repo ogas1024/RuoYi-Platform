@@ -21,7 +21,9 @@ public class LostItemServiceImpl implements ILostItemService {
     private LostItemImageMapper imageMapper;
 
     @Override
-    public LostItem selectById(Long id) { return mapper.selectById(id); }
+    public LostItem selectById(Long id) {
+        return mapper.selectById(id);
+    }
 
     @Override
     public List<LostItem> selectList(LostItem query, List<Integer> statusList) {
@@ -29,7 +31,9 @@ public class LostItemServiceImpl implements ILostItemService {
     }
 
     @Override
-    public List<LostItemImage> listImages(Long itemId) { return imageMapper.listByItemId(itemId); }
+    public List<LostItemImage> listImages(Long itemId) {
+        return imageMapper.listByItemId(itemId);
+    }
 
     @Override
     @Transactional(rollbackFor = Exception.class)

@@ -26,18 +26,20 @@
         <result property="status" column="status_text"/>
     </resultMap>
 
-    <sql id="baseSelect">select * from tb_facility_booking</sql>
+    <sql id="baseSelect">select *
+                         from tb_facility_booking</sql>
 
     <select id="selectById" parameterType="long" resultMap="BookingResult">
-        <include refid="baseSelect"/> where id = #{id}
+        <include refid="baseSelect"/>
+        where id = #{id}
     </select>
 
-    <insert id="insert" parameterType="com.ruoyi.manage.domain.FacilityBooking" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_facility_booking(
-            room_id,applicant_id,purpose,start_time,end_time,duration_minutes,status,create_by,create_time,del_flag
-        ) values(
-            #{roomId},#{applicantId},#{purpose},#{startTime},#{endTime},#{durationMinutes},#{status},#{createBy},#{createTime},'0'
-        )
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.FacilityBooking" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into tb_facility_booking(room_id, applicant_id, purpose, start_time, end_time, duration_minutes, status,
+                                        create_by, create_time, del_flag)
+        values (#{roomId}, #{applicantId}, #{purpose}, #{startTime}, #{endTime}, #{durationMinutes}, #{status},
+                #{createBy}, #{createTime}, '0')
     </insert>
 
     <update id="update" parameterType="com.ruoyi.manage.domain.FacilityBooking">
@@ -58,7 +60,7 @@
     <select id="selectMyList" resultMap="BookingResult">
         <include refid="baseSelect"/>
         where del_flag='0' and applicant_id = #{applicantId}
-        <if test="status != null and status != ''"> and status = #{status}</if>
+        <if test="status != null and status != ''">and status = #{status}</if>
         order by start_time desc, id desc
     </select>
 
@@ -66,22 +68,23 @@
     <select id="countConflict" resultType="int">
         select count(1) from tb_facility_booking
         where del_flag='0'
-          and room_id = #{roomId}
-          and status in ('0','1','4')
-          and not (end_time &lt;= #{start} or start_time &gt;= #{end})
-          <if test="excludeId != null"> and id &lt;&gt; #{excludeId}</if>
+        and room_id = #{roomId}
+        and status in ('0','1','4')
+        and not (end_time &lt;= #{start} or start_time &gt;= #{end})
+        <if test="excludeId != null">and id &lt;&gt; #{excludeId}</if>
     </select>
 
     <select id="selectTimeline" resultMap="TimelineSegment">
         select id,
-               start_time,
-               end_time,
-               case status when '0' then 'pending' when '1' then 'approved' when '4' then 'ongoing' when '5' then 'completed' else 'unknown' end as status_text
+        start_time,
+        end_time,
+        case status when '0' then 'pending' when '1' then 'approved' when '4' then 'ongoing' when '5' then 'completed'
+        else 'unknown' end as status_text
         from tb_facility_booking
         where del_flag='0' and room_id = #{roomId}
-          and status in ('0','1','4','5')
-          <if test="from != null"> and end_time &gt;= #{from}</if>
-          <if test="to != null"> and start_time &lt;= #{to}</if>
+        and status in ('0','1','4','5')
+        <if test="from != null">and end_time &gt;= #{from}</if>
+        <if test="to != null">and start_time &lt;= #{to}</if>
         order by start_time asc
     </select>
 
@@ -100,23 +103,32 @@
             inner join tb_facility_building bd on bd.id = r.building_id
         </if>
         where b.del_flag='0' and b.status = '0'
-        <if test="bookingId != null"> and b.id = #{bookingId}</if>
-        <if test="roomId != null"> and b.room_id = #{roomId}</if>
-        <if test="buildingId != null"> and bd.id = #{buildingId}</if>
-        <if test="applicantId != null"> and b.applicant_id = #{applicantId}</if>
-        <if test="from != null"> and b.end_time &gt;= #{from}</if>
-        <if test="to != null"> and b.start_time &lt;= #{to}</if>
+        <if test="bookingId != null">and b.id = #{bookingId}</if>
+        <if test="roomId != null">and b.room_id = #{roomId}</if>
+        <if test="buildingId != null">and bd.id = #{buildingId}</if>
+        <if test="applicantId != null">and b.applicant_id = #{applicantId}</if>
+        <if test="from != null">and b.end_time &gt;= #{from}</if>
+        <if test="to != null">and b.start_time &lt;= #{to}</if>
         order by b.start_time asc, b.id asc
     </select>
 
     <update id="doApprove">
-        update tb_facility_booking set status = '1', update_time = #{auditTime}, update_by = #{auditBy}
-        where id = #{id} and status = '0'
+        update tb_facility_booking
+        set status      = '1',
+            update_time = #{auditTime},
+            update_by   = #{auditBy}
+        where id = #{id}
+          and status = '0'
     </update>
 
     <update id="doReject">
-        update tb_facility_booking set status = '2', reject_reason = #{reason}, update_time = #{auditTime}, update_by = #{auditBy}
-        where id = #{id} and status = '0'
+        update tb_facility_booking
+        set status        = '2',
+            reject_reason = #{reason},
+            update_time   = #{auditTime},
+            update_by     = #{auditBy}
+        where id = #{id}
+          and status = '0'
     </update>
 
 </mapper>

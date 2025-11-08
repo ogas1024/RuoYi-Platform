@@ -16,17 +16,20 @@
     </resultMap>
 
     <select id="selectOne" resultMap="AnsResult">
-        select * from tb_survey_answer where survey_id = #{surveyId} and user_id = #{userId} and del_flag = '0' limit 1
+        select *
+        from tb_survey_answer
+        where survey_id = #{surveyId}
+          and user_id = #{userId}
+          and del_flag = '0'
+        limit 1
     </select>
 
-    <insert id="insertIgnore" parameterType="com.ruoyi.manage.domain.SurveyAnswer" useGeneratedKeys="true" keyProperty="id">
-        insert ignore into tb_survey_answer (
-            survey_id, user_id, submit_time, update_time2,
-            create_by, create_time, update_by, update_time, del_flag
-        ) values (
-            #{surveyId}, #{userId}, #{submitTime}, #{updateTime2},
-            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
-        )
+    <insert id="insertIgnore" parameterType="com.ruoyi.manage.domain.SurveyAnswer" useGeneratedKeys="true"
+            keyProperty="id">
+        insert ignore into tb_survey_answer (survey_id, user_id, submit_time, update_time2,
+                                             create_by, create_time, update_by, update_time, del_flag)
+        values (#{surveyId}, #{userId}, #{submitTime}, #{updateTime2},
+                #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0')
     </insert>
 
     <update id="updateById" parameterType="com.ruoyi.manage.domain.SurveyAnswer">
@@ -41,17 +44,22 @@
     </update>
 
     <select id="selectMyAnswers" resultMap="AnsResult">
-        select * from tb_survey_answer where user_id = #{userId} and del_flag = '0' order by submit_time desc
+        select *
+        from tb_survey_answer
+        where user_id = #{userId}
+          and del_flag = '0'
+        order by submit_time desc
     </select>
 
     <select id="selectSubmitUsers" resultType="java.util.HashMap">
-        select a.user_id as userId,
-               u.user_name as userName,
-               u.nick_name as nickName,
+        select a.user_id     as userId,
+               u.user_name   as userName,
+               u.nick_name   as nickName,
                a.submit_time as submitTime
         from tb_survey_answer a
-        left join sys_user u on u.user_id = a.user_id
-        where a.survey_id = #{surveyId} and a.del_flag = '0'
+                 left join sys_user u on u.user_id = a.user_id
+        where a.survey_id = #{surveyId}
+          and a.del_flag = '0'
         order by a.submit_time desc
     </select>
 

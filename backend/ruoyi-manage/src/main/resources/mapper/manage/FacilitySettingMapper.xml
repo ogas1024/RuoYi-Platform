@@ -15,18 +15,22 @@
     </resultMap>
 
     <select id="selectOne" resultMap="SettingResult">
-        select * from tb_facility_setting where del_flag = '0' order by id asc limit 1
+        select *
+        from tb_facility_setting
+        where del_flag = '0'
+        order by id asc
+        limit 1
     </select>
 
     <insert id="upsert" parameterType="com.ruoyi.manage.domain.FacilitySetting">
-        insert into tb_facility_setting(id,audit_required,max_duration_minutes,remark,create_by,create_time,del_flag)
-        values(#{id},#{auditRequired},#{maxDurationMinutes},#{remark},#{createBy},#{createTime},'0')
-        on duplicate key update
-            audit_required = values(audit_required),
-            max_duration_minutes = values(max_duration_minutes),
-            remark = values(remark),
-            update_by = #{updateBy},
-            update_time = #{updateTime}
+        insert into tb_facility_setting(id, audit_required, max_duration_minutes, remark, create_by, create_time,
+                                        del_flag)
+        values (#{id}, #{auditRequired}, #{maxDurationMinutes}, #{remark}, #{createBy}, #{createTime}, '0')
+        on duplicate key update audit_required       = values(audit_required),
+                                max_duration_minutes = values(max_duration_minutes),
+                                remark               = values(remark),
+                                update_by            = #{updateBy},
+                                update_time          = #{updateTime}
     </insert>
 
 </mapper>

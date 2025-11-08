@@ -17,23 +17,33 @@
         <result property="delFlag" column="del_flag"/>
     </resultMap>
 
-    <insert id="insert" parameterType="com.ruoyi.manage.domain.NoticeAttachment" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_notice_attachment(
-            notice_id, file_name, file_url, file_type, file_size, sort,
-            create_by, create_time, update_by, update_time, del_flag
-        ) values (
-            #{noticeId}, #{fileName}, #{fileUrl}, #{fileType}, #{fileSize}, #{sort},
-            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
-        )
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.NoticeAttachment" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into tb_notice_attachment(notice_id, file_name, file_url, file_type, file_size, sort,
+                                         create_by, create_time, update_by, update_time, del_flag)
+        values (#{noticeId}, #{fileName}, #{fileUrl}, #{fileType}, #{fileSize}, #{sort},
+                #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0')
     </insert>
 
     <delete id="deleteByNoticeId" parameterType="long">
-        delete from tb_notice_attachment where notice_id = #{noticeId}
+        delete
+        from tb_notice_attachment
+        where notice_id = #{noticeId}
     </delete>
 
     <select id="selectByNoticeId" parameterType="long" resultMap="AttachmentResult">
-        select id, notice_id, file_name, file_url, file_type, file_size, sort,
-               create_by, create_time, update_by, update_time, del_flag
+        select id,
+               notice_id,
+               file_name,
+               file_url,
+               file_type,
+               file_size,
+               sort,
+               create_by,
+               create_time,
+               update_by,
+               update_time,
+               del_flag
         from tb_notice_attachment
         where notice_id = #{noticeId}
         order by sort asc, id asc

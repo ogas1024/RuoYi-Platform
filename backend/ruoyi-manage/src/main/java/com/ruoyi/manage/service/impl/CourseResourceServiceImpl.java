@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import com.ruoyi.common.exception.ServiceException;
 
 @Service
@@ -288,8 +289,14 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
         log.setAction(action);
         Long actorId = null;
         String actorName = "portal";
-        try { actorId = SecurityUtils.getUserId(); } catch (Exception ignored) {}
-        try { actorName = SecurityUtils.getUsername(); } catch (Exception ignored) {}
+        try {
+            actorId = SecurityUtils.getUserId();
+        } catch (Exception ignored) {
+        }
+        try {
+            actorName = SecurityUtils.getUsername();
+        } catch (Exception ignored) {
+        }
         log.setActorId(actorId);
         log.setActorName(actorName);
         log.setIp(null);

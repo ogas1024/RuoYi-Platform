@@ -130,8 +130,7 @@ public class OssServiceImpl implements IOssService {
     }
 
     private String getExtension(String filename) {
-        int idx = filename.lastIndexOf('.')
-                ;
+        int idx = filename.lastIndexOf('.');
         if (idx < 0 || idx == filename.length() - 1) return "";
         return filename.substring(idx + 1).toLowerCase(Locale.ROOT);
     }

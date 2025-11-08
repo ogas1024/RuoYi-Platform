@@ -1,28 +1,29 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.CartsMapper">
-    
+
     <resultMap type="Carts" id="CartsResult">
-        <result property="id"    column="id"    />
-        <result property="userId"    column="user_id"    />
-        <result property="bookId"    column="book_id"    />
-        <result property="quantity"    column="quantity"    />
-        <result property="createdTime"    column="created_time"    />
+        <result property="id" column="id"/>
+        <result property="userId" column="user_id"/>
+        <result property="bookId" column="book_id"/>
+        <result property="quantity" column="quantity"/>
+        <result property="createdTime" column="created_time"/>
     </resultMap>
 
     <sql id="selectCartsVo">
-        select id, user_id, book_id, quantity, created_time from tb_carts
+        select id, user_id, book_id, quantity, created_time
+        from tb_carts
     </sql>
 
     <select id="selectCartsList" parameterType="Carts" resultMap="CartsResult">
         <include refid="selectCartsVo"/>
-        <where>  
-            <if test="bookId != null "> and book_id = #{bookId}</if>
+        <where>
+            <if test="bookId != null ">and book_id = #{bookId}</if>
         </where>
     </select>
-    
+
     <select id="selectCartsById" parameterType="Long" resultMap="CartsResult">
         <include refid="selectCartsVo"/>
         where id = #{id}
@@ -35,13 +36,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="bookId != null">book_id,</if>
             <if test="quantity != null">quantity,</if>
             <if test="createdTime != null">created_time,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="userId != null">#{userId},</if>
             <if test="bookId != null">#{bookId},</if>
             <if test="quantity != null">#{quantity},</if>
             <if test="createdTime != null">#{createdTime},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateCarts" parameterType="Carts">
@@ -56,11 +57,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteCartsById" parameterType="Long">
-        delete from tb_carts where id = #{id}
+        delete
+        from tb_carts
+        where id = #{id}
     </delete>
 
     <delete id="deleteCartsByIds" parameterType="String">
-        delete from tb_carts where id in 
+        delete from tb_carts where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

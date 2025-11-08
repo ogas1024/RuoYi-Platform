@@ -44,7 +44,7 @@ public class UserServiceImpl implements IUserService {
         sysUser.setCreateBy(user.getCreateBy());
         if (StringUtils.isNotNull(user.getNickName())) {
             sysUser.setNickName(user.getNickName());
-        }else {
+        } else {
             sysUser.setNickName(user.getUserName());
         }
         sysUser.setPassword(user.getPassword());
@@ -64,12 +64,10 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public boolean checkUserNameUnique(String userName,Long userId)
-    {
+    public boolean checkUserNameUnique(String userName, Long userId) {
         userId = StringUtils.isNull(userId) ? -1L : userId;
         SysUser info = sysUserMapper.checkUserNameUnique(userName);
-        if (StringUtils.isNotNull(info) && info.getUserId().longValue() != userId.longValue())
-        {
+        if (StringUtils.isNotNull(info) && info.getUserId().longValue() != userId.longValue()) {
             return UserConstants.NOT_UNIQUE;
         }
         return UserConstants.UNIQUE;

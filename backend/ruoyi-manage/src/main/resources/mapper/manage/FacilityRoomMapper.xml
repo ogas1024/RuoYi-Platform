@@ -18,16 +18,19 @@
         <result property="delFlag" column="del_flag"/>
     </resultMap>
 
-    <sql id="baseSelect">select * from tb_facility_room</sql>
+    <sql id="baseSelect">select *
+                         from tb_facility_room</sql>
 
     <select id="selectList" resultMap="RoomResult">
         <include refid="baseSelect"/>
         <where>
             del_flag = '0'
-            <if test="query != null and query.status != null and query.status != ''"> and status = #{query.status}</if>
-            <if test="query != null and query.buildingIdEq != null"> and building_id = #{query.buildingIdEq}</if>
-            <if test="query != null and query.floorNoEq != null"> and floor_no = #{query.floorNoEq}</if>
-            <if test="query != null and query.roomName != null and query.roomName != ''"> and room_name like concat('%', #{query.roomName}, '%')</if>
+            <if test="query != null and query.status != null and query.status != ''">and status = #{query.status}</if>
+            <if test="query != null and query.buildingIdEq != null">and building_id = #{query.buildingIdEq}</if>
+            <if test="query != null and query.floorNoEq != null">and floor_no = #{query.floorNoEq}</if>
+            <if test="query != null and query.roomName != null and query.roomName != ''">and room_name like concat('%',
+                #{query.roomName}, '%')
+            </if>
         </where>
         order by floor_no asc, room_name asc
     </select>
@@ -38,11 +41,10 @@
     </select>
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.FacilityRoom" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_facility_room(
-            building_id,floor_no,room_name,capacity,equipment_tags,status,remark,create_by,create_time,del_flag
-        ) values(
-            #{buildingId},#{floorNo},#{roomName},#{capacity},#{equipmentTags},#{status},#{remark},#{createBy},#{createTime},'0'
-        )
+        insert into tb_facility_room(building_id, floor_no, room_name, capacity, equipment_tags, status, remark,
+                                     create_by, create_time, del_flag)
+        values (#{buildingId}, #{floorNo}, #{roomName}, #{capacity}, #{equipmentTags}, #{status}, #{remark},
+                #{createBy}, #{createTime}, '0')
     </insert>
 
     <update id="update" parameterType="com.ruoyi.manage.domain.FacilityRoom">
@@ -62,7 +64,10 @@
     </update>
 
     <update id="updateStatus">
-        update tb_facility_room set status = #{status}, update_time = now() where id = #{id}
+        update tb_facility_room
+        set status      = #{status},
+            update_time = now()
+        where id = #{id}
     </update>
 
     <update id="softDeleteByIds">

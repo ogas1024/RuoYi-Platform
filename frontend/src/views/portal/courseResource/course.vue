@@ -5,7 +5,7 @@
       <span class="hint">当前专业：{{ majorName }}</span>
     </div>
     <div class="mb8" style="margin: 10px 0;">
-      <el-input v-model="courseName" placeholder="按课程名模糊" style="width: 220px" @keyup.enter="fetchCourses" />
+      <el-input v-model="courseName" placeholder="按课程名模糊" style="width: 220px" @keyup.enter="fetchCourses"/>
       <el-button type="primary" icon="Search" style="margin-left:8px" @click="fetchCourses">搜索</el-button>
     </div>
     <el-row :gutter="16">
@@ -20,9 +20,9 @@
 </template>
 
 <script setup name="ResourceCourseGrid">
-import { ref, onMounted } from 'vue'
-import { listCoursePortal } from '@/api/portal/course'
-import { useRoute, useRouter } from 'vue-router'
+import {ref, onMounted} from 'vue'
+import {listCoursePortal} from '@/api/portal/course'
+import {useRoute, useRouter} from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
@@ -32,20 +32,38 @@ const courses = ref([])
 const courseName = ref('')
 
 const fetchCourses = async () => {
-  const { rows } = await listCoursePortal({ majorId, courseName: courseName.value, pageNum: 1, pageSize: 100 })
+  const {rows} = await listCoursePortal({majorId, courseName: courseName.value, pageNum: 1, pageSize: 100})
   courses.value = rows || []
 }
 
 const goResource = (c) => {
-  router.push({ path: '/portal/course-resource/list', query: { majorId, courseId: c.id, courseName: c.courseName, majorName } })
+  router.push({
+    path: '/portal/course-resource/list',
+    query: {majorId, courseId: c.id, courseName: c.courseName, majorName}
+  })
 }
 
 onMounted(fetchCourses)
 </script>
 
 <style scoped>
-.toolbar { margin-bottom: 10px; }
-.course-card { cursor: pointer; margin-bottom: 16px; }
-.title { font-weight: 600; font-size: 16px; margin-bottom: 8px; }
-.meta { color: #909399; font-size: 12px; }
+.toolbar {
+  margin-bottom: 10px;
+}
+
+.course-card {
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.title {
+  font-weight: 600;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.meta {
+  color: #909399;
+  font-size: 12px;
+}
 </style>

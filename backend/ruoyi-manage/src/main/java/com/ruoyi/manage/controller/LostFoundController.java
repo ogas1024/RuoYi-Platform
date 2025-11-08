@@ -39,7 +39,7 @@ public class LostFoundController extends BaseController {
     @GetMapping("/recycle/list")
     public TableDataInfo recycleList(LostItem query) {
         startPage();
-        List<LostItem> list = service.selectList(query, Arrays.asList(3,4));
+        List<LostItem> list = service.selectList(query, Arrays.asList(3, 4));
         return getDataTable(list);
     }
 
@@ -60,7 +60,11 @@ public class LostFoundController extends BaseController {
     public AjaxResult add(@RequestBody LostItem body) {
         body.setCreateBy(getUsername());
         int n = service.insert(body);
-        if (n > 0) { Map<String,Object> d=new HashMap<>(); d.put("id", body.getId()); return success(d);} 
+        if (n > 0) {
+            Map<String, Object> d = new HashMap<>();
+            d.put("id", body.getId());
+            return success(d);
+        }
         return error("保存失败");
     }
 
@@ -72,8 +76,13 @@ public class LostFoundController extends BaseController {
         return service.update(body) > 0 ? success() : error("更新失败");
     }
 
-    public static class ReasonBody { public String reason; }
-    public static class SolveBody { public Boolean solved; }
+    public static class ReasonBody {
+        public String reason;
+    }
+
+    public static class SolveBody {
+        public Boolean solved;
+    }
 
     @PreAuthorize("@ss.hasPermi('manage:lostfound:audit:approve')")
     @PutMapping("/{id}/approve")

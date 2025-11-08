@@ -7,10 +7,15 @@ import java.util.List;
 
 public interface CourseMapper {
     Course selectCourseById(Long id);
+
     List<Course> selectCourseList(Course course);
+
     int insertCourse(Course course);
+
     int updateCourse(Course course);
+
     int deleteCourseById(Long id);
+
     int deleteCourseByIds(Long[] ids);
 
     // 限制负责人范围

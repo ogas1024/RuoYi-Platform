@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+
 import com.ruoyi.manage.domain.LibraryAsset;
 import com.ruoyi.manage.domain.vo.DayCount;
 
@@ -110,22 +111,36 @@ public class LibraryController extends BaseController {
     @GetMapping("/{id}/download")
     public void download(@PathVariable Long id, @RequestParam(required = false) Long assetId, HttpServletResponse response) throws IOException {
         Library data = service.selectById(id);
-        if (data == null) { response.sendError(404, "图书不存在"); return; }
+        if (data == null) {
+            response.sendError(404, "图书不存在");
+            return;
+        }
         List<LibraryAsset> assets = service.listAssets(id);
         LibraryAsset target = null;
         if (assetId != null) {
-            for (LibraryAsset a : assets) { if (a.getId().equals(assetId)) { target = a; break; } }
+            for (LibraryAsset a : assets) {
+                if (a.getId().equals(assetId)) {
+                    target = a;
+                    break;
+                }
+            }
         } else {
-            String[] order = new String[]{"pdf","epub","mobi","zip"};
+            String[] order = new String[]{"pdf", "epub", "mobi", "zip"};
             for (String fmt : order) {
                 for (LibraryAsset a : assets) {
-                    if ("0".equals(a.getAssetType()) && fmt.equalsIgnoreCase(a.getFormat())) { target = a; break; }
+                    if ("0".equals(a.getAssetType()) && fmt.equalsIgnoreCase(a.getFormat())) {
+                        target = a;
+                        break;
+                    }
                 }
                 if (target != null) break;
             }
             if (target == null && !assets.isEmpty()) target = assets.get(0);
         }
-        if (target == null) { response.sendError(404, "无可下载资产"); return; }
+        if (target == null) {
+            response.sendError(404, "无可下载资产");
+            return;
+        }
         service.incrDownload(id, assetId);
         String url = "0".equals(target.getAssetType()) ? target.getFileUrl() : target.getLinkUrl();
         response.setStatus(HttpServletResponse.SC_FOUND);

@@ -79,7 +79,7 @@
       <el-tab-pane label="已下架" name="4"></el-tab-pane>
       <el-tab-pane label="全部" name="all"></el-tab-pane>
     </el-tabs>
-    <el-table  v-loading="loading"  border stripe :data="bookList">
+    <el-table v-loading="loading" border stripe :data="bookList">
       <el-table-column label="序号" align="center" width="55">
         <template #default="scope">
           <span>{{ (queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1 }}</span>
@@ -88,7 +88,7 @@
       <el-table-column label="图书类别" align="center" prop="categoryName"/>
       <el-table-column label="图书名称" align="center" prop="bookName" :show-overflow-tooltip="true"/>
       <el-table-column label="作者" align="center" prop="author" :show-overflow-tooltip="true"/>
-      <el-table-column label="出版社" align="center" prop="publisher" width="180" />
+      <el-table-column label="出版社" align="center" prop="publisher" width="180"/>
       <el-table-column label="价格" align="center" prop="price" width="60"/>
       <el-table-column label="库存" align="center" prop="quantity" width="60">
         <template #default="scope">
@@ -117,8 +117,12 @@
       </el-table-column>
       <el-table-column label="操作" align="center" width="220" class-name="small-padding fixed-width">
         <template #default="scope">
-          <el-button link type="primary" v-if="scope.row.status !== 3" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
-          <el-button link type="primary" v-if="scope.row.status !== 3" icon="Delete" @click="handleDelete(scope.row)">删除</el-button>
+          <el-button link type="primary" v-if="scope.row.status !== 3" icon="Edit" @click="handleUpdate(scope.row)">
+            修改
+          </el-button>
+          <el-button link type="primary" v-if="scope.row.status !== 3" icon="Delete" @click="handleDelete(scope.row)">
+            删除
+          </el-button>
           <el-button
               v-if="scope.row.status === 1 || scope.row.status === 4"
               link type="success"
@@ -223,11 +227,11 @@
 </template>
 
 <script setup name="Book">
-import { listBook, getBook, delBook, addBook, updateBook } from "@/api/manage/book"
-import { listCategory } from "@/api/manage/category"
-import { ref, reactive, computed, getCurrentInstance } from "vue"
+import {listBook, getBook, delBook, addBook, updateBook} from "@/api/manage/book"
+import {listCategory} from "@/api/manage/category"
+import {ref, reactive, computed, getCurrentInstance} from "vue"
 
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 const total = ref(0)
 const bookList = ref([])
 const activeTab = ref("0")
@@ -249,21 +253,21 @@ const data = reactive({
     status: null
   },
   rules: {
-    categoryId: [{ required: true, message: "图书类别不能为空", trigger: "blur" }],
-    bookName: [{ required: true, message: "图书名称不能为空", trigger: "blur" }],
-    author: [{ required: true, message: "作者不能为空", trigger: "blur" }],
-    publisher: [{ required: true, message: "出版社不能为空", trigger: "blur" }],
-    price: [{ required: true, message: "价格不能为空", trigger: "blur" }],
-    quantity: [{ required: true, message: "库存数量不能为空", trigger: "blur" }],
+    categoryId: [{required: true, message: "图书类别不能为空", trigger: "blur"}],
+    bookName: [{required: true, message: "图书名称不能为空", trigger: "blur"}],
+    author: [{required: true, message: "作者不能为空", trigger: "blur"}],
+    publisher: [{required: true, message: "出版社不能为空", trigger: "blur"}],
+    price: [{required: true, message: "价格不能为空", trigger: "blur"}],
+    quantity: [{required: true, message: "库存数量不能为空", trigger: "blur"}],
   }
 })
-const { form, rules,queryParams } = toRefs(data)
+const {form, rules, queryParams} = toRefs(data)
 
 function getList() {
   loading.value = true
   if (activeTab.value !== 'all') {
     queryParams.value.status = Number(activeTab.value)
-  }else
+  } else
     queryParams.value.status = null
   console.log(queryParams.value.status)
   listBook(queryParams.value).then(response => {
@@ -291,7 +295,7 @@ function resetQuery() {
 
 /** 查询类别列表 */
 function getCategoryList() {
-  const loadAll = { pageNum: 1, pageSize: 1000 }
+  const loadAll = {pageNum: 1, pageSize: 1000}
   listCategory(loadAll).then(response => {
     categoryList.value = response.rows
   })
@@ -366,7 +370,8 @@ function handleDelete(row) {
   }).then(() => {
     proxy.$modal.msgSuccess("删除成功")
     getList()  // 刷新当前标签页数据
-  }).catch(() => {})
+  }).catch(() => {
+  })
 }
 
 /** 导出操作 */
@@ -376,7 +381,7 @@ function handleExport() {
 
 /** 上架操作 */
 function handleUp(row) {
-  updateBook({ id: row.id, status: 3 }).then(() => {
+  updateBook({id: row.id, status: 3}).then(() => {
     proxy.$modal.msgSuccess("上架成功")
     getList()
   }).catch(() => {
@@ -386,7 +391,7 @@ function handleUp(row) {
 
 /** 下架操作 */
 function handleDown(row) {
-  updateBook({ id: row.id, status: 4 }).then(() => {
+  updateBook({id: row.id, status: 4}).then(() => {
     proxy.$modal.msgSuccess("下架成功")
     getList()
   }).catch(() => {

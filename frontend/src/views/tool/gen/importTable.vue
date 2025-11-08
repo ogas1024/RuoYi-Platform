@@ -4,20 +4,20 @@
     <el-form :model="queryParams" ref="queryRef" :inline="true">
       <el-form-item label="表名称" prop="tableName">
         <el-input
-          v-model="queryParams.tableName"
-          placeholder="请输入表名称"
-          clearable
-          style="width: 180px"
-          @keyup.enter="handleQuery"
+            v-model="queryParams.tableName"
+            placeholder="请输入表名称"
+            clearable
+            style="width: 180px"
+            @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item label="表描述" prop="tableComment">
         <el-input
-          v-model="queryParams.tableComment"
-          placeholder="请输入表描述"
-          clearable
-          style="width: 180px"
-          @keyup.enter="handleQuery"
+            v-model="queryParams.tableComment"
+            placeholder="请输入表描述"
+            clearable
+            style="width: 180px"
+            @keyup.enter="handleQuery"
         />
       </el-form-item>
       <el-form-item>
@@ -26,7 +26,8 @@
       </el-form-item>
     </el-form>
     <el-row>
-      <el-table @row-click="clickRow" ref="table" :data="dbTableList" @selection-change="handleSelectionChange" height="260px">
+      <el-table @row-click="clickRow" ref="table" :data="dbTableList" @selection-change="handleSelectionChange"
+                height="260px">
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column prop="tableName" label="表名称" :show-overflow-tooltip="true"></el-table-column>
         <el-table-column prop="tableComment" label="表描述" :show-overflow-tooltip="true"></el-table-column>
@@ -34,11 +35,11 @@
         <el-table-column prop="updateTime" label="更新时间"></el-table-column>
       </el-table>
       <pagination
-        v-show="total>0"
-        :total="total"
-        v-model:page="queryParams.pageNum"
-        v-model:limit="queryParams.pageSize"
-        @pagination="getList"
+          v-show="total>0"
+          :total="total"
+          v-model:page="queryParams.pageNum"
+          v-model:limit="queryParams.pageSize"
+          @pagination="getList"
       />
     </el-row>
     <template #footer>
@@ -51,13 +52,13 @@
 </template>
 
 <script setup>
-import { listDbTable, importTable } from "@/api/tool/gen"
+import {listDbTable, importTable} from "@/api/tool/gen"
 
 const total = ref(0)
 const visible = ref(false)
 const tables = ref([])
 const dbTableList = ref([])
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 
 const queryParams = reactive({
   pageNum: 1,
@@ -111,7 +112,7 @@ function handleImportTable() {
     proxy.$modal.msgError("请选择要导入的表")
     return
   }
-  importTable({ tables: tableNames }).then(res => {
+  importTable({tables: tableNames}).then(res => {
     proxy.$modal.msgSuccess(res.msg)
     if (res.code === 200) {
       visible.value = false

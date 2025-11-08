@@ -22,23 +22,26 @@
             plain
             icon="Plus"
             @click="handleAdd"
-        >新增</el-button>
+        >新增
+        </el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
-    <el-table v-loading="loading" border stripe :data="categoryList" >
-      <el-table-column label="序号"  align="center" width="60">
+    <el-table v-loading="loading" border stripe :data="categoryList">
+      <el-table-column label="序号" align="center" width="60">
         <template #default="scope">
           <span>{{ (queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1 }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="类别名称" align="center" prop="categoryName" />
-      <el-table-column label="图书数量" align="center" prop="bookCount" />
+      <el-table-column label="类别名称" align="center" prop="categoryName"/>
+      <el-table-column label="图书数量" align="center" prop="bookCount"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="handleUpdate(scope.row)">修改</el-button>
-          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)" :disabled="scope.row.bookCount !== 0">删除</el-button>
+          <el-button link type="primary" icon="Delete" @click="handleDelete(scope.row)"
+                     :disabled="scope.row.bookCount !== 0">删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -55,7 +58,7 @@
     <el-dialog :title="title" v-model="open" width="500px" append-to-body>
       <el-form ref="categoryRef" :model="form" :rules="rules" label-width="80px">
         <el-form-item label="类别名称" prop="categoryName">
-          <el-input v-model="form.categoryName" placeholder="请输入类别名称" />
+          <el-input v-model="form.categoryName" placeholder="请输入类别名称"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -69,9 +72,9 @@
 </template>
 
 <script setup name="Category">
-import { listCategory, getCategory, delCategory, addCategory, updateCategory } from "@/api/manage/category"
+import {listCategory, getCategory, delCategory, addCategory, updateCategory} from "@/api/manage/category"
 
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 
 const categoryList = ref([])
 const open = ref(false)
@@ -89,12 +92,12 @@ const data = reactive({
   },
   rules: {
     categoryName: [
-      { required: true, message: "类别名称不能为空", trigger: "blur" }
+      {required: true, message: "类别名称不能为空", trigger: "blur"}
     ]
   }
 })
 
-const { queryParams, form, rules } = toRefs(data)
+const {queryParams, form, rules} = toRefs(data)
 
 /** 查询图书类别列表 */
 function getList() {
@@ -174,12 +177,13 @@ function submitForm() {
 
 /** 删除按钮操作 */
 function handleDelete(row) {
-  proxy.$modal.confirm('是否确认删除图书类别为"' + row.categoryName + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除图书类别为"' + row.categoryName + '"的数据项？').then(function () {
     return delCategory(row.id)
   }).then(() => {
     getList()
     proxy.$modal.msgSuccess("删除成功")
-  }).catch(() => {})
+  }).catch(() => {
+  })
 }
 
 

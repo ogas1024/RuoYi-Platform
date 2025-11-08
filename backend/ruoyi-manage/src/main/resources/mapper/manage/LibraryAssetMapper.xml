@@ -21,23 +21,30 @@
     </resultMap>
 
     <select id="selectById" parameterType="long" resultMap="LibraryAssetResult">
-        select * from tb_library_book_asset where id = #{id}
+        select *
+        from tb_library_book_asset
+        where id = #{id}
     </select>
 
     <select id="selectByBookId" parameterType="long" resultMap="LibraryAssetResult">
-        select * from tb_library_book_asset where del_flag='0' and book_id = #{bookId} order by sort asc, id asc
+        select *
+        from tb_library_book_asset
+        where del_flag = '0'
+          and book_id = #{bookId}
+        order by sort asc, id asc
     </select>
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.LibraryAsset" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_library_book_asset(
-            book_id, asset_type, format, file_url, file_size, file_hash, oss_object_key, link_url, sort, create_by, create_time, del_flag
-        ) values (
-            #{bookId}, #{assetType}, #{format}, #{fileUrl}, #{fileSize}, #{fileHash}, #{ossObjectKey}, #{linkUrl}, #{sort}, #{createBy}, #{createTime}, '0'
-        )
+        insert into tb_library_book_asset(book_id, asset_type, format, file_url, file_size, file_hash, oss_object_key,
+                                          link_url, sort, create_by, create_time, del_flag)
+        values (#{bookId}, #{assetType}, #{format}, #{fileUrl}, #{fileSize}, #{fileHash}, #{ossObjectKey}, #{linkUrl},
+                #{sort}, #{createBy}, #{createTime}, '0')
     </insert>
 
     <delete id="deleteById" parameterType="long">
-        delete from tb_library_book_asset where id = #{id}
+        delete
+        from tb_library_book_asset
+        where id = #{id}
     </delete>
 
     <!-- moved under mapper/manage for consistency -->

@@ -7,9 +7,13 @@ import lombok.Data;
  */
 @Data
 public class DayCount {
-    /** yyyy-MM-dd */
+    /**
+     * yyyy-MM-dd
+     */
     private String day;
-    /** 数量 */
+    /**
+     * 数量
+     */
     private Long count;
 }
 

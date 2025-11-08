@@ -10,14 +10,45 @@ import java.lang.reflect.Field;
 class NoticeControllerResultCodeTest {
 
     static class StubService implements INoticeService {
-        @Override public java.util.List<com.ruoyi.manage.domain.Notice> list(com.ruoyi.manage.domain.Notice query){return null;}
-        @Override public java.util.Map<String, Object> getDetailAndRecordRead(Long id){return null;}
-        @Override public int add(com.ruoyi.manage.domain.Notice notice){return 0;}
-        @Override public int edit(com.ruoyi.manage.domain.Notice notice){return 0;}
-        @Override public int removeByIds(Long[] ids){return 0;}
-        @Override public int publish(Long id){return -409;} // 模拟状态冲突
-        @Override public int retract(Long id){return -404;} // 模拟不存在
-        @Override public int pin(Long id, boolean pinned){return -409;} // 模拟状态冲突
+        @Override
+        public java.util.List<com.ruoyi.manage.domain.Notice> list(com.ruoyi.manage.domain.Notice query) {
+            return null;
+        }
+
+        @Override
+        public java.util.Map<String, Object> getDetailAndRecordRead(Long id) {
+            return null;
+        }
+
+        @Override
+        public int add(com.ruoyi.manage.domain.Notice notice) {
+            return 0;
+        }
+
+        @Override
+        public int edit(com.ruoyi.manage.domain.Notice notice) {
+            return 0;
+        }
+
+        @Override
+        public int removeByIds(Long[] ids) {
+            return 0;
+        }
+
+        @Override
+        public int publish(Long id) {
+            return -409;
+        } // 模拟状态冲突
+
+        @Override
+        public int retract(Long id) {
+            return -404;
+        } // 模拟不存在
+
+        @Override
+        public int pin(Long id, boolean pinned) {
+            return -409;
+        } // 模拟状态冲突
     }
 
     @Test

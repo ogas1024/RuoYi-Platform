@@ -10,12 +10,13 @@
       <div v-for="(it,idx) in detail.items" :key="it.id" style="margin:10px 0; padding:10px; border:1px dashed var(--el-border-color);
         border-radius:6px;">
         <div style="margin-bottom:6px;">
-          <b>#{{ idx+1 }} {{ it.title }}</b>
+          <b>#{{ idx + 1 }} {{ it.title }}</b>
           <small v-if="it.required===1" style="color:#f56c6c">(必填)</small>
           <small style="margin-left:8px; color:#909399">[{{ typeLabel(it.type) }}]</small>
         </div>
         <div>
-          <el-input v-if="it.type===1 && answers[it.id]" v-model="answers[it.id].valueText" type="textarea" :rows="2" placeholder="请输入" />
+          <el-input v-if="it.type===1 && answers[it.id]" v-model="answers[it.id].valueText" type="textarea" :rows="2"
+                    placeholder="请输入"/>
           <el-radio-group v-else-if="it.type===2 && answers[it.id]" v-model="answers[it.id].optionIds">
             <el-radio v-for="op in it.options" :key="op.id" :label="op.id">{{ op.label }}</el-radio>
           </el-radio-group>
@@ -34,10 +35,10 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
-import { useRoute } from 'vue-router'
-import { getSurvey, submitSurvey } from '@/api/portal/survey'
-import { ElMessage } from 'element-plus'
+import {ref, reactive, onMounted, computed} from 'vue'
+import {useRoute} from 'vue-router'
+import {getSurvey, submitSurvey} from '@/api/portal/survey'
+import {ElMessage} from 'element-plus'
 
 const route = useRoute()
 const id = Number(route.query.id)
@@ -45,60 +46,68 @@ const loading = ref(false)
 const detail = ref(null)
 const answers = reactive({})
 
-const expired = computed(()=>{
+const expired = computed(() => {
   if (!detail.value || !detail.value.deadline) return false
   return new Date(detail.value.deadline).getTime() < Date.now()
 })
 
-function hasSubmitted(){
+function hasSubmitted() {
   const m = detail.value && detail.value.myAnswers
   if (!m) return false
-  try { return Object.keys(m).length > 0 } catch(e){ return false }
+  try {
+    return Object.keys(m).length > 0
+  } catch (e) {
+    return false
+  }
 }
 
-function initAnswers(){
+function initAnswers() {
   if (!detail.value) return
-  for (const it of detail.value.items){
+  for (const it of detail.value.items) {
     const preset = detail.value.myAnswers?.[it.id]
-    if (it.type===1){
-      answers[it.id] = { itemId: it.id, valueText: typeof preset==='string'? preset: '' }
-    } else if (it.type===2){
-      const v = Array.isArray(preset) && preset.length>0 ? preset[0] : null
-      answers[it.id] = { itemId: it.id, optionIds: v? v: null }
+    if (it.type === 1) {
+      answers[it.id] = {itemId: it.id, valueText: typeof preset === 'string' ? preset : ''}
+    } else if (it.type === 2) {
+      const v = Array.isArray(preset) && preset.length > 0 ? preset[0] : null
+      answers[it.id] = {itemId: it.id, optionIds: v ? v : null}
     } else {
-      answers[it.id] = { itemId: it.id, optionIds: Array.isArray(preset)? preset: [] }
+      answers[it.id] = {itemId: it.id, optionIds: Array.isArray(preset) ? preset : []}
     }
   }
 }
 
-function load(){
+function load() {
   loading.value = true
-  getSurvey(id).then(res=>{
+  getSurvey(id).then(res => {
     detail.value = res.data
     // 规范 myAnswers 的 key 为数字
     const fixed = {}
-    if (detail.value.myAnswers){
-      for (const k in detail.value.myAnswers){ fixed[Number(k)] = detail.value.myAnswers[k] }
+    if (detail.value.myAnswers) {
+      for (const k in detail.value.myAnswers) {
+        fixed[Number(k)] = detail.value.myAnswers[k]
+      }
       detail.value.myAnswers = fixed
     }
     initAnswers()
-  }).finally(()=>loading.value=false)
+  }).finally(() => loading.value = false)
 }
 
-function submit(){
+function submit() {
   const wasSubmitted = hasSubmitted()
-  const payload = Object.values(answers).map(x=>{
-    if (Array.isArray(x.optionIds)) return { itemId:x.itemId, optionIds:x.optionIds }
-    if (typeof x.optionIds === 'number') return { itemId:x.itemId, optionIds:[x.optionIds] }
-    return { itemId:x.itemId, valueText:x.valueText||'' }
+  const payload = Object.values(answers).map(x => {
+    if (Array.isArray(x.optionIds)) return {itemId: x.itemId, optionIds: x.optionIds}
+    if (typeof x.optionIds === 'number') return {itemId: x.itemId, optionIds: [x.optionIds]}
+    return {itemId: x.itemId, valueText: x.valueText || ''}
   })
-  submitSurvey(id, payload).then(()=>{
+  submitSurvey(id, payload).then(() => {
     ElMessage.success(wasSubmitted ? '已修改' : '已提交')
     load()
   })
 }
 
-function typeLabel(t){ return t===1?'文本':(t===2?'单选':'多选') }
+function typeLabel(t) {
+  return t === 1 ? '文本' : (t === 2 ? '单选' : '多选')
+}
 
 onMounted(load)
 </script>

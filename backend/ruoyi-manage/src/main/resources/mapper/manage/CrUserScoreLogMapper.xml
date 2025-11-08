@@ -5,13 +5,15 @@
 <mapper namespace="com.ruoyi.manage.mapper.CrUserScoreLogMapper">
 
     <insert id="insertApproveLogIfAbsent">
-        insert ignore into tb_cr_user_score_log(user_id, username, major_id, resource_id, event_type, delta, create_by, create_time, del_flag)
-        values(#{userId}, #{username}, #{majorId}, #{resourceId}, 'APPROVE', #{delta}, #{operator}, #{now}, '0')
+        insert ignore into tb_cr_user_score_log(user_id, username, major_id, resource_id, event_type, delta, create_by,
+                                                create_time, del_flag)
+        values (#{userId}, #{username}, #{majorId}, #{resourceId}, 'APPROVE', #{delta}, #{operator}, #{now}, '0')
     </insert>
 
     <insert id="insertBestLogIfAbsent">
-        insert ignore into tb_cr_user_score_log(user_id, username, major_id, resource_id, event_type, delta, create_by, create_time, del_flag)
-        values(#{userId}, #{username}, #{majorId}, #{resourceId}, 'BEST', #{delta}, #{operator}, #{now}, '0')
+        insert ignore into tb_cr_user_score_log(user_id, username, major_id, resource_id, event_type, delta, create_by,
+                                                create_time, del_flag)
+        values (#{userId}, #{username}, #{majorId}, #{resourceId}, 'BEST', #{delta}, #{operator}, #{now}, '0')
     </insert>
 
 </mapper>

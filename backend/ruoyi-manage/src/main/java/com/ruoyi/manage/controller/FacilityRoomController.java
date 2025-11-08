@@ -56,7 +56,10 @@ public class FacilityRoomController extends BaseController {
         List<TimelineSegmentVO> segs = bookingService.timeline(id, from, to);
         return success(new java.util.HashMap<String, Object>() {{
             put("roomId", id);
-            put("range", new java.util.HashMap<String, Object>() {{ put("from", from); put("to", to); }});
+            put("range", new java.util.HashMap<String, Object>() {{
+                put("from", from);
+                put("to", to);
+            }});
             put("segments", segs);
         }});
     }

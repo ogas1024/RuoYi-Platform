@@ -7,8 +7,11 @@ import java.util.List;
 
 public interface FacilityBanMapper {
     int insert(FacilityBan data);
+
     int deleteById(@Param("id") Long id);
+
     List<FacilityBan> selectList(@Param("status") String status, @Param("userId") Long userId);
+
     int countActive(@Param("userId") Long userId);
 }
 

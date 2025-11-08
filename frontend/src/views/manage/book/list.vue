@@ -2,7 +2,7 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="图书类别" prop="categoryId">
-        <el-select v-model="queryParams.categoryId" style="width: 150px"  placeholder="请选择类别" clearable>
+        <el-select v-model="queryParams.categoryId" style="width: 150px" placeholder="请选择类别" clearable>
           <el-option
               v-for="item in categoryList"
               :key="item.id"
@@ -48,27 +48,28 @@
             plain
             icon="Plus"
             @click="handleAdd"
-        >加入购物车</el-button>
+        >加入购物车
+        </el-button>
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="getList"></right-toolbar>
     </el-row>
 
     <el-table v-loading="loading" border stripe :data="bookList" @selection-change="handleSelectionChange">
-      <el-table-column type="selection" width="55" align="center"  />
+      <el-table-column type="selection" width="55" align="center"/>
       <el-table-column label="序号" align="center" width="60">
         <template #default="scope">
           <span>{{ (queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1 }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="图书类别" align="center" prop="categoryName" />
-      <el-table-column label="图书名称" align="center" prop="bookName" :show-overflow-tooltip="true" />
-      <el-table-column label="作者" align="center" prop="author" />
-      <el-table-column label="出版社" align="center" prop="publisher" />
-      <el-table-column label="价格" align="center" prop="price" width="60" />
+      <el-table-column label="图书类别" align="center" prop="categoryName"/>
+      <el-table-column label="图书名称" align="center" prop="bookName" :show-overflow-tooltip="true"/>
+      <el-table-column label="作者" align="center" prop="author"/>
+      <el-table-column label="出版社" align="center" prop="publisher"/>
+      <el-table-column label="价格" align="center" prop="price" width="60"/>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template #default="scope">
           <el-button link type="primary" icon="Plus" @click="handleUpdate(scope.row)">加入购物车</el-button>
-          <el-button link type="info" icon="View" @click="handleView(scope.row, scope.index)" >详细</el-button>
+          <el-button link type="info" icon="View" @click="handleView(scope.row, scope.index)">详细</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -116,10 +117,10 @@
 </template>
 
 <script setup name="Book">
-import { listBook, getBook, delBook, addBook, updateBook } from "@/api/manage/book"
-import { listCategory } from "@/api/manage/category"
+import {listBook, getBook, delBook, addBook, updateBook} from "@/api/manage/book"
+import {listCategory} from "@/api/manage/category"
 
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 
 const bookList = ref([])
 const open = ref(false)
@@ -143,7 +144,7 @@ const data = reactive({
   }
 })
 
-const { queryParams, form } = toRefs(data)
+const {queryParams, form} = toRefs(data)
 
 /** 查询图书列表列表 */
 function getList() {
@@ -155,14 +156,15 @@ function getList() {
   })
 }
 
-const loadAll=reactive({
+const loadAll = reactive({
   pageNum: 1,
   pageSize: 1000
 })
 const categoryList = ref([])
+
 /** 查询类别列表下拉框 */
 function getCategoryList() {
-  listCategory(loadAll).then( response=>{
+  listCategory(loadAll).then(response => {
     categoryList.value = response.rows
   })
 }
@@ -253,12 +255,13 @@ function submitForm() {
 /** 删除按钮操作 */
 function handleDelete(row) {
   const _ids = row.id || ids.value
-  proxy.$modal.confirm('是否确认删除图书列表编号为"' + _ids + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除图书列表编号为"' + _ids + '"的数据项？').then(function () {
     return delBook(_ids)
   }).then(() => {
     getList()
     proxy.$modal.msgSuccess("删除成功")
-  }).catch(() => {})
+  }).catch(() => {
+  })
 }
 
 getList()

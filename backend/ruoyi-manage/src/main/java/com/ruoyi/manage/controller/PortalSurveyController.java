@@ -54,7 +54,8 @@ public class PortalSurveyController extends BaseController {
                 java.util.List<java.util.Map<String, Object>> rows = answerMapper2().countOptionVotes(id);
                 java.util.Map<Long, Integer> cntMap = new java.util.HashMap<>();
                 for (java.util.Map<String, Object> r : rows) {
-                    Object oid = r.get("optionId"); Object c = r.get("cnt");
+                    Object oid = r.get("optionId");
+                    Object c = r.get("cnt");
                     if (oid != null && c != null) {
                         Long key = oid instanceof Number ? ((Number) oid).longValue() : Long.parseLong(String.valueOf(oid));
                         Integer val = c instanceof Number ? ((Number) c).intValue() : Integer.parseInt(String.valueOf(c));
@@ -71,7 +72,8 @@ public class PortalSurveyController extends BaseController {
                         }
                     }
                 }
-            } catch (Exception ignore) {}
+            } catch (Exception ignore) {
+            }
         }
         return success(s);
     }

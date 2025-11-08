@@ -27,14 +27,13 @@ import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
  * 图书列表Controller
- * 
+ *
  * @author 曾辉
  * @date 2025-09-24
  */
 @RestController
 @RequestMapping("/manage/book")
-public class BookController extends BaseController
-{
+public class BookController extends BaseController {
     @Autowired
     private IBookService bookService;
 
@@ -42,8 +41,7 @@ public class BookController extends BaseController
      * 查询图书列表列表
      */
     @GetMapping("/list")
-    public TableDataInfo list(Book book)
-    {
+    public TableDataInfo list(Book book) {
         startPage();
         if (SecurityUtils.hasRole("seller"))
             book.setCreateBy(getUsername());
@@ -56,8 +54,7 @@ public class BookController extends BaseController
      */
     @Log(title = "图书列表", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, Book book)
-    {
+    public void export(HttpServletResponse response, Book book) {
         List<Book> list = bookService.selectBookList(book);
         ExcelUtil<Book> util = new ExcelUtil<Book>(Book.class);
         util.exportExcel(response, list, "图书列表数据");
@@ -67,8 +64,7 @@ public class BookController extends BaseController
      * 获取图书列表详细信息
      */
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
+    public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(bookService.selectBookById(id));
     }
 
@@ -77,8 +73,7 @@ public class BookController extends BaseController
      */
     @Log(title = "图书列表", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody Book book)
-    {
+    public AjaxResult add(@RequestBody Book book) {
         book.setCreateBy(getUsername());
         return toAjax(bookService.insertBook(book));
     }
@@ -88,10 +83,9 @@ public class BookController extends BaseController
      */
     @Log(title = "图书列表", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody Book book)
-    {
+    public AjaxResult edit(@RequestBody Book book) {
         //如果是卖家，修改时如何是拒绝的，则改为待审核
-        if (SecurityUtils.hasRole("seller") && book.getStatus()==2)
+        if (SecurityUtils.hasRole("seller") && book.getStatus() == 2)
             book.setStatus(0);
         return toAjax(bookService.updateBook(book));
     }
@@ -100,14 +94,13 @@ public class BookController extends BaseController
      * 删除图书列表
      */
     @Log(title = "图书列表", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
+    @DeleteMapping("/{ids}")
+    public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(bookService.deleteBookByIds(ids));
     }
 
     @PutMapping("/batchAudit")
-    public AjaxResult batchAudit(@RequestBody BatchAduit  params) {
-        return toAjax(bookService.batchAuditByIds(params.getIds() , params.getStatus()));
+    public AjaxResult batchAudit(@RequestBody BatchAduit params) {
+        return toAjax(bookService.batchAuditByIds(params.getIds(), params.getStatus()));
     }
 }

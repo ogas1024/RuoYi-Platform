@@ -15,11 +15,17 @@
     </resultMap>
 
     <select id="listByItemId" resultMap="ImageResult">
-        select * from tb_lost_item_image where del_flag='0' and item_id = #{itemId} order by sort_no asc, id asc
+        select *
+        from tb_lost_item_image
+        where del_flag = '0'
+          and item_id = #{itemId}
+        order by sort_no asc, id asc
     </select>
 
     <delete id="deleteByItemId">
-        update tb_lost_item_image set del_flag='2', update_time = now()
+        update tb_lost_item_image
+        set del_flag='2',
+            update_time = now()
         where item_id = #{itemId}
     </delete>
 

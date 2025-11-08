@@ -20,24 +20,22 @@ import java.util.List;
 public class UserController extends BaseController {
 
     @Autowired
-    private IUserService  userService;
+    private IUserService userService;
 
     @Autowired
     private ISysUserService sysUserService;
 
     @GetMapping("/list")
-    public TableDataInfo list(User user)
-    {
+    public TableDataInfo list(User user) {
         startPage();
         user.setCreateBy(getUsername());
         List<User> list = userService.selectUserList(user);
         return getDataTable(list);
     }
+
     @PostMapping
-    public AjaxResult add(@RequestBody User user)
-    {
-        if (!userService.checkUserNameUnique(user.getUserName(),user.getUserId()))
-        {
+    public AjaxResult add(@RequestBody User user) {
+        if (!userService.checkUserNameUnique(user.getUserName(), user.getUserId())) {
             return error("新增用户'" + user.getUserName() + "'失败，登录账号已存在");
         }
         user.setCreateBy(getUsername());

@@ -2,6 +2,7 @@ package com.ruoyi.manage.controller;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,8 +30,7 @@ import com.ruoyi.common.core.page.TableDataInfo;
  */
 @RestController
 @RequestMapping("/manage/category")
-public class CategoryController extends BaseController
-{
+public class CategoryController extends BaseController {
     @Autowired
     private ICategoryService categoryService;
 
@@ -38,8 +38,7 @@ public class CategoryController extends BaseController
      * 查询图书类别列表
      */
     @GetMapping("/list")
-    public TableDataInfo list(Category category)
-    {
+    public TableDataInfo list(Category category) {
         startPage();
         List<Category> list = categoryService.selectCategoryList(category);
         return getDataTable(list);
@@ -49,8 +48,7 @@ public class CategoryController extends BaseController
      * 获取图书类别详细信息
      */
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
+    public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(categoryService.selectCategoryById(id));
     }
 
@@ -59,11 +57,9 @@ public class CategoryController extends BaseController
      */
     @Log(title = "图书类别", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody Category category)
-    {
+    public AjaxResult add(@RequestBody Category category) {
         String name = category.getCategoryName();
-        if (!categoryService.checkNameUnique(category))
-        {
+        if (!categoryService.checkNameUnique(category)) {
             return error("新增类别'" + name + "'失败，类别名称已存在");
         }
         return toAjax(categoryService.insertCategory(category));
@@ -74,11 +70,9 @@ public class CategoryController extends BaseController
      */
     @Log(title = "图书类别", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody Category category)
-    {
+    public AjaxResult edit(@RequestBody Category category) {
         String name = category.getCategoryName();
-        if (!categoryService.checkNameUnique(category))
-        {
+        if (!categoryService.checkNameUnique(category)) {
             return error("修改类别'" + name + "'失败，类别名称已存在");
         }
         return toAjax(categoryService.updateCategory(category));
@@ -89,8 +83,7 @@ public class CategoryController extends BaseController
      */
     @Log(title = "图书类别", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
+    public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(categoryService.deleteCategoryByIds(ids));
     }
 }

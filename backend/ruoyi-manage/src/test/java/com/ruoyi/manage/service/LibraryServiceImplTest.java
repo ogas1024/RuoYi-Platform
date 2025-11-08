@@ -62,7 +62,11 @@ class LibraryServiceImplTest {
         data.setTitle("Java 核心技术I");
         data.setAuthor("Cay");
         when(libraryMapper.existsIsbn13(anyString())).thenReturn(0);
-        when(libraryMapper.insert(any(Library.class))).thenAnswer(inv -> { Library arg = inv.getArgument(0); arg.setId(1L); return 1;});
+        when(libraryMapper.insert(any(Library.class))).thenAnswer(inv -> {
+            Library arg = inv.getArgument(0);
+            arg.setId(1L);
+            return 1;
+        });
 
         int rows = service.insert(data);
         assertEquals(1, rows);

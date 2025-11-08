@@ -129,7 +129,8 @@ public class FacilityBookingController extends BaseController {
                 com.ruoyi.manage.domain.FacilityBuilding bd = buildingMapper.selectById(room.getBuildingId());
                 if (bd != null) buildingName = bd.getBuildingName();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         meta.put("roomName", roomName);
         meta.put("buildingName", buildingName);
         // 申请人昵称/用户名
@@ -142,7 +143,8 @@ public class FacilityBookingController extends BaseController {
                 com.ruoyi.manage.domain.User u = us.get(0);
                 applicantName = (u.getNickName() != null && !u.getNickName().isEmpty()) ? u.getNickName() : u.getUserName();
             }
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
         meta.put("applicantName", applicantName);
         // 状态文字
         String statusText;

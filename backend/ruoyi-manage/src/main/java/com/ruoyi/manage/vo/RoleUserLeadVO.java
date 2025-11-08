@@ -10,8 +10,12 @@ public class RoleUserLeadVO {
     private Long userId;
     private String userName;
     private String nickName;
-    /** 逗号分隔的专业ID列表，如 "1,2,5" */
+    /**
+     * 逗号分隔的专业ID列表，如 "1,2,5"
+     */
     private String majorIds;
-    /** 逗号分隔的专业名列表，如 "计算机,数学" */
+    /**
+     * 逗号分隔的专业名列表，如 "计算机,数学"
+     */
     private String majorNames;
 }

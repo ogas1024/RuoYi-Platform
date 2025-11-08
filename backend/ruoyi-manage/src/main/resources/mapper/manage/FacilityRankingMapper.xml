@@ -3,35 +3,35 @@
 <mapper namespace="com.ruoyi.manage.mapper.FacilityRankingMapper">
 
     <select id="rankRooms" resultType="com.ruoyi.manage.vo.RoomRankVO">
-        select b.room_id     as roomId,
-               r.room_name   as roomName,
-               bd.building_name as buildingName,
-               sum(case when b.end_time &lt;= #{from} or b.start_time &gt;= #{to}
-                        then 0
-                        else timestampdiff(minute, greatest(b.start_time, #{from}), least(b.end_time, #{to})) end) as totalMinutes
+        select b.room_id as roomId,
+        r.room_name as roomName,
+        bd.building_name as buildingName,
+        sum(case when b.end_time &lt;= #{from} or b.start_time &gt;= #{to}
+        then 0
+        else timestampdiff(minute, greatest(b.start_time, #{from}), least(b.end_time, #{to})) end) as totalMinutes
         from tb_facility_booking b
         join tb_facility_room r on r.id = b.room_id
         join tb_facility_building bd on bd.id = r.building_id
         where b.del_flag='0' and b.status in ('1','4','5')
-          and b.end_time &gt;= #{from} and b.start_time &lt;= #{to}
+        and b.end_time &gt;= #{from} and b.start_time &lt;= #{to}
         group by b.room_id, r.room_name, bd.building_name
         order by totalMinutes desc, roomId asc
-        <if test="limit != null"> limit #{limit}</if>
+        <if test="limit != null">limit #{limit}</if>
     </select>
 
     <select id="rankUsers" resultType="com.ruoyi.manage.vo.UserRankVO">
         select b.applicant_id as userId,
-               coalesce(u.nick_name, u.user_name) as nickName,
-               sum(case when b.end_time &lt;= #{from} or b.start_time &gt;= #{to}
-                        then 0
-                        else timestampdiff(minute, greatest(b.start_time, #{from}), least(b.end_time, #{to})) end) as totalMinutes
+        coalesce(u.nick_name, u.user_name) as nickName,
+        sum(case when b.end_time &lt;= #{from} or b.start_time &gt;= #{to}
+        then 0
+        else timestampdiff(minute, greatest(b.start_time, #{from}), least(b.end_time, #{to})) end) as totalMinutes
         from tb_facility_booking b
         left join sys_user u on u.user_id = b.applicant_id
         where b.del_flag='0' and b.status in ('1','4','5')
-          and b.end_time &gt;= #{from} and b.start_time &lt;= #{to}
+        and b.end_time &gt;= #{from} and b.start_time &lt;= #{to}
         group by b.applicant_id, nickName
         order by totalMinutes desc, userId asc
-        <if test="limit != null"> limit #{limit}</if>
+        <if test="limit != null">limit #{limit}</if>
     </select>
 
 </mapper>

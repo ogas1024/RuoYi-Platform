@@ -16,28 +16,32 @@
     </resultMap>
 
     <select id="selectByItemId" resultMap="OptionResult">
-        select * from tb_survey_option where item_id = #{itemId} and del_flag = '0' order by sort_no asc, id asc
+        select *
+        from tb_survey_option
+        where item_id = #{itemId}
+          and del_flag = '0'
+        order by sort_no asc, id asc
     </select>
 
     <select id="selectBySurveyId" resultMap="OptionResult">
-        select o.* from tb_survey_option o
+        select o.*
+        from tb_survey_option o
         where exists (select 1 from tb_survey_item i where i.id = o.item_id and i.survey_id = #{surveyId})
           and o.del_flag = '0'
         order by o.item_id asc, o.sort_no asc, o.id asc
     </select>
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.SurveyOption" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_survey_option (
-            item_id, label, value, sort_no,
-            create_by, create_time, update_by, update_time, del_flag
-        ) values (
-            #{itemId}, #{label}, #{value}, #{sortNo},
-            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
-        )
+        insert into tb_survey_option (item_id, label, value, sort_no,
+                                      create_by, create_time, update_by, update_time, del_flag)
+        values (#{itemId}, #{label}, #{value}, #{sortNo},
+                #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0')
     </insert>
 
     <delete id="deleteBySurveyId">
-        delete from tb_survey_option where item_id in (select id from tb_survey_item where survey_id = #{surveyId})
+        delete
+        from tb_survey_option
+        where item_id in (select id from tb_survey_item where survey_id = #{surveyId})
     </delete>
 
 </mapper>

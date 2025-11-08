@@ -1,23 +1,23 @@
 <template>
   <div :class="{ 'has-logo': showLogo }" class="sidebar-container">
-    <logo v-if="showLogo" :collapse="isCollapse" />
+    <logo v-if="showLogo" :collapse="isCollapse"/>
     <el-scrollbar wrap-class="scrollbar-wrapper">
       <el-menu
-        :default-active="activeMenu"
-        :collapse="isCollapse"
-        :background-color="getMenuBackground"
-        :text-color="getMenuTextColor"
-        :unique-opened="true"
-        :active-text-color="theme"
-        :collapse-transition="false"
-        mode="vertical"
-        :class="sideTheme"
+          :default-active="activeMenu"
+          :collapse="isCollapse"
+          :background-color="getMenuBackground"
+          :text-color="getMenuTextColor"
+          :unique-opened="true"
+          :active-text-color="theme"
+          :collapse-transition="false"
+          mode="vertical"
+          :class="sideTheme"
       >
         <sidebar-item
-          v-for="(route, index) in sidebarRouters"
-          :key="route.path + index"
-          :item="route"
-          :base-path="route.path"
+            v-for="(route, index) in sidebarRouters"
+            :key="route.path + index"
+            :item="route"
+            :base-path="route.path"
         />
       </el-menu>
     </el-scrollbar>
@@ -60,7 +60,7 @@ const getMenuTextColor = computed(() => {
 })
 
 const activeMenu = computed(() => {
-  const { meta, path } = route
+  const {meta, path} = route
   if (meta.activeMenu) {
     return meta.activeMenu
   }
@@ -71,7 +71,7 @@ const activeMenu = computed(() => {
 <style lang="scss" scoped>
 .sidebar-container {
   background-color: v-bind(getMenuBackground);
-  
+
   .scrollbar-wrapper {
     background-color: v-bind(getMenuBackground);
   }
@@ -80,7 +80,7 @@ const activeMenu = computed(() => {
     border: none;
     height: 100%;
     width: 100% !important;
-    
+
     .el-menu-item, .el-sub-menu__title {
       &:hover {
         background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;
@@ -89,7 +89,7 @@ const activeMenu = computed(() => {
 
     .el-menu-item {
       color: v-bind(getMenuTextColor);
-      
+
       &.is-active {
         color: var(--menu-active-text, #409eff);
         background-color: var(--menu-hover, rgba(0, 0, 0, 0.06)) !important;

@@ -21,12 +21,16 @@
       <el-table-column type="selection" width="50"/>
       <el-table-column label="资源名称" min-width="240">
         <template #default="scope">
-          <el-tag v-if="scope.row.isBest===1" type="warning" size="small" effect="dark" style="margin-right:6px">最佳</el-tag>
+          <el-tag v-if="scope.row.isBest===1" type="warning" size="small" effect="dark" style="margin-right:6px">最佳
+          </el-tag>
           <span>{{ scope.row.resourceName }}</span>
         </template>
       </el-table-column>
       <el-table-column label="课程/专业" min-width="200">
-        <template #default="scope">{{ scope.row.majorName || '-' }} / {{ scope.row.courseName || scope.row.courseId }}</template>
+        <template #default="scope">{{ scope.row.majorName || '-' }} / {{
+            scope.row.courseName || scope.row.courseId
+          }}
+        </template>
       </el-table-column>
       <el-table-column label="状态" width="100">
         <template #default="scope">
@@ -47,12 +51,16 @@
         <template #default="scope">
           <el-button link type="primary" icon="Edit" @click="editRow(scope.row)">编辑</el-button>
           <el-button link type="danger" icon="Delete" @click="delRow(scope.row)">删除</el-button>
-          <el-button link type="warning" icon="Bottom" v-if="scope.row.status===1" @click="openOffline(scope.row)">下架</el-button>
-          <el-button link type="success" icon="Top" v-if="scope.row.status!==1" @click="online(scope.row)">重新上架</el-button>
+          <el-button link type="warning" icon="Bottom" v-if="scope.row.status===1" @click="openOffline(scope.row)">
+            下架
+          </el-button>
+          <el-button link type="success" icon="Top" v-if="scope.row.status!==1" @click="online(scope.row)">重新上架
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
-    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize" @pagination="getList"/>
+    <pagination v-show="total>0" :total="total" v-model:page="queryParams.pageNum" v-model:limit="queryParams.pageSize"
+                @pagination="getList"/>
 
     <el-dialog v-model="open" title="编辑资源" width="520px" append-to-body>
       <el-form ref="formRef" :model="form" :rules="rules" label-width="100px">
@@ -74,17 +82,23 @@
             </template>
           </el-upload>
           <div v-if="form.fileUrl" class="mt8">
-            当前文件：<el-link :href="form.fileUrl" target="_blank" type="primary">查看</el-link>
-            <span v-if="form.fileSize" style="margin-left:8px;color:#909399">{{ (form.fileSize/1024/1024).toFixed(2) }} MB</span>
+            当前文件：
+            <el-link :href="form.fileUrl" target="_blank" type="primary">查看</el-link>
+            <span v-if="form.fileSize" style="margin-left:8px;color:#909399">{{
+                (form.fileSize / 1024 / 1024).toFixed(2)
+              }} MB</span>
             <el-button text type="danger" size="small" style="margin-left:8px" @click="clearFile">移除</el-button>
           </div>
         </el-form-item>
         <el-form-item v-else label="外链 URL" prop="linkUrl">
           <el-input v-model="form.linkUrl" placeholder="https://..."/>
-          <el-button v-if="form.linkUrl" text type="danger" size="small" style="margin-left:8px" @click="form.linkUrl=''">清空</el-button>
+          <el-button v-if="form.linkUrl" text type="danger" size="small" style="margin-left:8px"
+                     @click="form.linkUrl=''">清空
+          </el-button>
         </el-form-item>
         <el-form-item label="资源简介" prop="description">
-          <el-input v-model="form.description" type="textarea" :rows="4" maxlength="500" show-word-limit placeholder="请填写简介"/>
+          <el-input v-model="form.description" type="textarea" :rows="4" maxlength="500" show-word-limit
+                    placeholder="请填写简介"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -96,7 +110,8 @@
     <el-dialog v-model="offlineOpen" title="下架原因" width="460px" append-to-body>
       <el-form ref="offlineFormRef" :model="offlineForm" :rules="offlineRules" label-width="80px">
         <el-form-item label="原因" prop="reason">
-          <el-input v-model="offlineForm.reason" type="textarea" :rows="3" maxlength="200" show-word-limit placeholder="请输入下架原因（必填）" />
+          <el-input v-model="offlineForm.reason" type="textarea" :rows="3" maxlength="200" show-word-limit
+                    placeholder="请输入下架原因（必填）"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -108,27 +123,42 @@
 </template>
 
 <script setup name="MyCourseResource">
-import { ref, reactive, onMounted, getCurrentInstance } from 'vue'
+import {ref, reactive, onMounted, getCurrentInstance} from 'vue'
 import useUserStore from '@/store/modules/user'
-import { myListResourcePortal, updateResourcePortal, removeResourcePortal, offlineResourcePortal, onlineResourcePortal } from '@/api/portal/resource'
-import { uploadOssPortal } from '@/api/portal/upload'
+import {
+  myListResourcePortal,
+  updateResourcePortal,
+  removeResourcePortal,
+  offlineResourcePortal,
+  onlineResourcePortal
+} from '@/api/portal/resource'
+import {uploadOssPortal} from '@/api/portal/upload'
 
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 const userStore = useUserStore()
 const loading = ref(false)
 const total = ref(0)
 const list = ref([])
 const selIds = ref([])
-const queryParams = reactive({ pageNum: 1, pageSize: 10, uploaderId: userStore.id, status: undefined })
+const queryParams = reactive({pageNum: 1, pageSize: 10, uploaderId: userStore.id, status: undefined})
 
 const open = ref(false)
 const formRef = ref()
-const form = reactive({ id: undefined, resourceName: '', resourceType: 0, fileUrl: '', fileHash: '', fileSize: 0, linkUrl: '', description: '' })
+const form = reactive({
+  id: undefined,
+  resourceName: '',
+  resourceType: 0,
+  fileUrl: '',
+  fileHash: '',
+  fileSize: 0,
+  linkUrl: '',
+  description: ''
+})
 const rules = {
-  resourceName: [{ required: true, message: '请填写资源名称', trigger: 'blur' }],
-  resourceType: [{ required: true, message: '请选择资源类型', trigger: 'change' }],
-  linkUrl: [{ required: () => form.resourceType===1, message: '请填写外链 URL', trigger: 'blur' }],
-  description: [{ required: true, message: '请填写简介', trigger: 'blur' }]
+  resourceName: [{required: true, message: '请填写资源名称', trigger: 'blur'}],
+  resourceType: [{required: true, message: '请选择资源类型', trigger: 'change'}],
+  linkUrl: [{required: () => form.resourceType === 1, message: '请填写外链 URL', trigger: 'blur'}],
+  description: [{required: true, message: '请填写简介', trigger: 'blur'}]
 }
 
 const getList = async () => {
@@ -137,11 +167,21 @@ const getList = async () => {
     const resp = await myListResourcePortal(queryParams)
     list.value = resp.rows || []
     total.value = resp.total || 0
-  } finally { loading.value = false }
+  } finally {
+    loading.value = false
+  }
 }
-const handleQuery = () => { queryParams.pageNum = 1; getList() }
-const resetQuery = () => { queryParams.status = undefined; handleQuery() }
-const onSel = (rows) => { selIds.value = rows.map(r => r.id) }
+const handleQuery = () => {
+  queryParams.pageNum = 1;
+  getList()
+}
+const resetQuery = () => {
+  queryParams.status = undefined;
+  handleQuery()
+}
+const onSel = (rows) => {
+  selIds.value = rows.map(r => r.id)
+}
 
 const editRow = (row) => {
   Object.assign(form, {
@@ -159,12 +199,14 @@ const editRow = (row) => {
 const submitForm = () => {
   formRef.value.validate(async (valid) => {
     if (!valid) return
-    const payload = { ...form }
+    const payload = {...form}
     if (payload.resourceType === 0) {
       if (!payload.fileHash) return proxy.$modal.msgError('缺少文件哈希，请重新上传')
       payload.linkUrl = null
     } else {
-      payload.fileUrl = null; payload.fileHash = null; payload.fileSize = null
+      payload.fileUrl = null;
+      payload.fileHash = null;
+      payload.fileSize = null
     }
     await updateResourcePortal(payload)
     proxy.$modal.msgSuccess('修改已提交审核')
@@ -181,47 +223,75 @@ const delRow = async (row) => {
 // 下架弹窗
 const offlineOpen = ref(false)
 const offlineFormRef = ref()
-const offlineForm = ref({ reason: '' })
-const offlineRules = reactive({ reason: [{ required: true, message: '请输入下架原因', trigger: 'blur' }] })
+const offlineForm = ref({reason: ''})
+const offlineRules = reactive({reason: [{required: true, message: '请输入下架原因', trigger: 'blur'}]})
 const offlineRowRef = ref(null)
-const openOffline = (row) => { offlineRowRef.value = row; offlineForm.value.reason=''; offlineOpen.value = true }
-const cancelOffline = () => { offlineOpen.value = false }
+const openOffline = (row) => {
+  offlineRowRef.value = row;
+  offlineForm.value.reason = '';
+  offlineOpen.value = true
+}
+const cancelOffline = () => {
+  offlineOpen.value = false
+}
 const submitOffline = () => {
   offlineFormRef.value.validate(async valid => {
     if (!valid) return
-  await offlineResourcePortal(offlineRowRef.value.id, offlineForm.value.reason)
+    await offlineResourcePortal(offlineRowRef.value.id, offlineForm.value.reason)
     offlineOpen.value = false
     proxy.$modal.msgSuccess('已下架')
     getList()
   })
 }
-const online = async (row) => { await onlineResourcePortal(row.id); proxy.$modal.msgSuccess('已提交上架审核'); getList() }
+const online = async (row) => {
+  await onlineResourcePortal(row.id);
+  proxy.$modal.msgSuccess('已提交上架审核');
+  getList()
+}
 
 // 上传压缩包（与上传对话框一致）
 const doUpload = async (options) => {
   const file = options.file
   const sizeLimit = 100 * 1024 * 1024
-  const allowed = ['zip','rar','7z','tar','gz','bz2','xz']
+  const allowed = ['zip', 'rar', '7z', 'tar', 'gz', 'bz2', 'xz']
   const ext = file.name.split('.').pop().toLowerCase()
-  if (!allowed.includes(ext)) { proxy.$modal.msgError('仅允许上传压缩包文件'); return options.onError(new Error('invalid ext')) }
-  if (file.size > sizeLimit) { proxy.$modal.msgError('文件超过 100MB，请改为外链方式'); return options.onError(new Error('too large')) }
+  if (!allowed.includes(ext)) {
+    proxy.$modal.msgError('仅允许上传压缩包文件');
+    return options.onError(new Error('invalid ext'))
+  }
+  if (file.size > sizeLimit) {
+    proxy.$modal.msgError('文件超过 100MB，请改为外链方式');
+    return options.onError(new Error('too large'))
+  }
   const fd = new FormData()
   fd.append('file', file)
   try {
-    const { data } = await uploadOssPortal(fd, { scene: 'resource.archive', dir: `resource/${userStore.id}/edit/${form.id || 'temp'}`, publicUrl: true })
+    const {data} = await uploadOssPortal(fd, {
+      scene: 'resource.archive',
+      dir: `resource/${userStore.id}/edit/${form.id || 'temp'}`,
+      publicUrl: true
+    })
     form.fileUrl = data.url || data.publicUrl || ''
     form.fileHash = data.sha256 || data.etag || ''
     form.fileSize = file.size
     options.onSuccess(data)
-  } catch (e) { options.onError(e) }
+  } catch (e) {
+    options.onError(e)
+  }
 }
 
 // 清空已选文件（允许用户改为外链或重新上传）
-const clearFile = () => { form.fileUrl = ''; form.fileHash = ''; form.fileSize = 0 }
+const clearFile = () => {
+  form.fileUrl = '';
+  form.fileHash = '';
+  form.fileSize = 0
+}
 
 onMounted(getList)
 </script>
 
 <style scoped>
-.hint { color: #909399; }
+.hint {
+  color: #909399;
+}
 </style>

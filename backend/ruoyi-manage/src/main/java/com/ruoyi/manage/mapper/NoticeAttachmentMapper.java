@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface NoticeAttachmentMapper {
     int insert(NoticeAttachment data);
+
     int deleteByNoticeId(@Param("noticeId") Long noticeId);
+
     List<NoticeAttachment> selectByNoticeId(@Param("noticeId") Long noticeId);
 }
 

@@ -22,23 +22,25 @@
     </resultMap>
 
     <insert id="upsertScore">
-        insert into tb_cr_user_score(user_id, username, major_id, total_score, approve_count, best_count, create_by, create_time, del_flag)
-        values(#{userId}, #{username}, #{majorId}, #{delta}, #{approveInc}, #{bestInc}, #{operator}, #{now}, '0')
-        on duplicate key update total_score = total_score + values(total_score),
-            approve_count = approve_count + values(approve_count),
-            best_count = best_count + values(best_count),
-            update_by = values(create_by), update_time = values(create_time)
+        insert into tb_cr_user_score(user_id, username, major_id, total_score, approve_count, best_count, create_by,
+                                     create_time, del_flag)
+        values (#{userId}, #{username}, #{majorId}, #{delta}, #{approveInc}, #{bestInc}, #{operator}, #{now}, '0')
+        on duplicate key update total_score   = total_score + values(total_score),
+                                approve_count = approve_count + values(approve_count),
+                                best_count    = best_count + values(best_count),
+                                update_by     = values(create_by),
+                                update_time   = values(create_time)
     </insert>
 
     <select id="selectRank" resultMap="CrUserScoreResult">
         select s.*, m.major_name,
-               row_number() over(order by s.total_score desc, s.id asc) as `rank`
+        row_number() over(order by s.total_score desc, s.id asc) as `rank`
         from tb_cr_user_score s
         left join tb_major m on s.major_id = m.id
         <where>
             s.del_flag = '0'
-            <if test="majorId != null and majorId &gt; 0"> and s.major_id = #{majorId}</if>
-            <if test="majorId == null or majorId == 0"> and s.major_id = 0</if>
+            <if test="majorId != null and majorId &gt; 0">and s.major_id = #{majorId}</if>
+            <if test="majorId == null or majorId == 0">and s.major_id = 0</if>
         </where>
         order by s.total_score desc, s.id asc
     </select>

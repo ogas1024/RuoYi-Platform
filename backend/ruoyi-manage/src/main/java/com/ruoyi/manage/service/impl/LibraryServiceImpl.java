@@ -16,6 +16,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.regex.Pattern;
+
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.ServletUtils;
@@ -78,7 +79,9 @@ public class LibraryServiceImpl implements ILibraryService {
                     if (a.getLinkUrl() != null && !a.getLinkUrl().isEmpty()) a.setAssetType("1");
                     else a.setAssetType("0");
                 }
-                if (a.getSort() == null) { a.setSort(sort++); }
+                if (a.getSort() == null) {
+                    a.setSort(sort++);
+                }
                 if ((a.getFormat() == null || a.getFormat().isEmpty()) && a.getFileUrl() != null) {
                     a.setFormat(guessFormatFromUrl(a.getFileUrl()));
                 }
@@ -343,8 +346,10 @@ public class LibraryServiceImpl implements ILibraryService {
     private String guessFormatFromUrl(String url) {
         if (url == null) return null;
         String u = url;
-        int q = u.indexOf('?'); if (q > -1) u = u.substring(0, q);
-        int h = u.indexOf('#'); if (h > -1) u = u.substring(0, h);
+        int q = u.indexOf('?');
+        if (q > -1) u = u.substring(0, q);
+        int h = u.indexOf('#');
+        if (h > -1) u = u.substring(0, h);
         int p = u.lastIndexOf('.');
         if (p > -1 && p < u.length() - 1) {
             String ext = u.substring(p + 1).toLowerCase();

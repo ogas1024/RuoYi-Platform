@@ -62,7 +62,9 @@ public class MajorLeadController extends BaseController {
         return toAjax(service.deleteByMajorAndUser(majorId, userId));
     }
 
-    /** 卸任负责人：删除用户的所有映射并撤销角色 */
+    /**
+     * 卸任负责人：删除用户的所有映射并撤销角色
+     */
     @Log(title = "专业负责人-卸任", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('manage:majorLead:remove')")
     @DeleteMapping("/retire/{userId}")
@@ -70,7 +72,9 @@ public class MajorLeadController extends BaseController {
         return toAjax(service.retireUser(userId));
     }
 
-    /** 获取当前用户被分配的专业列表（仅返回 id/majorName），供课程管理页下拉使用 */
+    /**
+     * 获取当前用户被分配的专业列表（仅返回 id/majorName），供课程管理页下拉使用
+     */
     @PreAuthorize("@ss.hasPermi('manage:course:list')")
     @GetMapping("/myMajors")
     public AjaxResult myMajors() {

@@ -35,8 +35,12 @@ public class Library extends BaseEntity {
     private String delFlag; // 0存在 2删除
 
     // 以下为查询辅助字段（不入库）：
-    /** 关键字搜索：匹配 title/author/isbn13/keywords */
+    /**
+     * 关键字搜索：匹配 title/author/isbn13/keywords
+     */
     private String keyword;
-    /** 筛选指定资产格式（pdf/epub/mobi/zip），基于资产表 exists */
+    /**
+     * 筛选指定资产格式（pdf/epub/mobi/zip），基于资产表 exists
+     */
     private String format;
 }

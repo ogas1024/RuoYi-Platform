@@ -1,32 +1,33 @@
 <template>
   <div class="header-search">
-    <svg-icon class-name="search-icon" icon-class="search" @click.stop="click" />
+    <svg-icon class-name="search-icon" icon-class="search" @click.stop="click"/>
     <el-dialog
-      v-model="show"
-      width="600"
-      @close="close"
-      :show-close="false"
-      append-to-body
+        v-model="show"
+        width="600"
+        @close="close"
+        :show-close="false"
+        append-to-body
     >
       <el-input
-        v-model="search"
-        ref="headerSearchSelectRef"
-        size="large"
-        @input="querySearch"
-        prefix-icon="Search"
-        placeholder="菜单搜索，支持标题、URL模糊查询"
-        clearable
-        @keyup.enter="selectActiveResult"
-        @keydown.up.prevent="navigateResult('up')"
-        @keydown.down.prevent="navigateResult('down')"
+          v-model="search"
+          ref="headerSearchSelectRef"
+          size="large"
+          @input="querySearch"
+          prefix-icon="Search"
+          placeholder="菜单搜索，支持标题、URL模糊查询"
+          clearable
+          @keyup.enter="selectActiveResult"
+          @keydown.up.prevent="navigateResult('up')"
+          @keydown.down.prevent="navigateResult('down')"
       >
       </el-input>
 
       <div class="result-wrap">
         <el-scrollbar>
-          <div class="search-item" tabindex="1" v-for="(item, index) in options" :key="item.path" :style="activeStyle(index)" @mouseenter="activeIndex = index" @mouseleave="activeIndex = -1">
+          <div class="search-item" tabindex="1" v-for="(item, index) in options" :key="item.path"
+               :style="activeStyle(index)" @mouseenter="activeIndex = index" @mouseleave="activeIndex = -1">
             <div class="left">
-              <svg-icon class="menu-icon" :icon-class="item.icon" />
+              <svg-icon class="menu-icon" :icon-class="item.icon"/>
             </div>
             <div class="search-info" @click="change(item)">
               <div class="menu-title">
@@ -46,8 +47,8 @@
 
 <script setup>
 import Fuse from 'fuse.js'
-import { getNormalPath } from '@/utils/ruoyi'
-import { isHttp } from '@/utils/validate'
+import {getNormalPath} from '@/utils/ruoyi'
+import {isHttp} from '@/utils/validate'
 import useSettingsStore from '@/store/modules/settings'
 import usePermissionStore from '@/store/modules/permission'
 
@@ -87,7 +88,7 @@ function change(val) {
     window.open(path.substr(pindex, path.length), "_blank")
   } else {
     if (query) {
-      router.push({ path: path, query: JSON.parse(query) })
+      router.push({path: path, query: JSON.parse(query)})
     } else {
       router.push(path)
     }
@@ -124,7 +125,9 @@ function generateRoutes(routes, basePath = '', prefixTitle = []) {
 
   for (const r of routes) {
     // skip hidden router
-    if (r.hidden) { continue }
+    if (r.hidden) {
+      continue
+    }
     const p = r.path.length > 0 && r.path[0] === '/' ? r.path : '/' + r.path
     const data = {
       path: !isHttp(r.path) ? getNormalPath(basePath + p) : r.path,
@@ -205,7 +208,7 @@ watch(searchPool, (list) => {
   }
 }
 
-.result-wrap {	
+.result-wrap {
   height: 280px;
   margin: 6px 0;
 
@@ -238,6 +241,7 @@ watch(searchPool, (list) => {
       .menu-path {
         height: 20px;
       }
+
       .menu-path {
         color: #ccc;
         font-size: 10px;

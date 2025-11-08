@@ -16,27 +16,32 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.FacilityBan" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_facility_ban(user_id,reason,status,expire_time,create_by,create_time,del_flag)
-        values(#{userId},#{reason},#{status},#{expireTime},#{createBy},#{createTime},'0')
+        insert into tb_facility_ban(user_id, reason, status, expire_time, create_by, create_time, del_flag)
+        values (#{userId}, #{reason}, #{status}, #{expireTime}, #{createBy}, #{createTime}, '0')
     </insert>
 
     <delete id="deleteById" parameterType="long">
-        delete from tb_facility_ban where id = #{id}
+        delete
+        from tb_facility_ban
+        where id = #{id}
     </delete>
 
     <select id="selectList" resultMap="BanResult">
         select * from tb_facility_ban
         <where>
             del_flag='0'
-            <if test="status != null and status != ''"> and status = #{status}</if>
-            <if test="userId != null"> and user_id = #{userId}</if>
+            <if test="status != null and status != ''">and status = #{status}</if>
+            <if test="userId != null">and user_id = #{userId}</if>
         </where>
         order by id desc
     </select>
 
     <select id="countActive" resultType="int">
-        select count(1) from tb_facility_ban
-        where del_flag='0' and status = '0' and user_id = #{userId}
+        select count(1)
+        from tb_facility_ban
+        where del_flag = '0'
+          and status = '0'
+          and user_id = #{userId}
           and (expire_time is null or expire_time &gt; now())
     </select>
 

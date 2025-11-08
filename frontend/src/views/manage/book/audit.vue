@@ -80,7 +80,7 @@
       </el-col>
       <right-toolbar v-model:showSearch="showSearch" @queryTable="handleQuery"></right-toolbar>
     </el-row>
-    <el-table @selection-change="handleSelectionChange"  v-loading="loading"  border stripe :data="bookList">
+    <el-table @selection-change="handleSelectionChange" v-loading="loading" border stripe :data="bookList">
       <el-table-column label="序号" align="center" width="55">
         <template #default="scope">
           <span>{{ (queryParams.pageNum - 1) * queryParams.pageSize + scope.$index + 1 }}</span>
@@ -91,7 +91,7 @@
       <el-table-column label="图书类别" align="center" prop="categoryName"/>
       <el-table-column label="图书名称" align="center" prop="bookName" :show-overflow-tooltip="true"/>
       <el-table-column label="作者" align="center" prop="author" :show-overflow-tooltip="true"/>
-      <el-table-column label="出版社" align="center" prop="publisher" width="180" />
+      <el-table-column label="出版社" align="center" prop="publisher" width="180"/>
       <el-table-column label="价格" align="center" prop="price" width="60"/>
       <el-table-column label="状态" align="center" width="70" prop="status">
         <template #default="scope">

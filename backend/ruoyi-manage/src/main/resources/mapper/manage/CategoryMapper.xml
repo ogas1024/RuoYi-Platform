@@ -5,19 +5,23 @@
 <mapper namespace="com.ruoyi.manage.mapper.CategoryMapper">
 
     <resultMap type="Category" id="CategoryResult">
-        <result property="id"    column="id"    />
-        <result property="categoryName"    column="category_name"    />
-        <result property="bookCount"    column="book_count"    />
+        <result property="id" column="id"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="bookCount" column="book_count"/>
     </resultMap>
 
     <sql id="selectCategoryVo">
-        select id, category_name from tb_category
+        select id, category_name
+        from tb_category
     </sql>
 
     <select id="selectCategoryList" parameterType="Category" resultMap="CategoryResult">
-        select c.id,c.category_name,ifnull(count(b.id),0) as book_count from tb_category c left join tb_book b on b.category_id= c.id
+        select c.id,c.category_name,ifnull(count(b.id),0) as book_count from tb_category c left join tb_book b on
+        b.category_id= c.id
         <where>
-            <if test="categoryName != null  and categoryName != ''"> and category_name like concat('%', #{categoryName}, '%')</if>
+            <if test="categoryName != null  and categoryName != ''">and category_name like concat('%', #{categoryName},
+                '%')
+            </if>
         </where>
         group by c.id,c.category_name
     </select>
@@ -50,7 +54,9 @@
     </update>
 
     <delete id="deleteCategoryById" parameterType="Long">
-        delete from tb_category where id = #{id}
+        delete
+        from tb_category
+        where id = #{id}
     </delete>
 
     <delete id="deleteCategoryByIds" parameterType="String">

@@ -2,7 +2,9 @@
   <el-menu router class="portal-menu" :default-active="$route.path">
     <el-sub-menu index="res">
       <template #title>
-        <el-icon><Menu /></el-icon>
+        <el-icon>
+          <Menu/>
+        </el-icon>
         <span>课程资源分享</span>
       </template>
       <el-menu-item index="/portal/course-resource">
@@ -17,7 +19,9 @@
     </el-sub-menu>
     <el-sub-menu index="notice">
       <template #title>
-        <el-icon><Bell /></el-icon>
+        <el-icon>
+          <Bell/>
+        </el-icon>
         <span>通知公告</span>
       </template>
       <el-menu-item index="/portal/notice">
@@ -26,7 +30,9 @@
     </el-sub-menu>
     <el-sub-menu index="lib">
       <template #title>
-        <el-icon><Collection /></el-icon>
+        <el-icon>
+          <Collection/>
+        </el-icon>
         <span>数字图书馆</span>
       </template>
       <el-menu-item index="/portal/library/list">
@@ -47,7 +53,9 @@
     </el-sub-menu>
     <el-sub-menu index="facility">
       <template #title>
-        <el-icon><OfficeBuilding /></el-icon>
+        <el-icon>
+          <OfficeBuilding/>
+        </el-icon>
         <span>功能房预约</span>
       </template>
       <el-menu-item index="/portal/facility">
@@ -59,7 +67,9 @@
     </el-sub-menu>
     <el-sub-menu index="lostfound">
       <template #title>
-        <el-icon><Search /></el-icon>
+        <el-icon>
+          <Search/>
+        </el-icon>
         <span>失物招领</span>
       </template>
       <el-menu-item index="/portal/lostfound">
@@ -74,7 +84,9 @@
     </el-sub-menu>
     <el-sub-menu index="survey">
       <template #title>
-        <el-icon><Edit /></el-icon>
+        <el-icon>
+          <Edit/>
+        </el-icon>
         <span>问卷</span>
       </template>
       <el-menu-item index="/portal/survey">
@@ -86,7 +98,9 @@
     </el-sub-menu>
     <el-sub-menu index="vote">
       <template #title>
-        <el-icon><Edit /></el-icon>
+        <el-icon>
+          <Edit/>
+        </el-icon>
         <span>投票</span>
       </template>
       <el-menu-item index="/portal/vote">
@@ -100,9 +114,11 @@
 </template>
 
 <script setup>
-import { Menu, Collection, Bell, OfficeBuilding, Search, Edit } from '@element-plus/icons-vue'
+import {Menu, Collection, Bell, OfficeBuilding, Search, Edit} from '@element-plus/icons-vue'
 </script>
 
 <style scoped>
-.portal-menu { border-right: none; }
+.portal-menu {
+  border-right: none;
+}
 </style>

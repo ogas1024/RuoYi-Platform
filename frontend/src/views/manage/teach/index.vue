@@ -24,29 +24,32 @@
   </div>
 </template>
 <script setup>
-import {listTeach,delTeach} from '@/api/manage/teach'
+import {listTeach, delTeach} from '@/api/manage/teach'
 
 const teachList = ref([])
 const total = ref(0)
-const { proxy } = getCurrentInstance()
+const {proxy} = getCurrentInstance()
 const queryParams = reactive({
-    pageNum: 1,
-    pageSize: 10
+  pageNum: 1,
+  pageSize: 10
 })
+
 function getTeachList() {
   listTeach(queryParams).then(response => {
     teachList.value = response.rows
     total.value = response.total
   })
 }
+
 function handleDelete(row) {
   console.log(row)
-  proxy.$modal.confirm('是否确认删除编号为"' + row.id + '"的数据项？').then(function() {
+  proxy.$modal.confirm('是否确认删除编号为"' + row.id + '"的数据项？').then(function () {
     return delTeach(row.id)
   }).then(() => {
     getTeachList()
     proxy.$modal.msgSuccess("删除成功")
-  }).catch(() => {})
+  }).catch(() => {
+  })
 }
 
 getTeachList()

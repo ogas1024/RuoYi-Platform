@@ -106,8 +106,10 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
         FacilityBooking origin = bookingMapper.selectById(id);
         if (origin == null) throw new ServiceException("预约不存在");
         if (!Objects.equals(origin.getApplicantId(), currentUserId)) throw new ServiceException("无权修改他人预约");
-        if (!Arrays.asList("0","1","2").contains(origin.getStatus())) throw new ServiceException("当前状态不允许修改");
-        if (!origin.getStartTime().after(new Date())) throw new ServiceException("已开始的预约不可在此修改，请使用提前结束");
+        if (!Arrays.asList("0", "1", "2").contains(origin.getStatus()))
+            throw new ServiceException("当前状态不允许修改");
+        if (!origin.getStartTime().after(new Date()))
+            throw new ServiceException("已开始的预约不可在此修改，请使用提前结束");
 
         FacilitySetting setting = settingService.get();
         Date start = patch.getStartTime() != null ? patch.getStartTime() : origin.getStartTime();
@@ -155,7 +157,7 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
         FacilityBooking origin = bookingMapper.selectById(id);
         if (origin == null) throw new ServiceException("预约不存在");
         if (!Objects.equals(origin.getApplicantId(), currentUserId)) throw new ServiceException("无权取消他人预约");
-        if (!Arrays.asList("0","1").contains(origin.getStatus())) throw new ServiceException("当前状态不可取消");
+        if (!Arrays.asList("0", "1").contains(origin.getStatus())) throw new ServiceException("当前状态不可取消");
         if (!origin.getStartTime().after(new Date())) throw new ServiceException("预约已开始，不能取消");
         origin.setStatus("3");
         origin.setUpdateTime(new Date());
@@ -168,7 +170,8 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
         FacilityBooking origin = bookingMapper.selectById(id);
         if (origin == null) throw new ServiceException("预约不存在");
         if (!Objects.equals(origin.getApplicantId(), currentUserId)) throw new ServiceException("无权操作他人预约");
-        if (!Arrays.asList("1","4").contains(origin.getStatus())) throw new ServiceException("仅已批准/进行中允许提前结束");
+        if (!Arrays.asList("1", "4").contains(origin.getStatus()))
+            throw new ServiceException("仅已批准/进行中允许提前结束");
         Date now = new Date();
         if (newEndTime.before(now)) newEndTime = now; // 对齐：不早于当前
         if (!newEndTime.after(origin.getStartTime())) throw new ServiceException("结束时间需大于开始时间");

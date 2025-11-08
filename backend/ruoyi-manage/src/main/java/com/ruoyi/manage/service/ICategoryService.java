@@ -1,6 +1,7 @@
 package com.ruoyi.manage.service;
 
 import java.util.List;
+
 import com.ruoyi.manage.domain.Category;
 
 /**
@@ -9,8 +10,7 @@ import com.ruoyi.manage.domain.Category;
  * @author 曾辉
  * @date 2025-10-10
  */
-public interface ICategoryService
-{
+public interface ICategoryService {
     /**
      * 查询图书类别
      *

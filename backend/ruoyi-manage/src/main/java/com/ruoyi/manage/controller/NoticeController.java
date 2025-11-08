@@ -77,7 +77,9 @@ public class NoticeController extends BaseController {
         return AjaxResult.error("撤回失败");
     }
 
-    public static class PinBody { public Boolean pinned; }
+    public static class PinBody {
+        public Boolean pinned;
+    }
 
     @PreAuthorize("@ss.hasPermi('manage:notice:pin')")
     @PutMapping("/{id}/pin")

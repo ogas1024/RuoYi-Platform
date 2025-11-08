@@ -31,13 +31,16 @@ class MajorLeadServiceImplTest {
             java.lang.reflect.Field f2 = MajorLeadServiceImpl.class.getDeclaredField("sysLinkageMapper");
             f2.setAccessible(true);
             f2.set(service, sysLinkageMapper);
-        } catch (Exception e) { throw new RuntimeException(e); }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Test
     void insert_grants_role_when_absent() {
         MajorLead ml = new MajorLead();
-        ml.setMajorId(1L); ml.setUserId(7L);
+        ml.setMajorId(1L);
+        ml.setUserId(7L);
         when(sysLinkageMapper.existsUser(7L)).thenReturn(1);
         when(majorLeadMapper.insert(any())).thenReturn(1);
         when(sysLinkageMapper.selectRoleIdByKey("major_lead")).thenReturn(103L);
@@ -75,7 +78,8 @@ class MajorLeadServiceImplTest {
     @Test
     void insert_invalid_user_should_throw() {
         MajorLead ml = new MajorLead();
-        ml.setMajorId(1L); ml.setUserId(9999L);
+        ml.setMajorId(1L);
+        ml.setUserId(9999L);
         when(sysLinkageMapper.existsUser(9999L)).thenReturn(0);
         try {
             service.insert(ml);

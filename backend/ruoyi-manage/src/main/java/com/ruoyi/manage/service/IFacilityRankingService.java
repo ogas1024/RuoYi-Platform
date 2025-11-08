@@ -7,6 +7,7 @@ import java.util.List;
 
 public interface IFacilityRankingService {
     List<RoomRankVO> rankRooms(String period);
+
     List<UserRankVO> rankUsers(String period);
 }
 

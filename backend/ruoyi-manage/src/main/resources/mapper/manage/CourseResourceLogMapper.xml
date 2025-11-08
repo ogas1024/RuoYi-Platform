@@ -4,15 +4,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.CourseResourceLogMapper">
 
-    <insert id="insert" parameterType="com.ruoyi.manage.domain.CourseResourceLog" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_course_resource_log (resource_id, action, actor_id, actor_name, ip, user_agent, detail, result, create_by, create_time, del_flag)
-        values (#{resourceId}, #{action}, #{actorId}, #{actorName}, #{ip}, #{userAgent}, #{detail}, #{result}, #{createBy}, #{createTime}, '0')
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.CourseResourceLog" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into tb_course_resource_log (resource_id, action, actor_id, actor_name, ip, user_agent, detail, result,
+                                            create_by, create_time, del_flag)
+        values (#{resourceId}, #{action}, #{actorId}, #{actorName}, #{ip}, #{userAgent}, #{detail}, #{result},
+                #{createBy}, #{createTime}, '0')
     </insert>
 
     <!-- 统计：按天分组下载数量（action='DOWNLOAD'），不包含被删除的日志。返回字段 day(yyyy-MM-dd), count -->
     <select id="selectDownloadCountByDay" resultType="com.ruoyi.manage.domain.vo.DayCount">
         select DATE_FORMAT(create_time, '%Y-%m-%d') as day,
-               count(*) as count
+               count(*)                             as count
         from tb_course_resource_log
         where del_flag = '0'
           and action = 'DOWNLOAD'
@@ -25,18 +28,18 @@
     <!-- 课程资源：用户下载TOP榜（仅统计 result='SUCCESS'） -->
     <select id="selectTopDownloadUsers" resultType="com.ruoyi.manage.vo.TopUserVO">
         select l.actor_id as userId,
-               coalesce(max(u.nick_name), max(u.user_name), concat('用户', l.actor_id)) as nickname,
-               coalesce(max(u.user_name), max(u.nick_name), concat('user', l.actor_id)) as username,
-               count(1) as passedCount
+        coalesce(max(u.nick_name), max(u.user_name), concat('用户', l.actor_id)) as nickname,
+        coalesce(max(u.user_name), max(u.nick_name), concat('user', l.actor_id)) as username,
+        count(1) as passedCount
         from tb_course_resource_log l
         left join sys_user u on u.user_id = l.actor_id
         where l.del_flag = '0'
-          and l.action = 'DOWNLOAD'
-          and l.result = 'SUCCESS'
+        and l.action = 'DOWNLOAD'
+        and l.result = 'SUCCESS'
         group by l.actor_id
         order by passedCount desc, userId asc
-        <if test="limit != null"> limit #{limit}</if>
-        <if test="limit == null"> limit 5</if>
+        <if test="limit != null">limit #{limit}</if>
+        <if test="limit == null">limit 5</if>
     </select>
 
 </mapper>

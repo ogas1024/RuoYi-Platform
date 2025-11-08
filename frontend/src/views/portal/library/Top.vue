@@ -31,18 +31,27 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { topLibraryPortal, topUsersLibraryPortal } from '@/api/portal/library'
+import {ref, onMounted} from 'vue'
+import {useRouter} from 'vue-router'
+import {topLibraryPortal, topUsersLibraryPortal} from '@/api/portal/library'
 
 const router = useRouter()
 const active = ref('book')
 const books = ref([])
 const users = ref([])
 
-const fetchBooks = async () => { const { data } = await topLibraryPortal(10); books.value = data || [] }
-const fetchUsers = async () => { const { data } = await topUsersLibraryPortal(10); users.value = data || [] }
-const openDetail = (row) => router.push({ path: '/portal/library/detail', query: { id: row.id } })
+const fetchBooks = async () => {
+  const {data} = await topLibraryPortal(10);
+  books.value = data || []
+}
+const fetchUsers = async () => {
+  const {data} = await topUsersLibraryPortal(10);
+  users.value = data || []
+}
+const openDetail = (row) => router.push({path: '/portal/library/detail', query: {id: row.id}})
 
-onMounted(() => { fetchBooks(); fetchUsers() })
+onMounted(() => {
+  fetchBooks();
+  fetchUsers()
+})
 </script>

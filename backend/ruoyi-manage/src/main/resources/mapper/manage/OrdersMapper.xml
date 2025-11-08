@@ -1,43 +1,54 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.OrdersMapper">
-    
+
     <resultMap type="Orders" id="OrdersResult">
-        <result property="id"    column="id"    />
-        <result property="orderNumber"    column="order_number"    />
-        <result property="userId"    column="user_id"    />
-        <result property="totalAmount"    column="total_amount"    />
-        <result property="status"    column="status"    />
-        <result property="paymentTime"    column="payment_time"    />
-        <result property="shippingTime"    column="shipping_time"    />
-        <result property="receiveTime"    column="receive_time"    />
-        <result property="cancelTime"    column="cancel_time"    />
-        <result property="notes"    column="notes"    />
-        <result property="createdAt"    column="created_at"    />
+        <result property="id" column="id"/>
+        <result property="orderNumber" column="order_number"/>
+        <result property="userId" column="user_id"/>
+        <result property="totalAmount" column="total_amount"/>
+        <result property="status" column="status"/>
+        <result property="paymentTime" column="payment_time"/>
+        <result property="shippingTime" column="shipping_time"/>
+        <result property="receiveTime" column="receive_time"/>
+        <result property="cancelTime" column="cancel_time"/>
+        <result property="notes" column="notes"/>
+        <result property="createdAt" column="created_at"/>
     </resultMap>
 
     <sql id="selectOrdersVo">
-        select id, order_number, user_id, total_amount, status, payment_time, shipping_time, receive_time, cancel_time, notes, created_at from tb_orders
+        select id,
+               order_number,
+               user_id,
+               total_amount,
+               status,
+               payment_time,
+               shipping_time,
+               receive_time,
+               cancel_time,
+               notes,
+               created_at
+        from tb_orders
     </sql>
 
     <select id="selectOrdersList" parameterType="Orders" resultMap="OrdersResult">
         <include refid="selectOrdersVo"/>
-        <where>  
-            <if test="orderNumber != null  and orderNumber != ''"> and order_number = #{orderNumber}</if>
-            <if test="userId != null "> and user_id = #{userId}</if>
-            <if test="totalAmount != null "> and total_amount = #{totalAmount}</if>
-            <if test="status != null  and status != ''"> and status = #{status}</if>
-            <if test="paymentTime != null "> and payment_time = #{paymentTime}</if>
-            <if test="shippingTime != null "> and shipping_time = #{shippingTime}</if>
-            <if test="receiveTime != null "> and receive_time = #{receiveTime}</if>
-            <if test="cancelTime != null "> and cancel_time = #{cancelTime}</if>
-            <if test="notes != null  and notes != ''"> and notes = #{notes}</if>
-            <if test="createdAt != null "> and created_at = #{createdAt}</if>
+        <where>
+            <if test="orderNumber != null  and orderNumber != ''">and order_number = #{orderNumber}</if>
+            <if test="userId != null ">and user_id = #{userId}</if>
+            <if test="totalAmount != null ">and total_amount = #{totalAmount}</if>
+            <if test="status != null  and status != ''">and status = #{status}</if>
+            <if test="paymentTime != null ">and payment_time = #{paymentTime}</if>
+            <if test="shippingTime != null ">and shipping_time = #{shippingTime}</if>
+            <if test="receiveTime != null ">and receive_time = #{receiveTime}</if>
+            <if test="cancelTime != null ">and cancel_time = #{cancelTime}</if>
+            <if test="notes != null  and notes != ''">and notes = #{notes}</if>
+            <if test="createdAt != null ">and created_at = #{createdAt}</if>
         </where>
     </select>
-    
+
     <select id="selectOrdersById" parameterType="Long" resultMap="OrdersResult">
         <include refid="selectOrdersVo"/>
         where id = #{id}
@@ -56,7 +67,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cancelTime != null">cancel_time,</if>
             <if test="notes != null">notes,</if>
             <if test="createdAt != null">created_at,</if>
-         </trim>
+        </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
             <if test="orderNumber != null">#{orderNumber},</if>
             <if test="userId != null">#{userId},</if>
@@ -68,7 +79,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
             <if test="cancelTime != null">#{cancelTime},</if>
             <if test="notes != null">#{notes},</if>
             <if test="createdAt != null">#{createdAt},</if>
-         </trim>
+        </trim>
     </insert>
 
     <update id="updateOrders" parameterType="Orders">
@@ -89,11 +100,13 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </update>
 
     <delete id="deleteOrdersById" parameterType="Long">
-        delete from tb_orders where id = #{id}
+        delete
+        from tb_orders
+        where id = #{id}
     </delete>
 
     <delete id="deleteOrdersByIds" parameterType="String">
-        delete from tb_orders where id in 
+        delete from tb_orders where id in
         <foreach item="id" collection="array" open="(" separator="," close=")">
             #{id}
         </foreach>

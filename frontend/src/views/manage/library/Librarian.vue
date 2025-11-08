@@ -1,7 +1,9 @@
 <template>
   <div class="app-container">
     <div class="mb8">
-      <el-button type="primary" icon="Plus" @click="showAdd=true" v-hasPermi="['manage:libraryLibrarian:add']">新增图书管理员</el-button>
+      <el-button type="primary" icon="Plus" @click="showAdd=true" v-hasPermi="['manage:libraryLibrarian:add']">
+        新增图书管理员
+      </el-button>
     </div>
     <el-table :data="list" v-loading="loading" border>
       <el-table-column prop="userId" label="用户ID" width="120"/>
@@ -9,7 +11,9 @@
       <el-table-column prop="nickname" label="昵称"/>
       <el-table-column label="操作" width="120">
         <template #default="{ row }">
-          <el-button type="danger" text size="small" @click="dismissOne(row)" v-hasPermi="['manage:libraryLibrarian:remove']">卸任</el-button>
+          <el-button type="danger" text size="small" @click="dismissOne(row)"
+                     v-hasPermi="['manage:libraryLibrarian:remove']">卸任
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -29,8 +33,8 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import { listLibrarian, addLibrarian, removeLibrarian } from '@/api/manage/librarian'
+import {ref, onMounted} from 'vue'
+import {listLibrarian, addLibrarian, removeLibrarian} from '@/api/manage/librarian'
 
 const loading = ref(false)
 const list = ref([])
@@ -40,12 +44,23 @@ const showAdd = ref(false)
 const getList = async () => {
   loading.value = true
   try {
-    const { rows } = await listLibrarian({ pageNum: 1, pageSize: 100 })
+    const {rows} = await listLibrarian({pageNum: 1, pageSize: 100})
     list.value = rows || []
-  } finally { loading.value = false }
+  } finally {
+    loading.value = false
+  }
 }
-const appoint = async () => { if (!userId.value) return; await addLibrarian(userId.value); userId.value = null; showAdd.value=false; getList() }
-const dismissOne = async (row) => { await removeLibrarian(row.userId); getList() }
+const appoint = async () => {
+  if (!userId.value) return;
+  await addLibrarian(userId.value);
+  userId.value = null;
+  showAdd.value = false;
+  getList()
+}
+const dismissOne = async (row) => {
+  await removeLibrarian(row.userId);
+  getList()
+}
 
 onMounted(getList)
 </script>

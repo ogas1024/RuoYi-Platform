@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface NoticeScopeMapper {
     int insert(NoticeScope data);
+
     int deleteByNoticeId(@Param("noticeId") Long noticeId);
+
     List<NoticeScope> selectByNoticeId(@Param("noticeId") Long noticeId);
 }
 

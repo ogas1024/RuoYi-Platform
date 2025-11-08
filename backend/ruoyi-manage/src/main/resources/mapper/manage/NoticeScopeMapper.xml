@@ -15,22 +15,30 @@
     </resultMap>
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.NoticeScope" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_notice_scope(
-            notice_id, scope_type, ref_id,
-            create_by, create_time, update_by, update_time, del_flag
-        ) values (
-            #{noticeId}, #{scopeType}, #{refId},
-            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
-        )
+        insert into tb_notice_scope(notice_id, scope_type, ref_id,
+                                    create_by, create_time, update_by, update_time, del_flag)
+        values (#{noticeId}, #{scopeType}, #{refId},
+                #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0')
     </insert>
 
     <delete id="deleteByNoticeId" parameterType="long">
-        delete from tb_notice_scope where notice_id = #{noticeId}
+        delete
+        from tb_notice_scope
+        where notice_id = #{noticeId}
     </delete>
 
     <select id="selectByNoticeId" parameterType="long" resultMap="ScopeResult">
-        select id, notice_id, scope_type, ref_id, create_by, create_time, update_by, update_time, del_flag
-        from tb_notice_scope where notice_id = #{noticeId}
+        select id,
+               notice_id,
+               scope_type,
+               ref_id,
+               create_by,
+               create_time,
+               update_by,
+               update_time,
+               del_flag
+        from tb_notice_scope
+        where notice_id = #{noticeId}
         order by id asc
     </select>
 

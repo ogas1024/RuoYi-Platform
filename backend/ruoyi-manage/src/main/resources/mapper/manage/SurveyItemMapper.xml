@@ -18,21 +18,24 @@
     </resultMap>
 
     <select id="selectBySurveyId" resultMap="ItemResult">
-        select * from tb_survey_item where survey_id = #{surveyId} and del_flag = '0' order by sort_no asc, id asc
+        select *
+        from tb_survey_item
+        where survey_id = #{surveyId}
+          and del_flag = '0'
+        order by sort_no asc, id asc
     </select>
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.SurveyItem" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_survey_item (
-            survey_id, title, type, required, sort_no, ext_json,
-            create_by, create_time, update_by, update_time, del_flag
-        ) values (
-            #{surveyId}, #{title}, #{type}, #{required}, #{sortNo}, #{extJson},
-            #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0'
-        )
+        insert into tb_survey_item (survey_id, title, type, required, sort_no, ext_json,
+                                    create_by, create_time, update_by, update_time, del_flag)
+        values (#{surveyId}, #{title}, #{type}, #{required}, #{sortNo}, #{extJson},
+                #{createBy}, #{createTime}, #{updateBy}, #{updateTime}, '0')
     </insert>
 
     <delete id="deleteBySurveyId">
-        delete from tb_survey_item where survey_id = #{surveyId}
+        delete
+        from tb_survey_item
+        where survey_id = #{surveyId}
     </delete>
 
 </mapper>

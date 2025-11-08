@@ -14,14 +14,17 @@
         <result property="delFlag" column="del_flag"/>
     </resultMap>
 
-    <sql id="baseSelect">select * from tb_facility_building</sql>
+    <sql id="baseSelect">select *
+                         from tb_facility_building</sql>
 
     <select id="selectList" resultMap="BuildingResult">
         <include refid="baseSelect"/>
         <where>
             del_flag = '0'
-            <if test="query != null and query.status != null and query.status != ''"> and status = #{query.status}</if>
-            <if test="query != null and query.buildingName != null and query.buildingName != ''"> and building_name like concat('%', #{query.buildingName}, '%')</if>
+            <if test="query != null and query.status != null and query.status != ''">and status = #{query.status}</if>
+            <if test="query != null and query.buildingName != null and query.buildingName != ''">and building_name like
+                concat('%', #{query.buildingName}, '%')
+            </if>
         </where>
         order by id asc
     </select>
@@ -31,9 +34,10 @@
         where id = #{id}
     </select>
 
-    <insert id="insert" parameterType="com.ruoyi.manage.domain.FacilityBuilding" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_facility_building(building_name,status,remark,create_by,create_time,del_flag)
-        values(#{buildingName},#{status},#{remark},#{createBy},#{createTime},'0')
+    <insert id="insert" parameterType="com.ruoyi.manage.domain.FacilityBuilding" useGeneratedKeys="true"
+            keyProperty="id">
+        insert into tb_facility_building(building_name, status, remark, create_by, create_time, del_flag)
+        values (#{buildingName}, #{status}, #{remark}, #{createBy}, #{createTime}, '0')
     </insert>
 
     <update id="update" parameterType="com.ruoyi.manage.domain.FacilityBuilding">

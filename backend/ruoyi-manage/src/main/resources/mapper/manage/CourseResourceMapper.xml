@@ -37,30 +37,57 @@
     </resultMap>
 
     <sql id="baseSelect">
-        select r.id, r.major_id, r.course_id, r.resource_name, r.resource_type, r.file_url, r.file_hash, r.file_size, r.link_url,
-               r.description, r.status,
+        select r.id,
+               r.major_id,
+               r.course_id,
+               r.resource_name,
+               r.resource_type,
+               r.file_url,
+               r.file_hash,
+               r.file_size,
+               r.link_url,
+               r.description,
+               r.status,
                case when b.resource_id is not null then 1 else 0 end as is_best,
-               b.best_by, b.best_time,
-               r.audit_by, r.audit_time, r.audit_reason, r.publish_time, r.download_count, r.last_download_time,
-               r.uploader_id, r.uploader_name, r.create_by, r.create_time, r.update_by, r.update_time, r.del_flag,
-               m.major_name, c.course_name
+               b.best_by,
+               b.best_time,
+               r.audit_by,
+               r.audit_time,
+               r.audit_reason,
+               r.publish_time,
+               r.download_count,
+               r.last_download_time,
+               r.uploader_id,
+               r.uploader_name,
+               r.create_by,
+               r.create_time,
+               r.update_by,
+               r.update_time,
+               r.del_flag,
+               m.major_name,
+               c.course_name
         from tb_course_resource r
-        left join tb_course_resource_best b on b.resource_id = r.id and b.del_flag = '0'
-        left join tb_major m on r.major_id = m.id
-        left join tb_course c on r.course_id = c.id
+                 left join tb_course_resource_best b on b.resource_id = r.id and b.del_flag = '0'
+                 left join tb_major m on r.major_id = m.id
+                 left join tb_course c on r.course_id = c.id
     </sql>
 
     <select id="selectList" parameterType="com.ruoyi.manage.domain.CourseResource" resultMap="CourseResourceResult">
         <include refid="baseSelect"/>
         <where>
             r.del_flag = '0'
-            <if test="majorId != null"> and r.major_id = #{majorId}</if>
-            <if test="courseId != null"> and r.course_id = #{courseId}</if>
-            <if test="status != null"> and r.status = #{status}</if>
-            <if test="uploaderId != null"> and r.uploader_id = #{uploaderId}</if>
-            <if test="courseName != null and courseName != ''"> and c.course_name like concat('%', #{courseName}, '%')</if>
-            <if test="resourceName != null and resourceName != ''"> and r.resource_name like concat('%', #{resourceName}, '%')</if>
-            <if test="description != null and description != ''"> and r.description like concat('%', #{description}, '%')</if>
+            <if test="majorId != null">and r.major_id = #{majorId}</if>
+            <if test="courseId != null">and r.course_id = #{courseId}</if>
+            <if test="status != null">and r.status = #{status}</if>
+            <if test="uploaderId != null">and r.uploader_id = #{uploaderId}</if>
+            <if test="courseName != null and courseName != ''">and c.course_name like concat('%', #{courseName}, '%')
+            </if>
+            <if test="resourceName != null and resourceName != ''">and r.resource_name like concat('%', #{resourceName},
+                '%')
+            </if>
+            <if test="description != null and description != ''">and r.description like concat('%', #{description},
+                '%')
+            </if>
         </where>
         order by is_best desc, r.id desc
     </select>
@@ -71,13 +98,19 @@
         inner join tb_major_lead ml on ml.major_id = r.major_id and ml.del_flag = '0'
         <where>
             r.del_flag = '0' and ml.user_id = #{userId}
-            <if test="query != null and query.majorId != null"> and r.major_id = #{query.majorId}</if>
-            <if test="query != null and query.courseId != null"> and r.course_id = #{query.courseId}</if>
-            <if test="query != null and query.status != null"> and r.status = #{query.status}</if>
-            <if test="query != null and query.uploaderId != null"> and r.uploader_id = #{query.uploaderId}</if>
-            <if test="query != null and query.courseName != null and query.courseName != ''"> and c.course_name like concat('%', #{query.courseName}, '%')</if>
-            <if test="query != null and query.resourceName != null and query.resourceName != ''"> and r.resource_name like concat('%', #{query.resourceName}, '%')</if>
-            <if test="query != null and query.description != null and query.description != ''"> and r.description like concat('%', #{query.description}, '%')</if>
+            <if test="query != null and query.majorId != null">and r.major_id = #{query.majorId}</if>
+            <if test="query != null and query.courseId != null">and r.course_id = #{query.courseId}</if>
+            <if test="query != null and query.status != null">and r.status = #{query.status}</if>
+            <if test="query != null and query.uploaderId != null">and r.uploader_id = #{query.uploaderId}</if>
+            <if test="query != null and query.courseName != null and query.courseName != ''">and c.course_name like
+                concat('%', #{query.courseName}, '%')
+            </if>
+            <if test="query != null and query.resourceName != null and query.resourceName != ''">and r.resource_name
+                like concat('%', #{query.resourceName}, '%')
+            </if>
+            <if test="query != null and query.description != null and query.description != ''">and r.description like
+                concat('%', #{query.description}, '%')
+            </if>
         </where>
         order by r.id desc
     </select>
@@ -88,13 +121,12 @@
     </select>
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.CourseResource" useGeneratedKeys="true" keyProperty="id">
-        insert into tb_course_resource (
-            major_id, course_id, resource_name, resource_type, file_url, file_hash, file_size, link_url, description,
-            status, uploader_id, uploader_name, create_by, create_time, del_flag
-        ) values (
-            #{majorId}, #{courseId}, #{resourceName}, #{resourceType}, #{fileUrl}, #{fileHash}, #{fileSize}, #{linkUrl}, #{description},
-            #{status}, #{uploaderId}, #{uploaderName}, #{createBy}, #{createTime}, '0'
-        )
+        insert into tb_course_resource (major_id, course_id, resource_name, resource_type, file_url, file_hash,
+                                        file_size, link_url, description,
+                                        status, uploader_id, uploader_name, create_by, create_time, del_flag)
+        values (#{majorId}, #{courseId}, #{resourceName}, #{resourceType}, #{fileUrl}, #{fileHash}, #{fileSize},
+                #{linkUrl}, #{description},
+                #{status}, #{uploaderId}, #{uploaderName}, #{createBy}, #{createTime}, '0')
     </insert>
 
     <update id="update" parameterType="com.ruoyi.manage.domain.CourseResource">
@@ -114,61 +146,86 @@
         where id = #{id}
     </update>
 
-    <delete id="deleteById" parameterType="long">delete from tb_course_resource where id = #{id}</delete>
+    <delete id="deleteById" parameterType="long">delete
+                                                 from tb_course_resource
+                                                 where id = #{id}</delete>
     <delete id="deleteByIds">
         delete from tb_course_resource where id in
         <foreach collection="array" item="id" open="(" separator="," close=")">#{id}</foreach>
     </delete>
 
     <update id="approve">
-        update tb_course_resource set status = 1, audit_by = #{auditBy}, audit_time = #{auditTime}, publish_time = ifnull(publish_time, now())
-        where id = #{id} and status in (0,3)
+        update tb_course_resource
+        set status       = 1,
+            audit_by     = #{auditBy},
+            audit_time   = #{auditTime},
+            publish_time = ifnull(publish_time, now())
+        where id = #{id}
+          and status in (0, 3)
     </update>
 
     <update id="reject">
-        update tb_course_resource set status = 2, audit_by = #{auditBy}, audit_time = #{auditTime}, audit_reason = #{reason}
-        where id = #{id} and status in (0,1,3)
+        update tb_course_resource
+        set status       = 2,
+            audit_by     = #{auditBy},
+            audit_time   = #{auditTime},
+            audit_reason = #{reason}
+        where id = #{id}
+          and status in (0, 1, 3)
     </update>
 
     <update id="offline">
         update tb_course_resource
-        set status = 3,
-            audit_by = #{auditBy},
-            audit_time = #{auditTime},
+        set status       = 3,
+            audit_by     = #{auditBy},
+            audit_time   = #{auditTime},
             audit_reason = #{reason}
-        where id = #{id} and status = 1
+        where id = #{id}
+          and status = 1
     </update>
 
     <update id="onlineToPending">
-        update tb_course_resource set status = 0 where id = #{id} and status in (2,3)
+        update tb_course_resource
+        set status = 0
+        where id = #{id}
+          and status in (2, 3)
     </update>
 
     <update id="incrDownload">
-        update tb_course_resource set download_count = download_count + 1, last_download_time = #{time}
-        where id = #{id} and status = 1
+        update tb_course_resource
+        set download_count     = download_count + 1,
+            last_download_time = #{time}
+        where id = #{id}
+          and status = 1
     </update>
 
     <insert id="setBest">
         insert into tb_course_resource_best(resource_id, best_by, best_time, create_by, create_time, del_flag)
-        values(#{id}, #{bestBy}, #{bestTime}, #{bestBy}, #{bestTime}, '0')
-        on duplicate key update best_by = values(best_by), best_time = values(best_time), update_by = values(best_by), update_time = values(best_time), del_flag = '0'
+        values (#{id}, #{bestBy}, #{bestTime}, #{bestBy}, #{bestTime}, '0') on duplicate key
+        update best_by =
+        values (best_by), best_time =
+        values (best_time), update_by =
+        values (best_by), update_time =
+        values (best_time), del_flag = '0'
     </insert>
 
     <delete id="unsetBest">
-        delete from tb_course_resource_best where resource_id = #{id}
+        delete
+        from tb_course_resource_best
+        where resource_id = #{id}
     </delete>
 
     <select id="selectTop" resultMap="CourseResourceResult">
         <include refid="baseSelect"/>
         <where>
             r.del_flag = '0' and r.status = 1
-            <if test="scope == 'major' and majorId != null"> and r.major_id = #{majorId}</if>
-            <if test="scope == 'course' and courseId != null"> and r.course_id = #{courseId}</if>
-            <if test="fromTime != null"> and ifnull(r.last_download_time, r.publish_time) &gt;= #{fromTime}</if>
+            <if test="scope == 'major' and majorId != null">and r.major_id = #{majorId}</if>
+            <if test="scope == 'course' and courseId != null">and r.course_id = #{courseId}</if>
+            <if test="fromTime != null">and ifnull(r.last_download_time, r.publish_time) &gt;= #{fromTime}</if>
         </where>
         order by r.download_count desc, r.id desc
-        <if test="limit != null"> limit #{limit}</if>
-        <if test="limit == null"> limit 10</if>
+        <if test="limit != null">limit #{limit}</if>
+        <if test="limit == null">limit 10</if>
     </select>
 
     <!-- 统计：按天分组上传数量（create_time），不包含被删除的数据。返回字段 day(yyyy-MM-dd), count -->
@@ -178,7 +235,8 @@
         from tb_course_resource
         where del_flag = '0'
           and create_time &gt;= #{from}
-          and create_time &lt; #{to}
+          and create_time
+         &lt; #{to}
         group by DATE_FORMAT(create_time, '%Y-%m-%d')
         order by day asc
     </select>
@@ -186,13 +244,13 @@
     <!-- 专业占比：统计资源创建数量按专业分组 -->
     <select id="selectMajorShare" resultType="com.ruoyi.manage.domain.vo.PieItem">
         select r.major_id as id,
-               coalesce(m.major_name, concat('专业#', r.major_id)) as name,
-               count(1) as value
+        coalesce(m.major_name, concat('专业#', r.major_id)) as name,
+        count(1) as value
         from tb_course_resource r
         left join tb_major m on m.id = r.major_id
         where r.del_flag = '0'
-        <if test="from != null"> and r.create_time &gt;= #{from}</if>
-        <if test="to != null"> and r.create_time &lt; #{to}</if>
+        <if test="from != null">and r.create_time &gt;= #{from}</if>
+        <if test="to != null">and r.create_time &lt; #{to}</if>
         group by r.major_id, m.major_name
         order by value desc, id asc
     </select>
@@ -200,13 +258,13 @@
     <!-- 课程占比：统计资源创建数量按课程分组 -->
     <select id="selectCourseShare" resultType="com.ruoyi.manage.domain.vo.PieItem">
         select r.course_id as id,
-               coalesce(c.course_name, concat('课程#', r.course_id)) as name,
-               count(1) as value
+        coalesce(c.course_name, concat('课程#', r.course_id)) as name,
+        count(1) as value
         from tb_course_resource r
         left join tb_course c on c.id = r.course_id
         where r.del_flag = '0'
-        <if test="from != null"> and r.create_time &gt;= #{from}</if>
-        <if test="to != null"> and r.create_time &lt; #{to}</if>
+        <if test="from != null">and r.create_time &gt;= #{from}</if>
+        <if test="to != null">and r.create_time &lt; #{to}</if>
         group by r.course_id, c.course_name
         order by value desc, id asc
     </select>

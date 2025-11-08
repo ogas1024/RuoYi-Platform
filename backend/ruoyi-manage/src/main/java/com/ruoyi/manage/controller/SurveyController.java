@@ -65,11 +65,14 @@ public class SurveyController extends BaseController {
                     }
                 }
             }
-        } catch (Exception ignore) {}
+        } catch (Exception ignore) {
+        }
         return success(s);
     }
 
-    /** 提交用户列表：用于管理侧详情页展示已提交用户 */
+    /**
+     * 提交用户列表：用于管理侧详情页展示已提交用户
+     */
     @PreAuthorize("@ss.hasPermi('manage:survey:query')")
     @GetMapping("/{id}/submits")
     public AjaxResult submitUsers(@PathVariable Long id) {
@@ -77,7 +80,9 @@ public class SurveyController extends BaseController {
         return success(rows);
     }
 
-    /** 指定用户的答卷详情：返回包含 myAnswers 的 Survey */
+    /**
+     * 指定用户的答卷详情：返回包含 myAnswers 的 Survey
+     */
     @PreAuthorize("@ss.hasPermi('manage:survey:query')")
     @GetMapping("/{id}/answers/{userId}")
     public AjaxResult userAnswers(@PathVariable Long id, @PathVariable Long userId) {
@@ -145,7 +150,8 @@ public class SurveyController extends BaseController {
         boolean pinned = false;
         if (body != null && body.get("pinned") != null) {
             Object v = body.get("pinned");
-            if (v instanceof Boolean) pinned = (Boolean) v; else pinned = "1".equals(String.valueOf(v)) || "true".equalsIgnoreCase(String.valueOf(v));
+            if (v instanceof Boolean) pinned = (Boolean) v;
+            else pinned = "1".equals(String.valueOf(v)) || "true".equalsIgnoreCase(String.valueOf(v));
         }
         int n = service.pin(id, pinned);
         if (n == -404) return error("问卷不存在");

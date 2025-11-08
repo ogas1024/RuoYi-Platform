@@ -2,6 +2,7 @@ package com.ruoyi.manage.controller;
 
 import java.util.List;
 import javax.servlet.http.HttpServletResponse;
+
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,14 +24,13 @@ import com.ruoyi.common.core.page.TableDataInfo;
 
 /**
  * 订单Controller
- * 
+ *
  * @author 曾辉
  * @date 2025-10-06
  */
 @RestController
 @RequestMapping("/manage/orders")
-public class OrdersController extends BaseController
-{
+public class OrdersController extends BaseController {
     @Autowired
     private IOrdersService ordersService;
 
@@ -38,8 +38,7 @@ public class OrdersController extends BaseController
      * 查询订单列表
      */
     @GetMapping("/list")
-    public TableDataInfo list(Orders orders)
-    {
+    public TableDataInfo list(Orders orders) {
         startPage();
         List<Orders> list = ordersService.selectOrdersList(orders);
         return getDataTable(list);
@@ -50,8 +49,7 @@ public class OrdersController extends BaseController
      */
     @Log(title = "订单", businessType = BusinessType.EXPORT)
     @PostMapping("/export")
-    public void export(HttpServletResponse response, Orders orders)
-    {
+    public void export(HttpServletResponse response, Orders orders) {
         List<Orders> list = ordersService.selectOrdersList(orders);
         ExcelUtil<Orders> util = new ExcelUtil<Orders>(Orders.class);
         util.exportExcel(response, list, "订单数据");
@@ -61,8 +59,7 @@ public class OrdersController extends BaseController
      * 获取订单详细信息
      */
     @GetMapping(value = "/{id}")
-    public AjaxResult getInfo(@PathVariable("id") Long id)
-    {
+    public AjaxResult getInfo(@PathVariable("id") Long id) {
         return success(ordersService.selectOrdersById(id));
     }
 
@@ -71,8 +68,7 @@ public class OrdersController extends BaseController
      */
     @Log(title = "订单", businessType = BusinessType.INSERT)
     @PostMapping
-    public AjaxResult add(@RequestBody Orders orders)
-    {
+    public AjaxResult add(@RequestBody Orders orders) {
         return toAjax(ordersService.insertOrders(orders));
     }
 
@@ -81,8 +77,7 @@ public class OrdersController extends BaseController
      */
     @Log(title = "订单", businessType = BusinessType.UPDATE)
     @PutMapping
-    public AjaxResult edit(@RequestBody Orders orders)
-    {
+    public AjaxResult edit(@RequestBody Orders orders) {
         return toAjax(ordersService.updateOrders(orders));
     }
 
@@ -90,9 +85,8 @@ public class OrdersController extends BaseController
      * 删除订单
      */
     @Log(title = "订单", businessType = BusinessType.DELETE)
-	@DeleteMapping("/{ids}")
-    public AjaxResult remove(@PathVariable Long[] ids)
-    {
+    @DeleteMapping("/{ids}")
+    public AjaxResult remove(@PathVariable Long[] ids) {
         return toAjax(ordersService.deleteOrdersByIds(ids));
     }
 }

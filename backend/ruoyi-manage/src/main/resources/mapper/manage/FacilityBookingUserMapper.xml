@@ -23,11 +23,15 @@
     </insert>
 
     <delete id="deleteByBookingId">
-        delete from tb_facility_booking_user where booking_id = #{bookingId}
+        delete
+        from tb_facility_booking_user
+        where booking_id = #{bookingId}
     </delete>
 
     <select id="selectByBookingId" resultMap="BookingUserResult">
-        select * from tb_facility_booking_user where booking_id = #{bookingId}
+        select *
+        from tb_facility_booking_user
+        where booking_id = #{bookingId}
     </select>
 
 </mapper>
