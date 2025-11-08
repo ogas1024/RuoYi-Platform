@@ -4,13 +4,12 @@ import com.ruoyi.manage.domain.FacilitySetting;
 import com.ruoyi.manage.mapper.FacilitySettingMapper;
 import com.ruoyi.manage.service.IFacilitySettingService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class FacilitySettingServiceImpl implements IFacilitySettingService {
 
-    @Resource
+    @Autowired
     private FacilitySettingMapper mapper;
 
     @Override

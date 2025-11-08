@@ -8,14 +8,13 @@ import com.ruoyi.manage.domain.FacilitySetting;
 import com.ruoyi.manage.service.IFacilitySettingService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
 @RequestMapping("/manage/facility/setting")
 public class FacilitySettingController extends BaseController {
 
-    @Resource
+    @Autowired
     private IFacilitySettingService service;
 
     @PreAuthorize("@ss.hasPermi('manage:facility:setting:get')")

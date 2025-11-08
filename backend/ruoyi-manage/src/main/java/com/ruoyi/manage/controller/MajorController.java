@@ -9,15 +9,14 @@ import com.ruoyi.manage.domain.Major;
 import com.ruoyi.manage.service.IMajorService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/manage/major")
 public class MajorController extends BaseController {
 
-    @Resource
+    @Autowired
     private IMajorService majorService;
 
     @PreAuthorize("@ss.hasPermi('manage:major:list')")
@@ -57,4 +56,3 @@ public class MajorController extends BaseController {
         return toAjax(majorService.deleteMajorByIds(ids));
     }
 }
-

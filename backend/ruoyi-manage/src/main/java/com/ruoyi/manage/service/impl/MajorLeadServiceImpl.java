@@ -9,15 +9,14 @@ import com.ruoyi.manage.service.IMajorLeadService;
 import com.ruoyi.manage.vo.RoleUserLeadVO;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Service
 public class MajorLeadServiceImpl implements IMajorLeadService {
-    @Resource
+    @Autowired
     private MajorLeadMapper mapper;
-    @Resource
+    @Autowired
     private SysLinkageMapper sysLinkageMapper;
 
     @Override

@@ -11,8 +11,7 @@ import com.ruoyi.manage.service.IFacilityRoomService;
 import com.ruoyi.manage.vo.TimelineSegmentVO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.List;
 
@@ -20,9 +19,9 @@ import java.util.List;
 @RequestMapping("/manage/facility/room")
 public class FacilityRoomController extends BaseController {
 
-    @Resource
+    @Autowired
     private IFacilityRoomService service;
-    @Resource
+    @Autowired
     private IFacilityBookingService bookingService;
 
     @PreAuthorize("@ss.hasPermi('manage:facility:room:list')")

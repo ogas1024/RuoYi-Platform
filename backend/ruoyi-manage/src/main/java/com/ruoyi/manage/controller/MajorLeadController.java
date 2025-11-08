@@ -10,15 +10,14 @@ import com.ruoyi.manage.service.IMajorLeadService;
 import com.ruoyi.manage.vo.RoleUserLeadVO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/manage/majorLead")
 public class MajorLeadController extends BaseController {
 
-    @Resource
+    @Autowired
     private IMajorLeadService service;
 
     @PreAuthorize("@ss.hasPermi('manage:majorLead:list')")

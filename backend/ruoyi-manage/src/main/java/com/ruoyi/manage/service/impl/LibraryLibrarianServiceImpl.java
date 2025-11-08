@@ -7,8 +7,7 @@ import com.ruoyi.manage.mapper.SysLinkageMapper;
 import com.ruoyi.manage.service.ILibraryLibrarianService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Service
@@ -16,9 +15,9 @@ public class LibraryLibrarianServiceImpl implements ILibraryLibrarianService {
 
     private static final String ROLE_KEY = "librarian";
 
-    @Resource
+    @Autowired
     private LibraryLibrarianMapper mapper;
-    @Resource
+    @Autowired
     private SysLinkageMapper sysLinkageMapper;
 
     @Override

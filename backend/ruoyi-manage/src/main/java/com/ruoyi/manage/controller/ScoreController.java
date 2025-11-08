@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/manage/score/user")
 public class ScoreController extends BaseController {
 
-    @Resource
+    @Autowired
     private IScoreService scoreService;
 
     @PreAuthorize("@ss.hasPermi('manage:score:list')")
@@ -28,4 +28,3 @@ public class ScoreController extends BaseController {
         return getDataTable(list);
     }
 }
-

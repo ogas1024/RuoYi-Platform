@@ -10,8 +10,7 @@ import com.ruoyi.manage.vo.TopUserVO;
 import com.ruoyi.manage.vo.LibraryCreateVO;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.HashMap;
@@ -22,7 +21,7 @@ import java.util.Map;
 @RequestMapping("/portal/library")
 public class PortalLibraryController extends BaseController {
 
-    @Resource
+    @Autowired
     private ILibraryService service;
 
     @PreAuthorize("isAuthenticated()")

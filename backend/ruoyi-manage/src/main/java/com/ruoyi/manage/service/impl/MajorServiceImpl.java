@@ -4,14 +4,13 @@ import com.ruoyi.manage.domain.Major;
 import com.ruoyi.manage.mapper.MajorMapper;
 import com.ruoyi.manage.service.IMajorService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Service
 public class MajorServiceImpl implements IMajorService {
 
-    @Resource
+    @Autowired
     private MajorMapper majorMapper;
 
     @Override
@@ -39,4 +38,3 @@ public class MajorServiceImpl implements IMajorService {
         return majorMapper.deleteMajorByIds(ids);
     }
 }
-

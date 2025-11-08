@@ -5,8 +5,7 @@ import com.ruoyi.manage.service.IFacilityRankingService;
 import com.ruoyi.manage.vo.RoomRankVO;
 import com.ruoyi.manage.vo.UserRankVO;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -14,7 +13,7 @@ import java.util.List;
 @Service
 public class FacilityRankingServiceImpl implements IFacilityRankingService {
 
-    @Resource
+    @Autowired
     private FacilityRankingMapper mapper;
 
     private Date[] resolveWindow(String period) {
@@ -38,4 +37,3 @@ public class FacilityRankingServiceImpl implements IFacilityRankingService {
         return mapper.rankUsers(w[0], w[1], 20);
     }
 }
-

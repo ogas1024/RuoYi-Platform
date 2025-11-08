@@ -56,7 +56,7 @@
       <el-col :xs="24" :lg="12">
         <el-card>
           <template #header>
-            <div class="card-hd"><span>课程资源上传·专业占比（近30天）</span></div>
+            <div class="card-hd"><span>课程资源上传·专业占比</span></div>
           </template>
           <div ref="crMajorPieRef" style="height: 320px;"></div>
         </el-card>
@@ -64,7 +64,7 @@
       <el-col :xs="24" :lg="12">
         <el-card>
           <template #header>
-            <div class="card-hd"><span>课程资源上传·课程占比（近30天）</span></div>
+            <div class="card-hd"><span>课程资源上传·课程占比</span></div>
           </template>
           <div ref="crCoursePieRef" style="height: 320px;"></div>
         </el-card>

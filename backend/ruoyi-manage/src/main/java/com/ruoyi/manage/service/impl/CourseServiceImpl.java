@@ -7,17 +7,16 @@ import com.ruoyi.manage.mapper.CourseMapper;
 import com.ruoyi.manage.mapper.MajorLeadMapper;
 import com.ruoyi.manage.service.ICourseService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.List;
 
 @Service
 public class CourseServiceImpl implements ICourseService {
 
-    @Resource
+    @Autowired
     private CourseMapper courseMapper;
-    @Resource
+    @Autowired
     private MajorLeadMapper majorLeadMapper;
 
     @Override

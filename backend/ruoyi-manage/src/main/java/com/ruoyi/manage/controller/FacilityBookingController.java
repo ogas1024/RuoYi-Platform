@@ -13,27 +13,22 @@ import com.ruoyi.manage.vo.FacilityBookingEndEarlyRequest;
 import com.ruoyi.manage.vo.FacilityBookingUpdateRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/manage/facility/booking")
 public class FacilityBookingController extends BaseController {
 
-    @Resource
+    @Autowired
     private IFacilityBookingService service;
-    @Resource
-    private com.ruoyi.manage.mapper.FacilityBookingMapper bookingMapper;
-    @Resource
-    private com.ruoyi.manage.mapper.FacilityBookingUserMapper bookingUserMapper;
-    @Resource
-    private com.ruoyi.manage.mapper.FacilityRoomMapper roomMapper;
-    @Resource
-    private com.ruoyi.manage.mapper.FacilityBuildingMapper buildingMapper;
-    @Resource
-    private com.ruoyi.manage.mapper.UserMapper userMapper;
 
+    /**
+     * 新增预约
+     * 说明：校验房间状态/封禁状态/时间窗口/冲突/使用人列表等。
+     * @param body 创建请求体
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:add')")
     @Log(title = "功能房-预约", businessType = BusinessType.INSERT)
     @PostMapping
@@ -43,10 +38,16 @@ public class FacilityBookingController extends BaseController {
         data.setPurpose(body.getPurpose());
         data.setStartTime(body.getStartTime());
         data.setEndTime(body.getEndTime());
+        // 创建校验与落库由 service 统一处理
         int n = service.create(data, body.getUserIdList(), SecurityUtils.getUserId(), getUsername());
         return toAjax(n);
     }
 
+    /**
+     * 我的预约列表
+     * @param status 状态筛选（可选）
+     * @return 分页数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:list')")
     @GetMapping("/my/list")
     public TableDataInfo myList(@RequestParam(required = false) String status) {
@@ -55,6 +56,13 @@ public class FacilityBookingController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 修改预约（开场前）
+     * 说明：仅允许待审核/已批准状态，且需通过冲突及时间窗口校验。
+     * @param id 预约ID
+     * @param body 更新请求
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:edit')")
     @Log(title = "功能房-预约", businessType = BusinessType.UPDATE)
     @PutMapping("/{id}")
@@ -63,10 +71,18 @@ public class FacilityBookingController extends BaseController {
         patch.setPurpose(body.getPurpose());
         patch.setStartTime(body.getStartTime());
         patch.setEndTime(body.getEndTime());
+        // 仅在开始前允许修改；幂等/冲突校验在 service
         int n = service.updateBeforeStart(id, patch, body.getUserIdList(), SecurityUtils.getUserId(), getUsername());
         return toAjax(n);
     }
 
+    /**
+     * 提前结束
+     * 说明：仅已批准/进行中允许；结束时间将不早于当前时刻。
+     * @param id 预约ID
+     * @param body 结束时间
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:edit')")
     @Log(title = "功能房-预约提前结束", businessType = BusinessType.UPDATE)
     @PutMapping("/{id}/end-early")
@@ -75,6 +91,12 @@ public class FacilityBookingController extends BaseController {
         return toAjax(n);
     }
 
+    /**
+     * 取消预约
+     * 说明：仅申请人可取消，且需未开始。
+     * @param id 预约ID
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:cancel')")
     @Log(title = "功能房-预约", businessType = BusinessType.DELETE)
     @DeleteMapping("/{id}")
@@ -83,6 +105,10 @@ public class FacilityBookingController extends BaseController {
     }
 
     // 审核
+    /**
+     * 审核列表
+     * @return 分页数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:audit:list')")
     @GetMapping("/audit/list")
     public TableDataInfo auditList(@RequestParam(required = false) Long bookingId,
@@ -96,6 +122,11 @@ public class FacilityBookingController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 审核通过
+     * @param id 预约ID
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:audit:approve')")
     @Log(title = "功能房-预约审核通过", businessType = BusinessType.UPDATE)
     @PutMapping("/{id}/approve")
@@ -103,6 +134,12 @@ public class FacilityBookingController extends BaseController {
         return toAjax(service.approve(id, getUsername()));
     }
 
+    /**
+     * 审核驳回
+     * @param id 预约ID
+     * @param body { reason: 驳回理由 }
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:audit:reject')")
     @Log(title = "功能房-预约审核驳回", businessType = BusinessType.UPDATE)
     @PutMapping("/{id}/reject")
@@ -111,53 +148,15 @@ public class FacilityBookingController extends BaseController {
         return toAjax(service.reject(id, getUsername(), reason));
     }
 
+    /**
+     * 预约详情
+     * 说明：组装房间/楼房/申请人元信息与状态文字。
+     * @param id 预约ID
+     * @return 详情 + 用户列表 + 元信息
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:booking:get')")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable Long id) {
-        FacilityBooking b = bookingMapper.selectById(id);
-        if (b == null) return error("记录不存在");
-        java.util.Map<String, Object> res = new java.util.HashMap<>();
-        res.put("booking", b);
-        res.put("users", bookingUserMapper.selectByBookingId(id));
-        java.util.Map<String, Object> meta = new java.util.HashMap<>();
-        // 房间/楼房名
-        String roomName = null, buildingName = null;
-        try {
-            com.ruoyi.manage.domain.FacilityRoom room = roomMapper.selectById(b.getRoomId());
-            if (room != null) {
-                roomName = room.getRoomName();
-                com.ruoyi.manage.domain.FacilityBuilding bd = buildingMapper.selectById(room.getBuildingId());
-                if (bd != null) buildingName = bd.getBuildingName();
-            }
-        } catch (Exception ignored) {
-        }
-        meta.put("roomName", roomName);
-        meta.put("buildingName", buildingName);
-        // 申请人昵称/用户名
-        String applicantName = null;
-        try {
-            com.ruoyi.manage.domain.User q = new com.ruoyi.manage.domain.User();
-            q.setUserId(b.getApplicantId());
-            java.util.List<com.ruoyi.manage.domain.User> us = userMapper.selectUserList(q);
-            if (us != null && !us.isEmpty()) {
-                com.ruoyi.manage.domain.User u = us.get(0);
-                applicantName = (u.getNickName() != null && !u.getNickName().isEmpty()) ? u.getNickName() : u.getUserName();
-            }
-        } catch (Exception ignored) {
-        }
-        meta.put("applicantName", applicantName);
-        // 状态文字
-        String statusText;
-        String st = b.getStatus();
-        if ("0".equals(st)) statusText = "待审核";
-        else if ("1".equals(st)) statusText = "已批准";
-        else if ("2".equals(st)) statusText = "已驳回";
-        else if ("3".equals(st)) statusText = "已取消";
-        else if ("4".equals(st)) statusText = "进行中";
-        else if ("5".equals(st)) statusText = "已完成";
-        else statusText = "-";
-        meta.put("statusText", statusText);
-        res.put("meta", meta);
-        return success(res);
+        return success(service.getDetailWithMeta(id));
     }
 }

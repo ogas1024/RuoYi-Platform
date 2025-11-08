@@ -9,15 +9,14 @@ import com.ruoyi.manage.domain.Course;
 import com.ruoyi.manage.service.ICourseService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/manage/course")
 public class CourseController extends BaseController {
 
-    @Resource
+    @Autowired
     private ICourseService courseService;
 
     @PreAuthorize("@ss.hasPermi('manage:course:list')")
@@ -57,4 +56,3 @@ public class CourseController extends BaseController {
         return toAjax(courseService.deleteCourseByIds(ids));
     }
 }
-

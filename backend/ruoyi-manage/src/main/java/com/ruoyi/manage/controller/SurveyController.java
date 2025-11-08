@@ -8,11 +8,9 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.manage.domain.Survey;
 import com.ruoyi.common.exception.ServiceException;
 import com.ruoyi.manage.service.ISurveyService;
-import com.ruoyi.manage.mapper.SurveyAnswerMapper;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -21,12 +19,8 @@ import java.util.Map;
 @RequestMapping("/manage/survey")
 public class SurveyController extends BaseController {
 
-    @Resource
+    @Autowired
     private ISurveyService service;
-    @Resource
-    private SurveyAnswerMapper answerMapper;
-    @Resource
-    private com.ruoyi.manage.mapper.SurveyAnswerItemMapper answerItemMapper;
 
     @PreAuthorize("@ss.hasPermi('manage:survey:list')")
     @GetMapping("/list")
@@ -39,35 +33,12 @@ public class SurveyController extends BaseController {
     @PreAuthorize("@ss.hasPermi('manage:survey:query')")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable Long id) {
-        Survey s = service.detail(id, true);
-        if (s == null) return error("问卷不存在");
-        // 管理详情：补充每个选项的票数统计（仅选择题）。
         try {
-            java.util.List<java.util.Map<String, Object>> rows = answerItemMapper.countOptionVotes(id);
-            java.util.Map<Long, Integer> cntMap = new java.util.HashMap<>();
-            for (java.util.Map<String, Object> r : rows) {
-                if (r == null) continue;
-                Object oid = r.get("optionId");
-                Object c = r.get("cnt");
-                if (oid != null && c != null) {
-                    Long key = oid instanceof Number ? ((Number) oid).longValue() : Long.parseLong(String.valueOf(oid));
-                    Integer val = c instanceof Number ? ((Number) c).intValue() : Integer.parseInt(String.valueOf(c));
-                    cntMap.put(key, val);
-                }
-            }
-            if (s.getItems() != null) {
-                for (com.ruoyi.manage.domain.SurveyItem it : s.getItems()) {
-                    if (it.getOptions() != null) {
-                        for (com.ruoyi.manage.domain.SurveyOption op : it.getOptions()) {
-                            Integer v = cntMap.get(op.getId());
-                            if (v != null) op.setVoteCount(v);
-                        }
-                    }
-                }
-            }
-        } catch (Exception ignore) {
+            Survey s = service.manageDetailWithStats(id);
+            return success(s);
+        } catch (ServiceException e) {
+            return error(e.getMessage());
         }
-        return success(s);
     }
 
     /**
@@ -76,8 +47,7 @@ public class SurveyController extends BaseController {
     @PreAuthorize("@ss.hasPermi('manage:survey:query')")
     @GetMapping("/{id}/submits")
     public AjaxResult submitUsers(@PathVariable Long id) {
-        java.util.List<java.util.Map<String, Object>> rows = answerMapper.selectSubmitUsers(id);
-        return success(rows);
+        return success(service.selectSubmitUsers(id));
     }
 
     /**
@@ -86,11 +56,11 @@ public class SurveyController extends BaseController {
     @PreAuthorize("@ss.hasPermi('manage:survey:query')")
     @GetMapping("/{id}/answers/{userId}")
     public AjaxResult userAnswers(@PathVariable Long id, @PathVariable Long userId) {
-        Survey s = service.detail(id, false);
-        if (s == null) return error("问卷不存在");
-        java.util.Map<Long, Object> my = service.loadMyAnswers(id, userId);
-        s.setMyAnswers(my);
-        return success(s);
+        try {
+            return success(service.surveyWithUserAnswers(id, userId));
+        } catch (ServiceException e) {
+            return error(e.getMessage());
+        }
     }
 
     @Log(title = "问卷", businessType = BusinessType.INSERT)

@@ -8,8 +8,7 @@ import com.ruoyi.manage.mapper.CrUserScoreMapper;
 import com.ruoyi.manage.service.IScoreService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.List;
 
@@ -19,9 +18,9 @@ public class ScoreServiceImpl implements IScoreService {
     private static final int SCORE_APPROVE = 5;
     private static final int SCORE_BEST = 10;
 
-    @Resource
+    @Autowired
     private CrUserScoreLogMapper logMapper;
-    @Resource
+    @Autowired
     private CrUserScoreMapper scoreMapper;
 
     @Override

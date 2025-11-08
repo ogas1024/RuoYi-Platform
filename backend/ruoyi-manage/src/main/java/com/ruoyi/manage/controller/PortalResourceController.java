@@ -8,8 +8,7 @@ import com.ruoyi.manage.domain.CourseResource;
 import com.ruoyi.manage.service.ICourseResourceService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -18,7 +17,7 @@ import java.util.List;
 @RequestMapping("/portal/resource")
 public class PortalResourceController extends BaseController {
 
-    @Resource
+    @Autowired
     private ICourseResourceService service;
 
     // 仅返回已通过资源

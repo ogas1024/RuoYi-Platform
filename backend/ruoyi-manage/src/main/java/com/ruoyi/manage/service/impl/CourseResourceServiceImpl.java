@@ -15,8 +15,7 @@ import com.ruoyi.manage.domain.vo.PieItem;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.dao.DuplicateKeyException;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -28,13 +27,13 @@ import com.ruoyi.common.exception.ServiceException;
 @Service
 public class CourseResourceServiceImpl implements ICourseResourceService {
 
-    @Resource
+    @Autowired
     private CourseResourceMapper mapper;
-    @Resource
+    @Autowired
     private CourseResourceLogMapper logMapper;
-    @Resource
+    @Autowired
     private MajorLeadMapper majorLeadMapper;
-    @Resource
+    @Autowired
     private IScoreService scoreService;
 
     @Override
@@ -310,7 +309,7 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
 
     @Override
     public List<DayCount> uploadTrend(Integer days) {
-        int d = (days == null || days <= 0 || days > 365) ? 30 : days;
+        int d = (days == null || days <= 0 || days > 365) ? 7 : days;
         // [from, to)：from 为 d-1 天前 00:00:00；to 为 明天 00:00:00（包含今天整天）
         java.time.LocalDate today = java.time.LocalDate.now();
         java.time.LocalDate fromDate = today.minusDays(d - 1L);
@@ -340,7 +339,7 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
 
     @Override
     public List<DayCount> downloadTrend(Integer days) {
-        int d = (days == null || days <= 0 || days > 365) ? 30 : days;
+        int d = (days == null || days <= 0 || days > 365) ? 7 : days;
         java.time.LocalDate today = java.time.LocalDate.now();
         java.time.LocalDate fromDate = today.minusDays(d - 1L);
         java.time.LocalDate toDate = today.plusDays(1L);
@@ -393,5 +392,27 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
         java.util.Date from = java.sql.Timestamp.valueOf(fromDate.atStartOfDay());
         java.util.Date to = java.sql.Timestamp.valueOf(toDate.atStartOfDay());
         return mapper.selectCourseShare(from, to);
+    }
+
+    @Override
+    public java.util.List<PieItem> majorShareAll() {
+        // 全站全时段：不限制时间窗口
+        return mapper.selectMajorShare(null, null);
+    }
+
+    @Override
+    public java.util.List<PieItem> courseShareAll() {
+        return mapper.selectCourseShare(null, null);
+    }
+
+    @Override
+    public boolean userHasMajorLeadAccess(Long userId, Long majorId) {
+        if (userId == null || majorId == null) return false;
+        try {
+            Integer ok = majorLeadMapper.existsUserMajor(userId, majorId);
+            return ok != null && ok > 0;
+        } catch (Exception e) {
+            return false;
+        }
     }
 }

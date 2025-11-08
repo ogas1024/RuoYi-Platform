@@ -9,8 +9,7 @@ import com.ruoyi.manage.domain.LibraryLibrarian;
 import com.ruoyi.manage.service.ILibraryLibrarianService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Map;
 
@@ -18,7 +17,7 @@ import java.util.Map;
 @RequestMapping("/manage/library/librarian")
 public class LibraryLibrarianController extends BaseController {
 
-    @Resource
+    @Autowired
     private ILibraryLibrarianService service;
 
     @PreAuthorize("@ss.hasPermi('manage:libraryLibrarian:list')")

@@ -9,23 +9,22 @@ import com.ruoyi.manage.domain.SurveyAnswer;
 import com.ruoyi.manage.service.ISurveyService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 @RestController
 @RequestMapping("/portal/survey")
 public class PortalSurveyController extends BaseController {
 
-    @Resource
+    @Autowired
     private ISurveyService service;
-    @Resource
-    private com.ruoyi.manage.mapper.SurveyAnswerMapper answerMapper;
-    @Resource
-    private com.ruoyi.manage.mapper.SurveyMapper surveyMapper;
-    @Resource
-    private com.ruoyi.manage.mapper.SurveyAnswerItemMapper answerItemMapper;
 
+    /**
+     * 门户问卷列表
+     * 说明：只展示“已发布”，包含未过期与已过期。
+     * @param query 查询条件
+     * @return 分页数据
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/list")
     public TableDataInfo list(Survey query) {
@@ -37,52 +36,31 @@ public class PortalSurveyController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 门户问卷详情
+     * 说明：仅允许“已发布/已归档”查看；若结束则附带投票统计。
+     * @param id 问卷ID
+     * @return 问卷详情
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public AjaxResult detail(@PathVariable Long id) {
-        Survey s = service.detail(id, false);
-        // 门户详情：允许已发布(1)与已归档(2)查看；删除或草稿均不可见
-        if (s == null || s.getStatus() == null || (s.getStatus() != 1 && s.getStatus() != 2)) {
-            return error("问卷不存在或未发布");
+        try {
+            Survey s = service.portalDetail(id, getUserId());
+            return success(s);
+        } catch (ServiceException e) {
+            return error(e.getMessage());
         }
-        Map<Long, Object> my = service.loadMyAnswers(id, getUserId());
-        s.setMyAnswers(my);
-        // 门户：仅在“投票结束”（过期或归档）后返回选项统计。
-        boolean ended = (s.getDeadline() != null && new Date().after(s.getDeadline())) || (s.getStatus() != null && s.getStatus() == 2);
-        if (ended) {
-            try {
-                java.util.List<java.util.Map<String, Object>> rows = answerMapper2().countOptionVotes(id);
-                java.util.Map<Long, Integer> cntMap = new java.util.HashMap<>();
-                for (java.util.Map<String, Object> r : rows) {
-                    Object oid = r.get("optionId");
-                    Object c = r.get("cnt");
-                    if (oid != null && c != null) {
-                        Long key = oid instanceof Number ? ((Number) oid).longValue() : Long.parseLong(String.valueOf(oid));
-                        Integer val = c instanceof Number ? ((Number) c).intValue() : Integer.parseInt(String.valueOf(c));
-                        cntMap.put(key, val);
-                    }
-                }
-                if (s.getItems() != null) {
-                    for (com.ruoyi.manage.domain.SurveyItem it : s.getItems()) {
-                        if (it.getOptions() != null) {
-                            for (com.ruoyi.manage.domain.SurveyOption op : it.getOptions()) {
-                                Integer v = cntMap.get(op.getId());
-                                if (v != null) op.setVoteCount(v);
-                            }
-                        }
-                    }
-                }
-            } catch (Exception ignore) {
-            }
-        }
-        return success(s);
     }
 
-    // 本类已有 answerMapper 字段为 SurveyAnswerMapper，这里通过注入的 AnswerItemMapper 获取统计能力
-    private com.ruoyi.manage.mapper.SurveyAnswerItemMapper answerMapper2() {
-        return this.answerItemMapper;
-    }
+    
 
+    /**
+     * 提交问卷
+     * @param id 问卷ID
+     * @param body 请求体，包含 answers 数组
+     * @return 操作结果
+     */
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/{id}/submit")
     public AjaxResult submit(@PathVariable Long id, @RequestBody Map<String, Object> body) {
@@ -103,28 +81,15 @@ public class PortalSurveyController extends BaseController {
     /**
      * 我的填写：返回包含 surveyId/title/submitTime 的简表
      */
+    /**
+     * 我的问卷填写记录
+     * @return 简表（surveyId/title/submitTime）
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/my")
     public TableDataInfo my() {
         startPage();
-        List<SurveyAnswer> list = answerMapper.selectMyAnswers(getUserId());
-        // 映射 title
-        Map<Long, String> titleMap = new HashMap<>();
-        for (SurveyAnswer a : list) {
-            if (!titleMap.containsKey(a.getSurveyId())) {
-                Survey s = surveyMapper.selectById(a.getSurveyId());
-                titleMap.put(a.getSurveyId(), s == null ? "-" : s.getTitle());
-            }
-        }
-        // 输出数组
-        List<Map<String, Object>> rows = new ArrayList<>();
-        for (SurveyAnswer a : list) {
-            Map<String, Object> m = new HashMap<>();
-            m.put("surveyId", a.getSurveyId());
-            m.put("title", titleMap.get(a.getSurveyId()));
-            m.put("submitTime", a.getSubmitTime());
-            rows.add(m);
-        }
+        List<Map<String, Object>> rows = service.selectMyAnswerSummaries(getUserId());
         return getDataTable(rows);
     }
 }

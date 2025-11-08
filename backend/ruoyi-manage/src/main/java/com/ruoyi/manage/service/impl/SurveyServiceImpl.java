@@ -11,24 +11,23 @@ import com.ruoyi.manage.mapper.*;
 import com.ruoyi.manage.service.ISurveyService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 @Service
 public class SurveyServiceImpl implements ISurveyService {
 
-    @Resource
+    @Autowired
     private SurveyMapper surveyMapper;
-    @Resource
+    @Autowired
     private SurveyItemMapper itemMapper;
-    @Resource
+    @Autowired
     private SurveyOptionMapper optionMapper;
-    @Resource
+    @Autowired
     private SurveyScopeMapper scopeMapper;
-    @Resource
+    @Autowired
     private SurveyAnswerMapper answerMapper;
-    @Resource
+    @Autowired
     private SurveyAnswerItemMapper answerItemMapper;
 
     private static final ObjectMapper M = new ObjectMapper();
@@ -426,5 +425,92 @@ public class SurveyServiceImpl implements ISurveyService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    // ===== 新增：门户与管理聚合能力，移除 Controller 对 Mapper 的直接依赖 =====
+
+    @Override
+    public Survey portalDetail(Long id, Long userId) {
+        Survey s = detail(id, false);
+        if (s == null || s.getStatus() == null || (s.getStatus() != 1 && s.getStatus() != 2)) {
+            throw new ServiceException("问卷不存在或未发布");
+        }
+        Map<Long, Object> my = loadMyAnswers(id, userId);
+        s.setMyAnswers(my);
+        boolean ended = (s.getDeadline() != null && new Date().after(s.getDeadline())) || (s.getStatus() != null && s.getStatus() == 2);
+        if (ended) {
+            fillOptionVoteCounts(s);
+        }
+        return s;
+    }
+
+    @Override
+    public List<Map<String, Object>> selectMyAnswerSummaries(Long userId) {
+        List<SurveyAnswer> list = answerMapper.selectMyAnswers(userId);
+        Map<Long, String> titleMap = new HashMap<>();
+        List<Map<String, Object>> rows = new ArrayList<>();
+        for (SurveyAnswer a : list) {
+            if (!titleMap.containsKey(a.getSurveyId())) {
+                Survey s = surveyMapper.selectById(a.getSurveyId());
+                titleMap.put(a.getSurveyId(), s == null ? "-" : s.getTitle());
+            }
+            Map<String, Object> m = new HashMap<>();
+            m.put("surveyId", a.getSurveyId());
+            m.put("title", titleMap.get(a.getSurveyId()));
+            m.put("submitTime", a.getSubmitTime());
+            rows.add(m);
+        }
+        return rows;
+    }
+
+    @Override
+    public Survey manageDetailWithStats(Long id) {
+        Survey s = detail(id, true);
+        if (s == null) throw new ServiceException("问卷不存在");
+        fillOptionVoteCounts(s);
+        return s;
+    }
+
+    @Override
+    public List<Map<String, Object>> selectSubmitUsers(Long surveyId) {
+        return answerMapper.selectSubmitUsers(surveyId);
+    }
+
+    @Override
+    public Survey surveyWithUserAnswers(Long id, Long userId) {
+        Survey s = detail(id, false);
+        if (s == null) throw new ServiceException("问卷不存在");
+        Map<Long, Object> my = loadMyAnswers(id, userId);
+        s.setMyAnswers(my);
+        return s;
+    }
+
+    /**
+     * 统计每个选项的票数并回填到 Survey 对象（仅选择题）。
+     */
+    private void fillOptionVoteCounts(Survey s) {
+        try {
+            List<Map<String, Object>> rows = answerItemMapper.countOptionVotes(s.getId());
+            Map<Long, Integer> cntMap = new HashMap<>();
+            for (Map<String, Object> r : rows) {
+                Object oid = r.get("optionId");
+                Object c = r.get("cnt");
+                if (oid != null && c != null) {
+                    Long key = oid instanceof Number ? ((Number) oid).longValue() : Long.parseLong(String.valueOf(oid));
+                    Integer val = c instanceof Number ? ((Number) c).intValue() : Integer.parseInt(String.valueOf(c));
+                    cntMap.put(key, val);
+                }
+            }
+            if (s.getItems() != null) {
+                for (SurveyItem it : s.getItems()) {
+                    if (it.getOptions() != null) {
+                        for (SurveyOption op : it.getOptions()) {
+                            Integer v = cntMap.get(op.getId());
+                            if (v != null) op.setVoteCount(v);
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignore) { }
     }
 }

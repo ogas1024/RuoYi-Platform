@@ -10,8 +10,7 @@ import com.ruoyi.manage.domain.Library;
 import com.ruoyi.manage.service.ILibraryService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
@@ -24,7 +23,7 @@ import com.ruoyi.manage.domain.vo.DayCount;
 @RequestMapping("/manage/library")
 public class LibraryController extends BaseController {
 
-    @Resource
+    @Autowired
     private ILibraryService service;
 
     @PreAuthorize("@ss.hasPermi('manage:library:list')")
@@ -159,7 +158,7 @@ public class LibraryController extends BaseController {
      */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/stats/uploadTrend")
-    public AjaxResult uploadTrend(@RequestParam(required = false, defaultValue = "30") Integer days) {
+    public AjaxResult uploadTrend(@RequestParam(required = false, defaultValue = "7") Integer days) {
         java.util.List<DayCount> list = service.uploadTrend(days);
         return success(list);
     }
@@ -169,7 +168,7 @@ public class LibraryController extends BaseController {
      */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/stats/downloadTrend")
-    public AjaxResult downloadTrend(@RequestParam(required = false, defaultValue = "30") Integer days) {
+    public AjaxResult downloadTrend(@RequestParam(required = false, defaultValue = "7") Integer days) {
         java.util.List<DayCount> list = service.downloadTrend(days);
         return success(list);
     }

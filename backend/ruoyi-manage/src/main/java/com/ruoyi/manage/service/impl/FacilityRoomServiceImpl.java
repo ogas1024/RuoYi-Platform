@@ -4,14 +4,13 @@ import com.ruoyi.manage.domain.FacilityRoom;
 import com.ruoyi.manage.mapper.FacilityRoomMapper;
 import com.ruoyi.manage.service.IFacilityRoomService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Service
 public class FacilityRoomServiceImpl implements IFacilityRoomService {
 
-    @Resource
+    @Autowired
     private FacilityRoomMapper mapper;
 
     @Override
@@ -44,4 +43,3 @@ public class FacilityRoomServiceImpl implements IFacilityRoomService {
         return mapper.updateStatus(id, enable ? "0" : "1");
     }
 }
-

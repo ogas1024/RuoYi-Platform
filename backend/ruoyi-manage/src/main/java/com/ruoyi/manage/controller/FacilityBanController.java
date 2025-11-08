@@ -9,15 +9,14 @@ import com.ruoyi.manage.domain.FacilityBan;
 import com.ruoyi.manage.service.IFacilityBanService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/manage/facility/ban")
 public class FacilityBanController extends BaseController {
 
-    @Resource
+    @Autowired
     private IFacilityBanService service;
 
     @PreAuthorize("@ss.hasPermi('manage:facility:ban:list')")
@@ -44,4 +43,3 @@ public class FacilityBanController extends BaseController {
         return toAjax(service.unban(id));
     }
 }
-

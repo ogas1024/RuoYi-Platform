@@ -16,6 +16,7 @@ ruoyi:
 # 开发环境配置
 server:
   # 服务器的HTTP端口，默认为8080
+  address: 0.0.0.0
   port: 8080
   servlet:
     # 应用的访问路径
@@ -95,7 +96,7 @@ token:
   # 令牌密钥
   secret: abcdefghijklmnopqrstuvwxyz
   # 令牌有效期（默认30分钟）
-  expireTime: 30
+  expireTime: 4320
 
 # MyBatis配置
 mybatis:

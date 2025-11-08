@@ -7,17 +7,16 @@ import com.ruoyi.manage.mapper.LostItemMapper;
 import com.ruoyi.manage.service.ILostItemService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.List;
 
 @Service
 public class LostItemServiceImpl implements ILostItemService {
 
-    @Resource
+    @Autowired
     private LostItemMapper mapper;
-    @Resource
+    @Autowired
     private LostItemImageMapper imageMapper;
 
     @Override
@@ -38,12 +37,14 @@ public class LostItemServiceImpl implements ILostItemService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int insert(LostItem data) {
+        // 默认值补齐（状态/已解决标识/浏览量）
         if (data.getStatus() == null) data.setStatus(1); // 待审
         if (data.getSolvedFlag() == null) data.setSolvedFlag(0);
         if (data.getViews() == null) data.setViews(0);
         data.setCreateTime(new Date());
         int n = mapper.insert(data);
         if (n > 0 && data.getImages() != null && !data.getImages().isEmpty()) {
+            // 批量插入图片并保持排序
             for (int i = 0; i < data.getImages().size(); i++) {
                 LostItemImage img = data.getImages().get(i);
                 img.setItemId(data.getId());
@@ -62,6 +63,7 @@ public class LostItemServiceImpl implements ILostItemService {
         data.setUpdateTime(new Date());
         int n = mapper.update(data);
         if (n > 0 && data.getImages() != null) {
+            // 先删后插，保证图片集合最新
             imageMapper.deleteByItemId(data.getId());
             if (!data.getImages().isEmpty()) {
                 for (int i = 0; i < data.getImages().size(); i++) {

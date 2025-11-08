@@ -63,4 +63,19 @@ public interface ICourseResourceService {
      * 课程占比（默认近30天）
      */
     java.util.List<PieItem> courseShare(Integer days);
+
+    /**
+     * 专业占比（全站，全时段）。
+     */
+    java.util.List<PieItem> majorShareAll();
+
+    /**
+     * 课程占比（全站，全时段）。
+     */
+    java.util.List<PieItem> courseShareAll();
+
+    /**
+     * 判定用户是否为指定专业的负责人（用于控制下载权限等）。
+     */
+    boolean userHasMajorLeadAccess(Long userId, Long majorId);
 }

@@ -4,14 +4,13 @@ import com.ruoyi.manage.domain.FacilityBan;
 import com.ruoyi.manage.mapper.FacilityBanMapper;
 import com.ruoyi.manage.service.IFacilityBanService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Service
 public class FacilityBanServiceImpl implements IFacilityBanService {
 
-    @Resource
+    @Autowired
     private FacilityBanMapper mapper;
 
     @Override
@@ -35,4 +34,3 @@ public class FacilityBanServiceImpl implements IFacilityBanService {
         return mapper.countActive(userId) > 0;
     }
 }
-

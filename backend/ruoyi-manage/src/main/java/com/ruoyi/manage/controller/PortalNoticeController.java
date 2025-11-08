@@ -7,8 +7,7 @@ import com.ruoyi.manage.domain.Notice;
 import com.ruoyi.manage.service.INoticeService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 import java.util.Map;
 
@@ -20,7 +19,7 @@ import java.util.Map;
 @RequestMapping("/portal/notice")
 public class PortalNoticeController extends BaseController {
 
-    @Resource
+    @Autowired
     private INoticeService noticeService;
 
     /**
@@ -45,4 +44,3 @@ public class PortalNoticeController extends BaseController {
         return AjaxResult.success(data);
     }
 }
-

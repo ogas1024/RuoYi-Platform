@@ -49,7 +49,7 @@ export function unsetBestResource(id) {
 }
 
 // 统计：课程资源上传趋势（按日），返回 [{ day: 'yyyy-MM-dd', count: number }]
-export function uploadTrend(days = 30, opts = {}) {
+export function uploadTrend(days = 7, opts = {}) {
     const headers = {...(opts.headers || {}), silent: true}
     return request({url: '/manage/courseResource/stats/uploadTrend', method: 'get', params: {days}, headers, ...opts})
 }
@@ -88,19 +88,19 @@ export function topDownloadUsers(limit = 5, opts = {}) {
 }
 
 // 占比：课程资源 专业占比（默认近30天）
-export function majorShare(days = 30, opts = {}) {
+export function majorShare(days = 7, opts = {}) {
     const headers = {...(opts.headers || {}), silent: true}
     return request({url: '/manage/courseResource/stats/majorShare', method: 'get', params: {days}, headers, ...opts})
 }
 
 // 占比：课程资源 课程占比（默认近30天）
-export function courseShare(days = 30, opts = {}) {
+export function courseShare(days = 7, opts = {}) {
     const headers = {...(opts.headers || {}), silent: true}
     return request({url: '/manage/courseResource/stats/courseShare', method: 'get', params: {days}, headers, ...opts})
 }
 
 // 统计：课程资源下载趋势（按日），返回 [{ day: 'yyyy-MM-dd', count: number }]
-export function downloadTrend(days = 30, opts = {}) {
+export function downloadTrend(days = 7, opts = {}) {
     const headers = {...(opts.headers || {}), silent: true}
     return request({url: '/manage/courseResource/stats/downloadTrend', method: 'get', params: {days}, headers, ...opts})
 }

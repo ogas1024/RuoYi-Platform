@@ -7,15 +7,14 @@ import com.ruoyi.manage.service.ICourseService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/portal/course")
 public class PortalCourseController extends BaseController {
 
-    @Resource
+    @Autowired
     private ICourseService courseService;
 
     @GetMapping("/list")

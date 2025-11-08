@@ -41,13 +41,13 @@ export function listLibraryAssets(id) {
 }
 
 // 统计：数字图书上传趋势（按日）
-export function uploadTrend(days = 30, opts = {}) {
+export function uploadTrend(days = 7, opts = {}) {
     const headers = {...(opts.headers || {}), silent: true}
     return request({url: '/manage/library/stats/uploadTrend', method: 'get', params: {days}, headers, ...opts})
 }
 
 // 统计：数字图书下载趋势（按日）
-export function downloadTrend(days = 30, opts = {}) {
+export function downloadTrend(days = 7, opts = {}) {
     const headers = {...(opts.headers || {}), silent: true}
     return request({url: '/manage/library/stats/downloadTrend', method: 'get', params: {days}, headers, ...opts})
 }

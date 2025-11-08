@@ -14,23 +14,26 @@ import com.ruoyi.manage.service.IFacilitySettingService;
 import com.ruoyi.manage.vo.TimelineSegmentVO;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 @Service
 public class FacilityBookingServiceImpl implements IFacilityBookingService {
 
-    @Resource
+    @Autowired
     private FacilityBookingMapper bookingMapper;
-    @Resource
+    @Autowired
     private FacilityBookingUserMapper bookingUserMapper;
-    @Resource
+    @Autowired
     private FacilityRoomMapper roomMapper;
-    @Resource
+    @Autowired
     private FacilityBanMapper banMapper;
-    @Resource
+    @Autowired
     private IFacilitySettingService settingService;
+    @Autowired
+    private com.ruoyi.manage.mapper.FacilityBuildingMapper buildingMapper;
+    @Autowired
+    private com.ruoyi.manage.mapper.UserMapper userMapper;
 
     private void assertUserListValid(List<Long> userIds, Long applicantId) {
         if (userIds == null) throw new ServiceException("使用人列表不能为空");
@@ -64,13 +67,16 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public int create(FacilityBooking data, List<Long> userIds, Long currentUserId, String username) {
+        // 房间状态校验
         FacilityRoom room = roomMapper.selectById(data.getRoomId());
         if (room == null) throw new ServiceException("功能房不存在");
         if (!"0".equals(room.getStatus())) throw new ServiceException("房间已禁用，无法预约");
 
+        // 封禁校验
         if (banMapper.countActive(currentUserId) > 0) throw new ServiceException("申请人处于封禁状态");
 
         FacilitySetting setting = settingService.get();
+        // 时间窗口 + 冲突 + 使用人校验
         assertTimeWindowValid(data.getStartTime(), data.getEndTime(),
                 setting.getMaxDurationMinutes() != null ? setting.getMaxDurationMinutes() : 4320);
         assertNoConflict(data.getRoomId(), data.getStartTime(), data.getEndTime(), null);
@@ -112,6 +118,7 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
             throw new ServiceException("已开始的预约不可在此修改，请使用提前结束");
 
         FacilitySetting setting = settingService.get();
+        // 补齐时间区间
         Date start = patch.getStartTime() != null ? patch.getStartTime() : origin.getStartTime();
         Date end = patch.getEndTime() != null ? patch.getEndTime() : origin.getEndTime();
         assertTimeWindowValid(start, end,
@@ -119,6 +126,7 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
         assertNoConflict(origin.getRoomId(), start, end, origin.getId());
 
         if (userIds != null) {
+            // 替换参与人
             assertUserListValid(userIds, currentUserId);
             bookingUserMapper.deleteByBookingId(origin.getId());
             Set<Long> uniq = new LinkedHashSet<>(userIds);
@@ -173,7 +181,7 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
         if (!Arrays.asList("1", "4").contains(origin.getStatus()))
             throw new ServiceException("仅已批准/进行中允许提前结束");
         Date now = new Date();
-        if (newEndTime.before(now)) newEndTime = now; // 对齐：不早于当前
+        if (newEndTime.before(now)) newEndTime = now; // 不早于当前
         if (!newEndTime.after(origin.getStartTime())) throw new ServiceException("结束时间需大于开始时间");
         // 缩短结束时间无需冲突校验（只释放占用）
         int minutes = calcDurationMinutes(origin.getStartTime(), newEndTime);
@@ -188,6 +196,28 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
     @Override
     public List<FacilityBooking> myList(Long currentUserId, String status) {
         return bookingMapper.selectMyList(currentUserId, status);
+    }
+
+    @Override
+    public List<FacilityBooking> myListWithRoomName(Long currentUserId, String status) {
+        List<FacilityBooking> list = myList(currentUserId, status);
+        if (list != null && !list.isEmpty()) {
+            java.util.Map<Long, String> roomNameMap = new java.util.HashMap<>();
+            for (FacilityBooking b : list) {
+                Long rid = b.getRoomId();
+                if (rid == null) continue;
+                String rn = roomNameMap.get(rid);
+                if (rn == null) {
+                    try {
+                        FacilityRoom r = roomMapper.selectById(rid);
+                        rn = r != null ? r.getRoomName() : null;
+                    } catch (Exception ignored) { rn = null; }
+                    roomNameMap.put(rid, rn);
+                }
+                b.setRoomName(rn);
+            }
+        }
+        return list;
     }
 
     @Override
@@ -221,5 +251,52 @@ public class FacilityBookingServiceImpl implements IFacilityBookingService {
         if (origin == null) throw new ServiceException("预约不存在");
         if (!"0".equals(origin.getStatus())) throw new ServiceException("仅待审核记录可驳回");
         return bookingMapper.doReject(id, new Date(), username, reason.trim());
+    }
+
+    @Override
+    public java.util.Map<String, Object> getDetailWithMeta(Long id) {
+        FacilityBooking b = bookingMapper.selectById(id);
+        if (b == null) throw new ServiceException("记录不存在");
+        java.util.Map<String, Object> res = new java.util.HashMap<>();
+        res.put("booking", b);
+        res.put("users", bookingUserMapper.selectByBookingId(id));
+        java.util.Map<String, Object> meta = new java.util.HashMap<>();
+        // 房间/楼房名
+        String roomName = null, buildingName = null;
+        try {
+            FacilityRoom room = roomMapper.selectById(b.getRoomId());
+            if (room != null) {
+                roomName = room.getRoomName();
+                com.ruoyi.manage.domain.FacilityBuilding bd = buildingMapper.selectById(room.getBuildingId());
+                if (bd != null) buildingName = bd.getBuildingName();
+            }
+        } catch (Exception ignored) { }
+        meta.put("roomName", roomName);
+        meta.put("buildingName", buildingName);
+        // 申请人昵称/用户名
+        String applicantName = null;
+        try {
+            com.ruoyi.manage.domain.User q = new com.ruoyi.manage.domain.User();
+            q.setUserId(b.getApplicantId());
+            java.util.List<com.ruoyi.manage.domain.User> us = userMapper.selectUserList(q);
+            if (us != null && !us.isEmpty()) {
+                com.ruoyi.manage.domain.User u = us.get(0);
+                applicantName = (u.getNickName() != null && !u.getNickName().isEmpty()) ? u.getNickName() : u.getUserName();
+            }
+        } catch (Exception ignored) { }
+        meta.put("applicantName", applicantName);
+        // 状态文字
+        String statusText;
+        String st = b.getStatus();
+        if ("0".equals(st)) statusText = "待审核";
+        else if ("1".equals(st)) statusText = "已批准";
+        else if ("2".equals(st)) statusText = "已驳回";
+        else if ("3".equals(st)) statusText = "已取消";
+        else if ("4".equals(st)) statusText = "进行中";
+        else if ("5".equals(st)) statusText = "已完成";
+        else statusText = "-";
+        meta.put("statusText", statusText);
+        res.put("meta", meta);
+        return res;
     }
 }

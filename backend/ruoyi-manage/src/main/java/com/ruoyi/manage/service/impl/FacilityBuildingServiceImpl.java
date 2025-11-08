@@ -4,14 +4,13 @@ import com.ruoyi.manage.domain.FacilityBuilding;
 import com.ruoyi.manage.mapper.FacilityBuildingMapper;
 import com.ruoyi.manage.service.IFacilityBuildingService;
 import org.springframework.stereotype.Service;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @Service
 public class FacilityBuildingServiceImpl implements IFacilityBuildingService {
 
-    @Resource
+    @Autowired
     private FacilityBuildingMapper mapper;
 
     @Override
@@ -39,4 +38,3 @@ public class FacilityBuildingServiceImpl implements IFacilityBuildingService {
         return mapper.softDeleteByIds(ids);
     }
 }
-

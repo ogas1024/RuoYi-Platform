@@ -8,15 +8,14 @@ import com.ruoyi.manage.domain.LostItemImage;
 import com.ruoyi.manage.service.ILostItemService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
 @RestController
 @RequestMapping("/portal/lostfound")
 public class PortalLostFoundController extends BaseController {
 
-    @Resource
+    @Autowired
     private ILostItemService service;
 
     @PreAuthorize("isAuthenticated()")

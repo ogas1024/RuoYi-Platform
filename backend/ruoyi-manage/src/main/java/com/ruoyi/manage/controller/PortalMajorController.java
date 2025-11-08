@@ -7,15 +7,14 @@ import com.ruoyi.manage.service.IMajorService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import javax.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
 @RestController
 @RequestMapping("/portal/major")
 public class PortalMajorController extends BaseController {
 
-    @Resource
+    @Autowired
     private IMajorService majorService;
 
     @GetMapping("/list")

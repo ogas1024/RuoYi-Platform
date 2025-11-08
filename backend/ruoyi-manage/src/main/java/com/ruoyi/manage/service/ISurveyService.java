@@ -29,4 +29,29 @@ public interface ISurveyService {
     Map<Long, Object> loadMyAnswers(Long surveyId, Long userId);
 
     int submit(Long surveyId, Long userId, java.util.List<Map<String, Object>> answers);
+
+    /**
+     * 门户：带我的回答与（在结束后）选项统计的详情。
+     */
+    Survey portalDetail(Long id, Long userId);
+
+    /**
+     * 门户：我的填写简表（surveyId/title/submitTime）。
+     */
+    List<Map<String, Object>> selectMyAnswerSummaries(Long userId);
+
+    /**
+     * 管理：详情（含选项统计）。
+     */
+    Survey manageDetailWithStats(Long id);
+
+    /**
+     * 管理：某问卷已提交用户列表。
+     */
+    List<Map<String, Object>> selectSubmitUsers(Long surveyId);
+
+    /**
+     * 管理：指定用户的答卷详情（Survey + myAnswers）。
+     */
+    Survey surveyWithUserAnswers(Long id, Long userId);
 }
