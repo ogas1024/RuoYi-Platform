@@ -13,11 +13,12 @@ function authPermission(permission) {
 }
 
 function authRole(role) {
-  const super_admin = "admin"
+  // 统一将 admin/super_admin 视为超管
+  const superAdmins = ["admin", "super_admin"]
   const roles = useUserStore().roles
   if (role && role.length > 0) {
     return roles.some(v => {
-      return super_admin === v || v === role
+      return superAdmins.includes(v) || v === role
     })
   } else {
     return false

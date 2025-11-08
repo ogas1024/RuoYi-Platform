@@ -8,6 +8,7 @@ import com.ruoyi.manage.domain.LibraryFavorite;
 import com.ruoyi.manage.mapper.*;
 import com.ruoyi.manage.service.ILibraryService;
 import com.ruoyi.manage.vo.TopUserVO;
+import com.ruoyi.manage.domain.vo.DayCount;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -177,6 +178,11 @@ public class LibraryServiceImpl implements ILibraryService {
     }
 
     @Override
+    public java.util.List<TopUserVO> selectTopDownloadUsers(Integer limit) {
+        return downloadLogMapper.selectTopDownloadUsers(limit);
+    }
+
+    @Override
     public List<LibraryAsset> listAssets(Long bookId) {
         return assetMapper.selectByBookId(bookId);
     }
@@ -256,6 +262,64 @@ public class LibraryServiceImpl implements ILibraryService {
     @Override
     public List<Library> selectFavorites(Long userId) {
         return libraryMapper.selectFavorites(userId);
+    }
+
+    @Override
+    public java.util.List<DayCount> uploadTrend(Integer days) {
+        int d = (days == null || days <= 0 || days > 365) ? 30 : days;
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate fromDate = today.minusDays(d - 1L);
+        java.time.LocalDate toDate = today.plusDays(1L);
+        java.util.Date from = java.sql.Timestamp.valueOf(fromDate.atStartOfDay());
+        java.util.Date to = java.sql.Timestamp.valueOf(toDate.atStartOfDay());
+
+        java.util.List<DayCount> raw = libraryMapper.selectUploadCountByDay(from, to);
+        java.util.HashMap<String, Long> map = new java.util.HashMap<>();
+        if (raw != null) {
+            for (DayCount dc : raw) {
+                if (dc != null && dc.getDay() != null) {
+                    map.put(dc.getDay(), dc.getCount() == null ? 0L : dc.getCount());
+                }
+            }
+        }
+        java.util.ArrayList<DayCount> result = new java.util.ArrayList<>();
+        for (java.time.LocalDate cursor = fromDate; cursor.isBefore(toDate); cursor = cursor.plusDays(1)) {
+            String key = cursor.toString();
+            DayCount dc = new DayCount();
+            dc.setDay(key);
+            dc.setCount(map.getOrDefault(key, 0L));
+            result.add(dc);
+        }
+        return result;
+    }
+
+    @Override
+    public java.util.List<DayCount> downloadTrend(Integer days) {
+        int d = (days == null || days <= 0 || days > 365) ? 30 : days;
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate fromDate = today.minusDays(d - 1L);
+        java.time.LocalDate toDate = today.plusDays(1L);
+        java.util.Date from = java.sql.Timestamp.valueOf(fromDate.atStartOfDay());
+        java.util.Date to = java.sql.Timestamp.valueOf(toDate.atStartOfDay());
+
+        java.util.List<DayCount> raw = downloadLogMapper.selectDownloadCountByDay(from, to);
+        java.util.HashMap<String, Long> map = new java.util.HashMap<>();
+        if (raw != null) {
+            for (DayCount dc : raw) {
+                if (dc != null && dc.getDay() != null) {
+                    map.put(dc.getDay(), dc.getCount() == null ? 0L : dc.getCount());
+                }
+            }
+        }
+        java.util.ArrayList<DayCount> result = new java.util.ArrayList<>();
+        for (java.time.LocalDate cursor = fromDate; cursor.isBefore(toDate); cursor = cursor.plusDays(1)) {
+            String key = cursor.toString();
+            DayCount dc = new DayCount();
+            dc.setDay(key);
+            dc.setCount(map.getOrDefault(key, 0L));
+            result.add(dc);
+        }
+        return result;
     }
 
     // 只保留数字，去除连字符/空白

@@ -18,7 +18,9 @@
       <el-table-column prop="title" label="标题"/>
       <el-table-column prop="author" label="作者" width="160"/>
       <el-table-column prop="status" label="状态" width="100">
-        <template #default="{ row }"><el-tag :type="row.status===2?'danger':'info'">{{ row.status===2?'已驳回':'已下架' }}</el-tag></template>
+        <template #default="{ row }">
+          <el-tag :type="statusType(row.status)">{{ statusText(row.status) }}</el-tag>
+        </template>
       </el-table-column>
       <el-table-column label="操作" width="320">
         <template #default="{ row }">
@@ -61,7 +63,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, getCurrentInstance } from 'vue'
 import { listLibrary, onlineLibrary, delLibrary, getLibrary, listLibraryAssets } from '@/api/manage/library'
 import { openExternal } from '@/utils/url'
 import { getToken } from '@/utils/auth'
@@ -73,18 +75,31 @@ const queryParams = ref({ pageNum: 1, pageSize: 10, status: null })
 const detailOpen = ref(false)
 const detail = ref({})
 const assets = ref([])
+const { proxy } = getCurrentInstance() || {}
 
 const getList = async () => {
   loading.value = true
   try {
-    const { rows, total: t } = await listLibrary(queryParams.value)
-    list.value = rows || []
-    total.value = t || 0
+    const q = { ...queryParams.value }
+    // 回收站语义：默认只展示 已驳回(2) 与 已下架(3)
+    if (q.status === null || q.status === undefined) {
+      const [rej, off] = await Promise.all([
+        listLibrary({ ...q, status: 2 }),
+        listLibrary({ ...q, status: 3 })
+      ])
+      const rows = (rej.rows || []).concat(off.rows || [])
+      list.value = rows
+      total.value = rows.length
+    } else {
+      const { rows, total: t } = await listLibrary(q)
+      list.value = rows || []
+      total.value = t || 0
+    }
   } finally { loading.value = false }
 }
 const resetQuery = () => { queryParams.value = { pageNum: 1, pageSize: 10, status: null }; getList() }
-const online = async (row) => { await onlineLibrary(row.id); getList() }
-const remove = async (row) => { await delLibrary(row.id); getList() }
+const online = async (row) => { await onlineLibrary(row.id); proxy && proxy.$modal && proxy.$modal.msgSuccess('已提交上架审核'); getList() }
+const remove = async (row) => { await delLibrary(row.id); proxy && proxy.$modal && proxy.$modal.msgSuccess('删除成功'); getList() }
 const openDetail = async (row) => {
   const { data } = await getLibrary(row.id)
   detail.value = data || {}

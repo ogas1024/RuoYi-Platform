@@ -2,6 +2,7 @@ package com.ruoyi.manage.mapper;
 
 import com.ruoyi.manage.domain.Library;
 import org.apache.ibatis.annotations.Param;
+import com.ruoyi.manage.domain.vo.DayCount;
 
 import java.util.Date;
 import java.util.List;
@@ -28,4 +29,7 @@ public interface LibraryMapper {
     Integer existsIsbn13ExcludeId(@Param("isbn13") String isbn13, @Param("id") Long id);
 
     List<com.ruoyi.manage.domain.Library> selectFavorites(@Param("userId") Long userId);
+
+    /** 统计：按天分组上传数量（create_time） */
+    List<DayCount> selectUploadCountByDay(@Param("from") Date from, @Param("to") Date to);
 }

@@ -34,10 +34,11 @@ export function checkRole(value) {
   if (value && value instanceof Array && value.length > 0) {
     const roles = useUserStore().roles
     const permissionRoles = value
-    const super_admin = "admin"
+    // 统一将 admin/super_admin 视为超管
+    const superAdmins = ["admin", "super_admin"]
 
     const hasRole = roles.some(role => {
-      return super_admin === role || permissionRoles.includes(role)
+      return superAdmins.includes(role) || permissionRoles.includes(role)
     })
 
     if (!hasRole) {

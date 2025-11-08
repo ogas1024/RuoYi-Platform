@@ -7,14 +7,15 @@ import useUserStore from '@/store/modules/user'
 export default {
   mounted(el, binding, vnode) {
     const { value } = binding
-    const super_admin = "admin"
+    // 统一将 admin/super_admin 视为超管
+    const superAdmins = ["admin", "super_admin"]
     const roles = useUserStore().roles
 
     if (value && value instanceof Array && value.length > 0) {
       const roleFlag = value
 
       const hasRole = roles.some(role => {
-        return super_admin === role || roleFlag.includes(role)
+        return superAdmins.includes(role) || roleFlag.includes(role)
       })
 
       if (!hasRole) {

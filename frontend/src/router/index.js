@@ -37,6 +37,49 @@ export const constantRoutes = [
       }
     ]
   },
+  // 系统管理（静态注册，避免菜单缺失导致404）
+  {
+    path: '/system',
+    component: Layout,
+    hidden: true,
+    children: [
+      { path: 'user', name: 'SysUser', component: () => import('@/views/system/user/index.vue'), meta: { title: '用户管理' } },
+      { path: 'role', name: 'SysRole', component: () => import('@/views/system/role/index.vue'), meta: { title: '角色管理' } },
+      { path: 'menu', name: 'SysMenu', component: () => import('@/views/system/menu/index.vue'), meta: { title: '菜单管理' } },
+      { path: 'dept', name: 'SysDept', component: () => import('@/views/system/dept/index.vue'), meta: { title: '部门管理' } },
+      { path: 'dict', name: 'SysDict', component: () => import('@/views/system/dict/index.vue'), meta: { title: '字典管理' } },
+      { path: 'config', name: 'SysConfig', component: () => import('@/views/system/config/index.vue'), meta: { title: '参数设置' } },
+      { path: 'post', name: 'SysPost', component: () => import('@/views/system/post/index.vue'), meta: { title: '岗位管理' } },
+      { path: 'notice', name: 'SysNotice', component: () => import('@/views/system/notice/index.vue'), meta: { title: '通知公告' } }
+    ]
+  },
+  // 系统监控（静态注册）
+  {
+    path: '/monitor',
+    component: Layout,
+    hidden: true,
+    children: [
+      { path: 'online', name: 'MonOnline', component: () => import('@/views/monitor/online/index.vue'), meta: { title: '在线用户' } },
+      { path: 'job', name: 'MonJob', component: () => import('@/views/monitor/job/index.vue'), meta: { title: '定时任务' } },
+      { path: 'logininfor', name: 'MonLogininfor', component: () => import('@/views/monitor/logininfor/index.vue'), meta: { title: '登录日志' } },
+      { path: 'operlog', name: 'MonOperlog', component: () => import('@/views/monitor/operlog/index.vue'), meta: { title: '操作日志' } },
+      { path: 'server', name: 'MonServer', component: () => import('@/views/monitor/server/index.vue'), meta: { title: '服务监控' } },
+      { path: 'druid', name: 'MonDruid', component: () => import('@/views/monitor/druid/index.vue'), meta: { title: '数据监控' } },
+      { path: 'cache', name: 'MonCache', component: () => import('@/views/monitor/cache/index.vue'), meta: { title: '缓存监控' } },
+      { path: 'cache/list', name: 'MonCacheList', component: () => import('@/views/monitor/cache/list.vue'), meta: { title: '缓存列表' } }
+    ]
+  },
+  // 系统工具（静态注册）
+  {
+    path: '/tool',
+    component: Layout,
+    hidden: true,
+    children: [
+      { path: 'gen', name: 'ToolGen', component: () => import('@/views/tool/gen/index.vue'), meta: { title: '代码生成' } },
+      { path: 'build', name: 'ToolBuild', component: () => import('@/views/tool/build/index.vue'), meta: { title: '表单构建' } },
+      { path: 'swagger', name: 'ToolSwagger', component: () => import('@/views/tool/swagger/index.vue'), meta: { title: '系统接口' } }
+    ]
+  },
   // 管理端：课程资源分享（静态注册，避免菜单未配置时404）
   {
     path: '/manage/course-resource',
@@ -60,6 +103,24 @@ export const constantRoutes = [
         name: 'ManageCourseResourceTrash',
         component: () => import('@/views/manage/courseResource/trash.vue'),
         meta: { title: '课程资源-回收站' }
+      },
+      {
+        path: 'course',
+        name: 'ManageCourseResourceCourse',
+        component: () => import('@/views/manage/courseResource/course/index.vue'),
+        meta: { title: '课程资源-课程' }
+      },
+      {
+        path: 'major',
+        name: 'ManageCourseResourceMajor',
+        component: () => import('@/views/manage/courseResource/major/index.vue'),
+        meta: { title: '课程资源-专业' }
+      },
+      {
+        path: 'major-lead',
+        name: 'ManageCourseResourceMajorLead',
+        component: () => import('@/views/manage/courseResource/majorLead/index.vue'),
+        meta: { title: '课程资源-专业负责人' }
       }
     ]
   },
@@ -86,6 +147,52 @@ export const constantRoutes = [
         name: 'ManageLostFoundRecycle',
         component: () => import('@/views/manage/lostfound/Recycle.vue'),
         meta: { title: '失物招领-回收站' }
+      }
+    ]
+  },
+  // 管理端：数字图书馆（静态注册，避免菜单未配置时404）
+  {
+    path: '/manage/library',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'audit',
+        name: 'ManageLibraryAudit',
+        component: () => import('@/views/manage/library/Audit.vue'),
+        meta: { title: '数字图书馆-待审核' }
+      },
+      {
+        path: 'recycle',
+        name: 'ManageLibraryRecycle',
+        component: () => import('@/views/manage/library/Recycle.vue'),
+        meta: { title: '数字图书馆-回收站' }
+      },
+      {
+        path: 'approved',
+        name: 'ManageLibraryApproved',
+        component: () => import('@/views/manage/library/ApprovedList.vue'),
+        meta: { title: '数字图书馆-已上架' }
+      }
+    ]
+  },
+  // 管理端：通知公告（静态注册，避免菜单未配置时404）
+  {
+    path: '/manage/notice',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageNoticeIndex',
+        component: () => import('@/views/manage/notice/index.vue'),
+        meta: { title: '通知公告' }
+      },
+      {
+        path: 'edit',
+        name: 'ManageNoticeEdit',
+        component: () => import('@/views/manage/notice/edit.vue'),
+        meta: { title: '编辑公告' }
       }
     ]
   },
@@ -145,6 +252,7 @@ export const constantRoutes = [
   {
     path: '/portal',
     component: () => import('@/layout/portal/PortalLayout.vue'),
+    redirect: '/portal/course-resource',
     hidden: true,
     children: [
       // 课程资源分享模块：模块化前缀 /portal/course-resource
@@ -184,14 +292,13 @@ export const constantRoutes = [
         component: () => import('@/views/portal/courseResource/top.vue'),
         meta: { title: '排行榜' }
       },
-      // 门户通知公告（与课程资源分享并列）
+  // 门户通知公告（与课程资源分享并列）
       {
         path: 'notice',
         name: 'PortalNotice',
         component: () => import('@/views/portal/notice/index.vue'),
         meta: { title: '通知公告' }
-      }
-      ,
+      },
       // 数字图书馆（与课程资源分享并列）：/portal/library
       {
         path: 'library',
@@ -259,8 +366,7 @@ export const constantRoutes = [
         name: 'PortalLibraryFavorite',
         component: () => import('@/views/portal/book/Favorite.vue'),
         meta: { title: '我的收藏' }
-      }
-      ,
+      },
       // 失物招领门户
       {
         path: 'lostfound',
@@ -298,8 +404,7 @@ export const constantRoutes = [
         name: 'PortalSurveyMy',
         component: () => import('@/views/portal/survey/My.vue'),
         meta: { title: '我填写的' }
-      }
-      ,
+      },
       // 投票门户（独立页面，复用问卷接口）
       {
         path: 'vote',
@@ -321,6 +426,162 @@ export const constantRoutes = [
       }
     ]
   },
+  // 管理端：功能房预约（静态注册）
+  {
+    path: '/manage/facility',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'building',
+        name: 'ManageFacilityBuilding',
+        component: () => import('@/views/manage/facility/building/index.vue'),
+        meta: { title: '功能房-楼栋' }
+      },
+      {
+        path: 'room',
+        name: 'ManageFacilityRoom',
+        component: () => import('@/views/manage/facility/room/index.vue'),
+        meta: { title: '功能房-房间' }
+      },
+      {
+        path: 'booking-audit',
+        name: 'ManageFacilityBookingAudit',
+        component: () => import('@/views/manage/facility/booking-audit/index.vue'),
+        meta: { title: '功能房-预约审核' }
+      },
+      {
+        path: 'setting',
+        name: 'ManageFacilitySetting',
+        component: () => import('@/views/manage/facility/setting/index.vue'),
+        meta: { title: '功能房-设置' }
+      },
+      {
+        path: 'ban',
+        name: 'ManageFacilityBan',
+        component: () => import('@/views/manage/facility/ban/index.vue'),
+        meta: { title: '功能房-封禁' }
+      },
+      {
+        path: 'top',
+        name: 'ManageFacilityTop',
+        component: () => import('@/views/manage/facility/top/index.vue'),
+        meta: { title: '功能房-排行榜' }
+      }
+    ]
+  },
+  
+  // 管理端：数字图书馆-更多子页（静态注册）
+  {
+    path: '/manage/library',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'list',
+        name: 'ManageLibraryList',
+        component: () => import('@/views/manage/library/List.vue'),
+        meta: { title: '数字图书馆-列表' }
+      },
+      {
+        path: 'librarian',
+        name: 'ManageLibraryLibrarian',
+        component: () => import('@/views/manage/library/Librarian.vue'),
+        meta: { title: '数字图书馆-管理员' }
+      }
+    ]
+  },
+  // 管理端：电商演示模块（静态注册，便于示例与回归）
+  {
+    path: '/manage/book',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageBookIndex',
+        component: () => import('@/views/manage/book/index.vue'),
+        meta: { title: '图书管理' }
+      },
+      {
+        path: 'list',
+        name: 'ManageBookList',
+        component: () => import('@/views/manage/book/list.vue'),
+        meta: { title: '图书列表' }
+      },
+      {
+        path: 'audit',
+        name: 'ManageBookAudit',
+        component: () => import('@/views/manage/book/audit.vue'),
+        meta: { title: '图书审核' }
+      }
+    ]
+  },
+  {
+    path: '/manage/category',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageCategoryIndex',
+        component: () => import('@/views/manage/category/index.vue'),
+        meta: { title: '分类管理' }
+      }
+    ]
+  },
+  {
+    path: '/manage/orders',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageOrdersIndex',
+        component: () => import('@/views/manage/orders/index.vue'),
+        meta: { title: '订单管理' }
+      }
+    ]
+  },
+  {
+    path: '/manage/shops',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageShopsIndex',
+        component: () => import('@/views/manage/shops/index.vue'),
+        meta: { title: '店铺管理' }
+      }
+    ]
+  },
+  {
+    path: '/manage/teach',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageTeachIndex',
+        component: () => import('@/views/manage/teach/index.vue'),
+        meta: { title: '教学管理' }
+      }
+    ]
+  },
+  {
+    path: '/manage/user',
+    component: Layout,
+    hidden: true,
+    children: [
+      {
+        path: 'index',
+        name: 'ManageUserIndex',
+        component: () => import('@/views/manage/user/index.vue'),
+        meta: { title: '用户管理（演示）' }
+      }
+    ]
+  },
   {
     path: '/login',
     component: () => import('@/views/login'),
@@ -332,11 +593,6 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: "/:pathMatch(.*)*",
-    component: () => import('@/views/error/404'),
-    hidden: true
-  },
-  {
     path: '/401',
     component: () => import('@/views/error/401'),
     hidden: true
@@ -344,11 +600,11 @@ export const constantRoutes = [
   {
     path: '',
     component: Layout,
-    redirect: '/portal/course-resource',
+    redirect: '/index',
     children: [
       {
-        path: '/index',
-        component: () => import('@/views/index'),
+        path: 'index',
+        component: () => import('@/views/index.vue'),
         name: 'Index',
         meta: { title: '首页', icon: 'dashboard', affix: true }
       }
@@ -369,6 +625,13 @@ export const constantRoutes = [
     ]
   }
 ]
+
+// 兜底 404：必须最后注册，避免命中 /index 等正常路由
+constantRoutes.push({
+  path: '/:pathMatch(.*)*',
+  component: () => import('@/views/error/404'),
+  hidden: true
+})
 
 // 动态路由，基于用户权限动态去加载
 export const dynamicRoutes = [

@@ -170,4 +170,16 @@
         order by f.create_time desc, b.id desc
     </select>
 
+    <!-- 统计：按天分组上传数量（create_time），不包含被删除的数据。返回字段 day(yyyy-MM-dd), count -->
+    <select id="selectUploadCountByDay" resultType="com.ruoyi.manage.domain.vo.DayCount">
+        select DATE_FORMAT(create_time, '%Y-%m-%d') as day,
+               count(*) as count
+        from tb_library_book
+        where del_flag = '0'
+          and create_time &gt;= #{from}
+          and create_time &lt; #{to}
+        group by DATE_FORMAT(create_time, '%Y-%m-%d')
+        order by day asc
+    </select>
+
 </mapper>

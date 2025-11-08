@@ -8,6 +8,8 @@ import com.ruoyi.common.enums.BusinessType;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.manage.domain.CourseResource;
 import com.ruoyi.manage.service.ICourseResourceService;
+import com.ruoyi.manage.service.IScoreService;
+import com.ruoyi.manage.domain.CrUserScore;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +27,8 @@ public class CourseResourceController extends BaseController {
     private ICourseResourceService service;
     @Resource
     private com.ruoyi.manage.mapper.MajorLeadMapper majorLeadMapper;
+    @Resource
+    private IScoreService scoreService;
 
     @PreAuthorize("@ss.hasPermi('manage:courseResource:list')")
     @GetMapping("/list")
@@ -143,5 +147,71 @@ public class CourseResourceController extends BaseController {
                           @RequestParam(required = false, defaultValue = "10") Integer limit) {
         List<CourseResource> list = service.selectTop(scope, majorId, courseId, days, limit);
         return success(list);
+    }
+
+    /**
+     * 统计：上传趋势（按日计数，近 N 天）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/uploadTrend")
+    public AjaxResult uploadTrend(@RequestParam(required = false, defaultValue = "30") Integer days) {
+        return success(service.uploadTrend(days));
+    }
+
+    /**
+     * 统计：下载趋势（按日计数，近 N 天）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/downloadTrend")
+    public AjaxResult downloadTrend(@RequestParam(required = false, defaultValue = "30") Integer days) {
+        return success(service.downloadTrend(days));
+    }
+
+    /**
+     * 统计：课程资源下载榜（默认Top5，可选 days 窗口）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/topResources")
+    public AjaxResult topResources(@RequestParam(required = false, defaultValue = "5") Integer limit,
+                                   @RequestParam(required = false, defaultValue = "30") Integer days) {
+        java.util.List<com.ruoyi.manage.domain.CourseResource> list = service.selectTop("global", null, null, days, limit);
+        return success(list);
+    }
+
+    /**
+     * 统计：课程资源用户下载榜（默认Top5）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/topDownloadUsers")
+    public AjaxResult topDownloadUsers(@RequestParam(required = false, defaultValue = "5") Integer limit) {
+        return success(service.topDownloadUsers(limit));
+    }
+
+    /**
+     * 统计：用户积分榜（默认Top5，取全站 majorId=0）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/topScoreUsers")
+    public AjaxResult topScoreUsers(@RequestParam(required = false, defaultValue = "5") Integer limit) {
+        java.util.List<CrUserScore> list = scoreService.selectTopScoreUsers(limit);
+        return success(list);
+    }
+
+    /**
+     * 统计：专业占比（上传资源，近 N 天，默认30）
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/majorShare")
+    public AjaxResult majorShare(@RequestParam(required = false, defaultValue = "30") Integer days) {
+        return success(service.majorShare(days));
+    }
+
+    /**
+     * 统计：课程占比（上传资源，近 N 天，默认30）
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/courseShare")
+    public AjaxResult courseShare(@RequestParam(required = false, defaultValue = "30") Integer days) {
+        return success(service.courseShare(days));
     }
 }

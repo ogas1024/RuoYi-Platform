@@ -3,12 +3,15 @@ package com.ruoyi.manage.service.impl;
 import com.ruoyi.common.utils.DateUtils;
 import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.manage.domain.CourseResource;
+import com.ruoyi.manage.domain.vo.DayCount;
 import com.ruoyi.manage.domain.CourseResourceLog;
 import com.ruoyi.manage.mapper.CourseResourceLogMapper;
 import com.ruoyi.manage.mapper.CourseResourceMapper;
 import com.ruoyi.manage.mapper.MajorLeadMapper;
 import com.ruoyi.manage.service.IScoreService;
 import com.ruoyi.manage.service.ICourseResourceService;
+import com.ruoyi.manage.vo.TopUserVO;
+import com.ruoyi.manage.domain.vo.PieItem;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.dao.DuplicateKeyException;
@@ -17,6 +20,8 @@ import javax.annotation.Resource;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.ArrayList;
+import java.util.HashMap;
 import com.ruoyi.common.exception.ServiceException;
 
 @Service
@@ -294,5 +299,92 @@ public class CourseResourceServiceImpl implements ICourseResourceService {
         log.setCreateBy(actorName);
         log.setCreateTime(DateUtils.getNowDate());
         logMapper.insert(log);
+    }
+
+    @Override
+    public List<DayCount> uploadTrend(Integer days) {
+        int d = (days == null || days <= 0 || days > 365) ? 30 : days;
+        // [from, to)：from 为 d-1 天前 00:00:00；to 为 明天 00:00:00（包含今天整天）
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate fromDate = today.minusDays(d - 1L);
+        java.time.LocalDate toDate = today.plusDays(1L);
+        Date from = java.sql.Timestamp.valueOf(fromDate.atStartOfDay());
+        Date to = java.sql.Timestamp.valueOf(toDate.atStartOfDay());
+
+        List<DayCount> raw = mapper.selectUploadCountByDay(from, to);
+        HashMap<String, Long> map = new HashMap<>();
+        if (raw != null) {
+            for (DayCount dc : raw) {
+                if (dc != null && dc.getDay() != null) {
+                    map.put(dc.getDay(), dc.getCount() == null ? 0L : dc.getCount());
+                }
+            }
+        }
+        ArrayList<DayCount> result = new ArrayList<>();
+        for (java.time.LocalDate cursor = fromDate; cursor.isBefore(toDate); cursor = cursor.plusDays(1)) {
+            String key = cursor.toString();
+            DayCount dc = new DayCount();
+            dc.setDay(key);
+            dc.setCount(map.getOrDefault(key, 0L));
+            result.add(dc);
+        }
+        return result;
+    }
+
+    @Override
+    public List<DayCount> downloadTrend(Integer days) {
+        int d = (days == null || days <= 0 || days > 365) ? 30 : days;
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate fromDate = today.minusDays(d - 1L);
+        java.time.LocalDate toDate = today.plusDays(1L);
+        Date from = java.sql.Timestamp.valueOf(fromDate.atStartOfDay());
+        Date to = java.sql.Timestamp.valueOf(toDate.atStartOfDay());
+
+        List<DayCount> raw = logMapper.selectDownloadCountByDay(from, to);
+        HashMap<String, Long> map = new HashMap<>();
+        if (raw != null) {
+            for (DayCount dc : raw) {
+                if (dc != null && dc.getDay() != null) {
+                    map.put(dc.getDay(), dc.getCount() == null ? 0L : dc.getCount());
+                }
+            }
+        }
+        ArrayList<DayCount> result = new ArrayList<>();
+        for (java.time.LocalDate cursor = fromDate; cursor.isBefore(toDate); cursor = cursor.plusDays(1)) {
+            String key = cursor.toString();
+            DayCount dc = new DayCount();
+            dc.setDay(key);
+            dc.setCount(map.getOrDefault(key, 0L));
+            result.add(dc);
+        }
+        return result;
+    }
+
+    @Override
+    public java.util.List<TopUserVO> topDownloadUsers(Integer limit) {
+        int n = (limit == null || limit <= 0 || limit > 100) ? 5 : limit;
+        return logMapper.selectTopDownloadUsers(n);
+    }
+
+    @Override
+    public java.util.List<PieItem> majorShare(Integer days) {
+        int d = (days == null || days <= 0 || days > 365) ? 30 : days;
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate fromDate = today.minusDays(d - 1L);
+        java.time.LocalDate toDate = today.plusDays(1L);
+        java.util.Date from = java.sql.Timestamp.valueOf(fromDate.atStartOfDay());
+        java.util.Date to = java.sql.Timestamp.valueOf(toDate.atStartOfDay());
+        return mapper.selectMajorShare(from, to);
+    }
+
+    @Override
+    public java.util.List<PieItem> courseShare(Integer days) {
+        int d = (days == null || days <= 0 || days > 365) ? 30 : days;
+        java.time.LocalDate today = java.time.LocalDate.now();
+        java.time.LocalDate fromDate = today.minusDays(d - 1L);
+        java.time.LocalDate toDate = today.plusDays(1L);
+        java.util.Date from = java.sql.Timestamp.valueOf(fromDate.atStartOfDay());
+        java.util.Date to = java.sql.Timestamp.valueOf(toDate.atStartOfDay());
+        return mapper.selectCourseShare(from, to);
     }
 }

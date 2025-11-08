@@ -75,20 +75,19 @@ const topMenus = computed(() => {
 
 // 设置子路由
 const childrenMenus = computed(() => {
-  let childrenMenus = []
-  routers.value.map((router) => {
-    for (let item in router.children) {
-      if (router.children[item].parentPath === undefined) {
-        if(router.path === "/") {
-          router.children[item].path = "/" + router.children[item].path
-        } else {
-          if(!isHttp(router.children[item].path)) {
-            router.children[item].path = router.path + "/" + router.children[item].path
-          }
+  const childrenMenus = []
+  routers.value.map((r) => {
+    for (const idx in r.children) {
+      const item = r.children[idx]
+      if (item.parentPath === undefined) {
+        if (!isHttp(item.path)) {
+          const parent = String(r.path || '')
+          const child = String(item.path || '').replace(/^\/+/, '')
+          item.path = normalizeJoin(parent, child)
         }
-        router.children[item].parentPath = router.path
+        item.parentPath = r.path
       }
-      childrenMenus.push(router.children[item])
+      childrenMenus.push(item)
     }
   })
   return constantRoutes.concat(childrenMenus)
@@ -168,6 +167,13 @@ onBeforeUnmount(() => {
 onMounted(() => {
   setVisibleNumber()
 })
+
+function normalizeJoin(parent, child) {
+  const p = String(parent || '').replace(/\/+$/, '')
+  const c = String(child || '').replace(/^\/+/, '')
+  const res = [p, c].filter(Boolean).join('/')
+  return res.startsWith('/') ? res.replace(/\/+/, '/') : '/' + res
+}
 </script>
 
 <style lang="scss">

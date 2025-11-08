@@ -17,6 +17,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import com.ruoyi.manage.domain.LibraryAsset;
+import com.ruoyi.manage.domain.vo.DayCount;
 
 @RestController
 @RequestMapping("/manage/library")
@@ -136,5 +137,52 @@ public class LibraryController extends BaseController {
     public AjaxResult hardRemove(@PathVariable Long[] ids) {
         // 预留：当前仅返回未实现，待补全OSS删除逻辑
         return warn("硬删除暂未实现，请稍后");
+    }
+
+    /**
+     * 统计：上传趋势（按日计数，近 N 天）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/uploadTrend")
+    public AjaxResult uploadTrend(@RequestParam(required = false, defaultValue = "30") Integer days) {
+        java.util.List<DayCount> list = service.uploadTrend(days);
+        return success(list);
+    }
+
+    /**
+     * 统计：下载趋势（按日计数，近 N 天）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/downloadTrend")
+    public AjaxResult downloadTrend(@RequestParam(required = false, defaultValue = "30") Integer days) {
+        java.util.List<DayCount> list = service.downloadTrend(days);
+        return success(list);
+    }
+
+    /**
+     * 统计：图书下载榜（按下载次数，默认Top5）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/topBooks")
+    public AjaxResult topBooks(@RequestParam(required = false, defaultValue = "5") Integer limit) {
+        return success(service.selectTop(limit));
+    }
+
+    /**
+     * 统计：用户下载榜（按成功下载次数，默认Top5）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/topDownloadUsers")
+    public AjaxResult topDownloadUsers(@RequestParam(required = false, defaultValue = "5") Integer limit) {
+        return success(service.selectTopDownloadUsers(limit));
+    }
+
+    /**
+     * 统计：用户上传榜（按发布成功数量 TopN）。
+     */
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/stats/topUploadUsers")
+    public AjaxResult topUploadUsers(@RequestParam(required = false, defaultValue = "5") Integer limit) {
+        return success(service.selectTopUsers(limit));
     }
 }

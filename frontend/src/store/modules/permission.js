@@ -41,7 +41,9 @@ const usePermissionStore = defineStore(
             const defaultData = JSON.parse(JSON.stringify(res.data))
             // 将后端返回路由转为组件并规范化名称，避免父子/同级路由 name 冲突
             const sidebarRoutes = ensureUniqueNames(filterAsyncRouter(sdata))
-            const rewriteRoutes = ensureUniqueNames(filterAsyncRouter(rdata, false, true))
+            // 确保不会用后端菜单覆盖本地首页 /index
+            const rewriteRoutesAll = ensureUniqueNames(filterAsyncRouter(rdata, false, true))
+            const rewriteRoutes = stripHomeIndex(rewriteRoutesAll)
             const defaultRoutes = ensureUniqueNames(filterAsyncRouter(defaultData))
             const asyncRoutes = filterDynamicRoutes(dynamicRoutes)
             asyncRoutes.forEach(route => { router.addRoute(route) })
@@ -85,11 +87,13 @@ function filterAsyncRouter(asyncRouterMap, lastRouter = false, type = false) {
 }
 
 function filterChildren(childrenMap, lastRouter = false) {
-  var children = []
+  const children = []
   childrenMap.forEach(el => {
-    el.path = lastRouter ? lastRouter.path + '/' + el.path : el.path
+    const parentPath = lastRouter ? String(lastRouter.path || '') : ''
+    const childPath = String(el.path || '').replace(/^\/+/, '') // 移除子路径前导 '/'
+    el.path = normalizeJoin(parentPath, childPath)
     if (el.children && el.children.length && el.component === 'ParentView') {
-      children = children.concat(filterChildren(el.children, el))
+      children.push(...filterChildren(el.children, el))
     } else {
       children.push(el)
     }
@@ -123,6 +127,26 @@ export const loadView = (view) => {
     }
   }
   return res
+}
+
+// 从后端路由中剔除任何指向 /index 的记录，避免覆盖本地首页
+function stripHomeIndex(routes) {
+  function prune(list) {
+    return list
+      .filter(r => normalizePath(r.path) !== '/index')
+      .map(r => ({
+        ...r,
+        children: r.children && r.children.length ? prune(r.children) : r.children
+      }))
+  }
+  return prune(routes)
+}
+
+function normalizePath(p) {
+  if (!p) return '/'
+  const s = String(p)
+  // 保持与 router 解析一致，去除多余斜杠
+  return ('/' + s).replace(/\/+/, '/').replace(/\/+$/,'') || '/'
 }
 
 // 统一清洗并确保路由 name 唯一（避免出现父子同名或同级重名导致 addRoute 报错）
@@ -161,6 +185,14 @@ function sanitizeName(name) {
   // 将不适合作为 name 的字符统一替换为下划线，保持稳定且可读
   const n = name.trim()
   return n.replace(/[^A-Za-z0-9_\-]/g, '_').replace(/^_+/, '').replace(/_+$/, '') || 'route'
+}
+
+// 规范化路径拼接，避免出现重复斜杠，如 //manage//vote
+function normalizeJoin(parent, child) {
+  const p = String(parent || '').replace(/\/+$/, '')
+  const c = String(child || '').replace(/^\/+/, '')
+  const res = [p, c].filter(Boolean).join('/')
+  return res.startsWith('/') ? res.replace(/\/+/, '/') : '/' + res
 }
 
 export default usePermissionStore

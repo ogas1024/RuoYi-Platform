@@ -8,4 +8,31 @@
     </insert>
 
     <!-- moved under mapper/manage for consistency -->
+
+    <!-- 统计：按天分组下载数量（仅统计成功 result='0'）。返回字段 day(yyyy-MM-dd), count -->
+    <select id="selectDownloadCountByDay" resultType="com.ruoyi.manage.domain.vo.DayCount">
+        select DATE_FORMAT(create_time, '%Y-%m-%d') as day,
+               count(*) as count
+        from tb_library_book_download_log
+        where create_time &gt;= #{from}
+          and create_time &lt; #{to}
+          and result = '0'
+        group by DATE_FORMAT(create_time, '%Y-%m-%d')
+        order by day asc
+    </select>
+
+    <!-- 用户下载TOP榜（仅统计成功下载），返回 TopUserVO(userId, username/nickname, passedCount=downloadCount) -->
+    <select id="selectTopDownloadUsers" resultType="com.ruoyi.manage.vo.TopUserVO">
+        select l.user_id as userId,
+               coalesce(max(u.nick_name), max(u.user_name), concat('用户', l.user_id)) as nickname,
+               coalesce(max(u.user_name), max(u.nick_name), concat('user', l.user_id)) as username,
+               count(1) as passedCount
+        from tb_library_book_download_log l
+        left join sys_user u on u.user_id = l.user_id
+        where l.result = '0'
+        group by l.user_id
+        order by passedCount desc, userId asc
+        <if test="limit != null"> limit #{limit}</if>
+        <if test="limit == null"> limit 5</if>
+    </select>
 </mapper>

@@ -16,7 +16,7 @@
 - 文档与数据：设计文档 `docs/requirements/`；API 文档 `docs/api/`；Apifox 指南 `docs/apifox/<模块>.md`；模块报告 `docs/report/<模块>.md`；SQL `book-mis.sql`（含建表、注释、示例数据）。
 - 构建与运行:
   - 后端：`cd backend && mvn -T 1C clean package -DskipTests`；开发运行 `mvn -f backend/pom.xml spring-boot:run -pl ruoyi-admin -am` 或 `java -jar backend/ruoyi-admin/target/ruoyi-admin.jar`
-  - 前端：`cd frontend && pnpm i && pnpm run dev`；构建 `pnpm run build:prod`；预览 `pnpm run preview`
+  - 前端：`cd frontend && pnpm i && pnpm run dev`；构建 `pnpm run build:prod`；预览 `pnpm run preview` 前端注意配置静态注册
 
 ### ruoyi框架相关说明
 - 在 `backend/ruoyi-manage` 中, 已有的代码是老师给的示例代码, 依托于ruoyi框架实现了一个较为完善的网上书店模块. 可以参考老师给的实现, 学习如何对ruoyi框架进行利用

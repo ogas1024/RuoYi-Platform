@@ -55,5 +55,12 @@ public class ScoreServiceImpl implements IScoreService {
     public List<CrUserScore> selectRank(Long majorId) {
         return scoreMapper.selectRank(majorId);
     }
-}
 
+    @Override
+    public java.util.List<CrUserScore> selectTopScoreUsers(Integer limit) {
+        int n = (limit == null || limit <= 0 || limit > 100) ? 5 : limit;
+        java.util.List<CrUserScore> all = scoreMapper.selectRank(0L);
+        if (all == null) return java.util.Collections.emptyList();
+        return all.size() > n ? all.subList(0, n) : all;
+    }
+}

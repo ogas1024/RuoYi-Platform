@@ -171,4 +171,44 @@
         <if test="limit == null"> limit 10</if>
     </select>
 
+    <!-- 统计：按天分组上传数量（create_time），不包含被删除的数据。返回字段 day(yyyy-MM-dd), count -->
+    <select id="selectUploadCountByDay" resultType="com.ruoyi.manage.domain.vo.DayCount">
+        select DATE_FORMAT(create_time, '%Y-%m-%d') as day,
+               count(*) as count
+        from tb_course_resource
+        where del_flag = '0'
+          and create_time &gt;= #{from}
+          and create_time &lt; #{to}
+        group by DATE_FORMAT(create_time, '%Y-%m-%d')
+        order by day asc
+    </select>
+
+    <!-- 专业占比：统计资源创建数量按专业分组 -->
+    <select id="selectMajorShare" resultType="com.ruoyi.manage.domain.vo.PieItem">
+        select r.major_id as id,
+               coalesce(m.major_name, concat('专业#', r.major_id)) as name,
+               count(1) as value
+        from tb_course_resource r
+        left join tb_major m on m.id = r.major_id
+        where r.del_flag = '0'
+        <if test="from != null"> and r.create_time &gt;= #{from}</if>
+        <if test="to != null"> and r.create_time &lt; #{to}</if>
+        group by r.major_id, m.major_name
+        order by value desc, id asc
+    </select>
+
+    <!-- 课程占比：统计资源创建数量按课程分组 -->
+    <select id="selectCourseShare" resultType="com.ruoyi.manage.domain.vo.PieItem">
+        select r.course_id as id,
+               coalesce(c.course_name, concat('课程#', r.course_id)) as name,
+               count(1) as value
+        from tb_course_resource r
+        left join tb_course c on c.id = r.course_id
+        where r.del_flag = '0'
+        <if test="from != null"> and r.create_time &gt;= #{from}</if>
+        <if test="to != null"> and r.create_time &lt; #{to}</if>
+        group by r.course_id, c.course_name
+        order by value desc, id asc
+    </select>
+
 </mapper>

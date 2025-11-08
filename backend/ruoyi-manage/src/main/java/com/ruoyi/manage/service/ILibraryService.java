@@ -3,6 +3,7 @@ package com.ruoyi.manage.service;
 import com.ruoyi.manage.domain.Library;
 import com.ruoyi.manage.domain.LibraryAsset;
 import com.ruoyi.manage.vo.TopUserVO;
+import com.ruoyi.manage.domain.vo.DayCount;
 
 import java.util.List;
 
@@ -23,6 +24,8 @@ public interface ILibraryService {
     int incrDownload(Long id, Long assetId);
     List<Library> selectTop(Integer limit);
     List<TopUserVO> selectTopUsers(Integer limit);
+    /** 按下载次数统计的用户TOP榜（成功下载） */
+    List<TopUserVO> selectTopDownloadUsers(Integer limit);
 
     List<LibraryAsset> listAssets(Long bookId);
     int addAsset(LibraryAsset asset);
@@ -32,4 +35,14 @@ public interface ILibraryService {
     int setFavorite(Long bookId, Long userId, boolean favorite, String operator);
 
     List<Library> selectFavorites(Long userId);
+
+    /**
+     * 上传趋势（按日统计 tb_library_book.create_time），默认近30天。
+     */
+    java.util.List<DayCount> uploadTrend(Integer days);
+
+    /**
+     * 下载趋势（按日统计 tb_library_book_download_log.create_time），默认近30天，统计成功记录(result='0')。
+     */
+    java.util.List<DayCount> downloadTrend(Integer days);
 }

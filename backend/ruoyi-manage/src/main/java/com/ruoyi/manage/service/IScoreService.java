@@ -10,5 +10,9 @@ public interface IScoreService {
     int awardBest(CourseResource resource, String operator);
 
     List<CrUserScore> selectRank(Long majorId);
-}
 
+    /**
+     * 全站积分TopN（majorId=0），按 total_score 降序。
+     */
+    List<CrUserScore> selectTopScoreUsers(Integer limit);
+}

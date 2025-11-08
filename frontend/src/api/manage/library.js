@@ -39,3 +39,32 @@ export function onlineLibrary(id) {
 export function listLibraryAssets(id) {
   return request({ url: `/manage/library/${id}/assets`, method: 'get' })
 }
+
+// 统计：数字图书上传趋势（按日）
+export function uploadTrend(days = 30, opts = {}) {
+  const headers = { ...(opts.headers || {}), silent: true }
+  return request({ url: '/manage/library/stats/uploadTrend', method: 'get', params: { days }, headers, ...opts })
+}
+
+// 统计：数字图书下载趋势（按日）
+export function downloadTrend(days = 30, opts = {}) {
+  const headers = { ...(opts.headers || {}), silent: true }
+  return request({ url: '/manage/library/stats/downloadTrend', method: 'get', params: { days }, headers, ...opts }) }
+
+// 排行：数字图书下载榜（TopN）
+export function topBooks(limit = 5, opts = {}) {
+  const headers = { ...(opts.headers || {}), silent: true }
+  return request({ url: '/manage/library/stats/topBooks', method: 'get', params: { limit }, headers, ...opts })
+}
+
+// 排行：用户下载榜（TopN）
+export function topDownloadUsers(limit = 5, opts = {}) {
+  const headers = { ...(opts.headers || {}), silent: true }
+  return request({ url: '/manage/library/stats/topDownloadUsers', method: 'get', params: { limit }, headers, ...opts })
+}
+
+// 排行：用户上传Top（TopN，按通过数量）
+export function topUploadUsers(limit = 5, opts = {}) {
+  const headers = { ...(opts.headers || {}), silent: true }
+  return request({ url: '/manage/library/stats/topUploadUsers', method: 'get', params: { limit }, headers, ...opts })
+}
