@@ -98,7 +98,7 @@
 
 <script setup>
 // 见 @/api/portal/notice -> /portal/notice/**
-getList：分页查询；openDetail/openLink：查看详情或外链
+// - getList：分页查询；openDetail/openLink：查看详情或外链
 import {ref, reactive, onMounted} from 'vue'
 import {listNotice, getNotice} from '@/api/portal/notice'
 

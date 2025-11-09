@@ -24,4 +24,11 @@ public interface CourseMapper {
 
     /** 限制负责人范围的课程列表（专业负责人仅看自己专业） */
     List<Course> selectMyLeadCourseList(@Param("userId") Long userId, @Param("course") Course course);
+
+    /**
+     * 统计指定专业ID集合下的课程数量（仅统计未删除的记录）
+     * @param ids 专业ID数组
+     * @return 课程数量
+     */
+    int countByMajorIds(@Param("ids") Long[] ids);
 }
