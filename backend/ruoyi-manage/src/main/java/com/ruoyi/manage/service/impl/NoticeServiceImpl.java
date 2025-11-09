@@ -18,6 +18,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
+/**
+ * 通知公告 服务实现
+ * 职责：公告的增删改查、发布/撤回/置顶、附件与范围管理、阅读回执记录。
+ */
 @Service
 public class NoticeServiceImpl implements INoticeService {
 

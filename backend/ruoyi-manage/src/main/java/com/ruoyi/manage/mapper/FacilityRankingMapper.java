@@ -7,9 +7,11 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 功能房-排行榜 Mapper
+ */
 public interface FacilityRankingMapper {
     List<RoomRankVO> rankRooms(@Param("from") Date from, @Param("to") Date to, @Param("limit") Integer limit);
 
     List<UserRankVO> rankUsers(@Param("from") Date from, @Param("to") Date to, @Param("limit") Integer limit);
 }
-

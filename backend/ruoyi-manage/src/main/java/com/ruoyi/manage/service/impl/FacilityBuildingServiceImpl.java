@@ -7,6 +7,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
+/**
+ * 功能房-楼房 服务实现
+ */
 @Service
 public class FacilityBuildingServiceImpl implements IFacilityBuildingService {
 

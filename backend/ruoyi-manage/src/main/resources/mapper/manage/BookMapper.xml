@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.BookMapper">
+    <!--
+      模块：图书（示例）
+      说明：
+        - 由生成器产生的基础 CRUD；分页由 PageHelper 注入。
+    -->
 
     <resultMap type="Book" id="BookResult">
         <result property="id" column="id"/>

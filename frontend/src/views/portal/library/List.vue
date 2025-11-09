@@ -1,4 +1,5 @@
 <template>
+  <!-- 工具栏（上传/排行） + 搜索筛选 + 卡片列表 + 分页 + 详情页由路由进入 -->
   <div class="app-container">
     <div class="toolbar">
       <el-button type="primary" icon="Plus" @click="goUpload">上传图书</el-button>
@@ -46,6 +47,9 @@
 </template>
 
 <script setup>
+// listLibraryPortal -> /portal/library/list；下载：/portal/library/{id}/download（需 token）
+
+// - getList：分页查询；openDetail：跳转详情；downloadDefault：下载默认资源
 import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {listLibraryPortal} from '@/api/portal/library'

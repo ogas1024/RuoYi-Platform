@@ -15,6 +15,9 @@ import com.ruoyi.manage.service.IShopsService;
  * @author 曾辉
  * @date 2025-10-12
  */
+/**
+ * 商铺信息 服务实现
+ */
 @Service
 public class ShopsServiceImpl implements IShopsService {
     @Autowired

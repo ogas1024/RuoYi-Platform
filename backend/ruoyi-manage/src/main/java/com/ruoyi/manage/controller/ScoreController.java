@@ -20,6 +20,15 @@ public class ScoreController extends BaseController {
     @Autowired
     private IScoreService scoreService;
 
+    /**
+     * 用户积分排行榜（管理端）
+     * 路径：GET /manage/score/user/rank
+     * 权限：manage:score:list
+     * 说明：可按专业筛选；支持分页通用参数。
+     *
+     * @param majorId 专业ID（可选）
+     * @return 分页数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:score:list')")
     @GetMapping("/rank")
     public TableDataInfo rank(@RequestParam(required = false) Long majorId) {

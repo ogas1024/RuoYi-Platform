@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 问卷-可见范围 Mapper
+ */
 public interface SurveyScopeMapper {
     List<SurveyScope> selectBySurveyId(@Param("surveyId") Long surveyId);
 
@@ -12,4 +15,3 @@ public interface SurveyScopeMapper {
 
     int deleteBySurveyId(@Param("surveyId") Long surveyId);
 }
-

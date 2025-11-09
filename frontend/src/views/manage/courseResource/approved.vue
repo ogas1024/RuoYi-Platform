@@ -1,4 +1,5 @@
 <template>
+  <!-- 筛选 + 已上架资源列表 + 操作列（查看/下载/最佳/下架/编辑/删除） + 分页 + 编辑/详情/下架原因弹窗 -->
   <div class="app-container">
     <div class="toolbar">
       <span class="hint">已上架资源</span>
@@ -109,6 +110,8 @@
 </template>
 
 <script setup name="ResourceApproved">
+// listResource/updateResource/delResource/offlineResource/(un)setBestResource/getResource -> /manage/courseResource/**
+// - toggleBest：设为/取消最佳；submitOffline：下架；submitForm：保存并刷新；downloadRow：管理端下载
 import {ref, reactive, onMounted, getCurrentInstance} from 'vue'
 import {
   listResource,

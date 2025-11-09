@@ -4,13 +4,28 @@ import com.ruoyi.manage.domain.MajorLead;
 
 import java.util.List;
 
+/**
+ * 专业负责人 服务接口
+ */
 public interface IMajorLeadService {
+    /**
+     * 列表查询
+     */
     List<MajorLead> selectList(MajorLead query);
 
+    /**
+     * 新增负责人映射
+     */
     int insert(MajorLead data);
 
+    /**
+     * 批量删除负责人映射
+     */
     int deleteByIds(Long[] ids);
 
+    /**
+     * 按专业与用户删除映射
+     */
     int deleteByMajorAndUser(Long majorId, Long userId);
 
     /**

@@ -20,6 +20,14 @@ public class MajorLeadController extends BaseController {
     @Autowired
     private IMajorLeadService service;
 
+    /**
+     * 专业负责人映射列表
+     * 路径：GET /manage/majorLead/list
+     * 权限：manage:majorLead:list
+     *
+     * @param query 查询条件
+     * @return 分页数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:majorLead:list')")
     @GetMapping("/list")
     public TableDataInfo list(MajorLead query) {
@@ -47,6 +55,14 @@ public class MajorLeadController extends BaseController {
         return toAjax(service.insert(data));
     }
 
+    /**
+     * 批量移除负责人映射
+     * 路径：DELETE /manage/majorLead/{ids}
+     * 权限：manage:majorLead:remove
+     *
+     * @param ids 映射ID数组
+     * @return 操作结果
+     */
     @Log(title = "专业负责人", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('manage:majorLead:remove')")
     @DeleteMapping("/{ids}")
@@ -54,6 +70,15 @@ public class MajorLeadController extends BaseController {
         return toAjax(service.deleteByIds(ids));
     }
 
+    /**
+     * 按专业与用户解除映射
+     * 路径：DELETE /manage/majorLead?majorId=&userId=
+     * 权限：manage:majorLead:remove
+     *
+     * @param majorId 专业ID
+     * @param userId  用户ID
+     * @return 操作结果
+     */
     @Log(title = "专业负责人", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('manage:majorLead:remove')")
     @DeleteMapping

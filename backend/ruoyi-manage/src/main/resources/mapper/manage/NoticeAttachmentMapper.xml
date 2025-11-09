@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.NoticeAttachmentMapper">
+    <!--
+      模块：通知-附件
+      说明：
+        - 附件与公告一对多；删除按 noticeId 批量；排序字段 sort 升序。
+    -->
 
     <resultMap id="AttachmentResult" type="com.ruoyi.manage.domain.NoticeAttachment">
         <result property="id" column="id"/>
@@ -50,4 +55,3 @@
     </select>
 
 </mapper>
-

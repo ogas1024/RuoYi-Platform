@@ -1,4 +1,5 @@
 <template>
+  <!-- 投票编辑（题目/选项） + 保存按钮（草稿/发布由列表页触发） -->
   <div class="app-container">
     <el-card>
       <h3>新建投票</h3>
@@ -55,6 +56,9 @@
 </template>
 
 <script setup>
+// getVote/addVote/updateVote -> /manage/vote/**
+
+// - load：根据 id 载入草稿；save：保存投票草稿；题目项与选项的增删
 import {reactive, onMounted} from 'vue'
 import {useRoute, useRouter} from 'vue-router'
 import {addVote, getVote, updateVote, publishVote} from '@/api/manage/vote'

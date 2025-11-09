@@ -4,6 +4,9 @@ import com.ruoyi.manage.domain.Major;
 
 import java.util.List;
 
+/**
+ * 专业 Mapper
+ */
 public interface MajorMapper {
     Major selectMajorById(Long id);
 
@@ -17,4 +20,3 @@ public interface MajorMapper {
 
     int deleteMajorByIds(Long[] ids);
 }
-

@@ -10,6 +10,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.List;
 
+/**
+ * 图书管理员 服务实现
+ */
 @Service
 public class LibraryLibrarianServiceImpl implements ILibraryLibrarianService {
 

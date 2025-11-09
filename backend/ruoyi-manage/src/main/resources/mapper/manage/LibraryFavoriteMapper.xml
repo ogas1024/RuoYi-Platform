@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.LibraryFavoriteMapper">
+    <!--
+      模块：数字图书馆-收藏
+      说明：
+        - exists 判断是否已收藏；insert/delete 幂等由唯一键控制。
+    -->
 
     <select id="exists" resultType="int">
         select count(1)

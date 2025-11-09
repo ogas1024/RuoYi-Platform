@@ -14,6 +14,9 @@ import com.ruoyi.manage.service.ICartsService;
  * @author 曾辉
  * @date 2025-10-06
  */
+/**
+ * 购物车 服务实现
+ */
 @Service
 public class CartsServiceImpl implements ICartsService {
     @Autowired

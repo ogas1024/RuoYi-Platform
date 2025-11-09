@@ -16,6 +16,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 卖家用户 服务实现（示例）
+ */
 @Service
 public class UserServiceImpl implements IUserService {
     @Autowired

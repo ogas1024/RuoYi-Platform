@@ -11,6 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 失物招领服务实现
+ * 职责：失物记录与图片的增删改查、审核流转、软删与已解决标记。
+ * 说明：编辑与图片更新采用先删后插策略，写操作开启事务。
+ */
 @Service
 public class LostItemServiceImpl implements ILostItemService {
 

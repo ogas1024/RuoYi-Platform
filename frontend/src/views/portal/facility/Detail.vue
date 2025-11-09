@@ -1,4 +1,5 @@
 <template>
+  <!-- 功能房详情 + 预约按钮 + 近30天时间轴 + 创建预约弹窗 + 预约详情弹窗（只读） -->
   <div class="facility-detail">
     <el-page-header @back="goBack" content="功能房详情"/>
 
@@ -37,7 +38,7 @@
         <el-form-item label="结束时间">
           <el-date-picker v-model="form.endTime" type="datetime" value-format="YYYY-MM-DD HH:mm:ss"/>
         </el-form-item>
-        <el-form-item label="使用人ID(逗号)">
+        <el-form-item label="使用人学好(用英文逗号间隔)">
           <el-input v-model="userIds" placeholder="含自己在内≥3人，如：110,111,112"/>
         </el-form-item>
       </el-form>
@@ -53,6 +54,9 @@
 </template>
 
 <script setup>
+// getRoom/getTimeline/createBooking/getBooking -> /portal/facility/**
+
+// - loadInfo/loadTimeline：加载房间信息与时间轴片段；submit：创建预约后刷新时间轴；openDetail：查看预约详情
 import {ref, onMounted} from 'vue'
 import {useRoute} from 'vue-router'
 import {getRoom, getTimeline, createBooking} from '@/api/portal/facility'

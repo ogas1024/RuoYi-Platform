@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 图书管理员 Mapper
+ */
 public interface LibraryLibrarianMapper {
     List<LibraryLibrarian> selectList(LibraryLibrarian query);
 
@@ -14,4 +17,3 @@ public interface LibraryLibrarianMapper {
 
     Integer countByUserId(@Param("userId") Long userId);
 }
-

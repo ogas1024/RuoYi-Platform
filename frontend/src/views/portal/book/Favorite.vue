@@ -1,4 +1,5 @@
 <template>
+  <!-- 我的收藏列表 + 刷新按钮 + 卡片展示 + 分页 + 跳转图书详情 -->
   <div class="app-container">
     <el-form :inline="true" :model="queryParams" class="mb8">
       <el-form-item>
@@ -20,6 +21,8 @@
 </template>
 
 <script setup>
+// listFavoriteLibraryPortal -> /portal/library/favorite/list
+getList：分页查询；openDetail：路由跳转到详情页
 import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {listFavoriteLibraryPortal} from '@/api/portal/library'

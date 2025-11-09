@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.LibraryMapper">
+    <!--
+      模块：数字图书馆
+      说明：
+        - 状态：0-待审 1-已上架 2-驳回 3-已下架；门户默认仅返回已上架。
+        - 软删：采用 del_flag；删除接口根据是否管理员区分范围。
+        - Top 榜与趋势：下载/上传聚合查询注意时间窗口与索引（status, create_time, last_download_time）。
+        - ISBN13 在服务层做标准化与唯一性校验。
+    -->
 
     <resultMap id="LibraryResult" type="com.ruoyi.manage.domain.Library">
         <result property="id" column="id"/>

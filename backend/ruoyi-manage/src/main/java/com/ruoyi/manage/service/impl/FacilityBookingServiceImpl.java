@@ -17,6 +17,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
+/**
+ * 功能房预约服务实现
+ * 职责：预约创建/修改/取消/提前结束、审核流转、时间轴聚合与详情组装；
+ * 规则：校验房间状态、封禁状态、时间窗口与冲突、最少使用人数等；关键写操作开启事务。
+ */
 @Service
 public class FacilityBookingServiceImpl implements IFacilityBookingService {
 

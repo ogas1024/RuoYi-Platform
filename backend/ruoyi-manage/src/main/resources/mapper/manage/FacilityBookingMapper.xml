@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.FacilityBookingMapper">
+    <!--
+      模块：功能房预约
+      说明：
+        - 状态：pending/approved/ongoing/finished/rejected 等，具体语义见领域模型；删除采用 del_flag。
+        - 时间轴查询按房间聚合片段；冲突判定仅统计未取消类状态。
+        - 审核列表支持多维度筛选；注意 applicantId 与用户名解析在上层完成。
+    -->
 
     <resultMap id="BookingResult" type="com.ruoyi.manage.domain.FacilityBooking">
         <id property="id" column="id"/>

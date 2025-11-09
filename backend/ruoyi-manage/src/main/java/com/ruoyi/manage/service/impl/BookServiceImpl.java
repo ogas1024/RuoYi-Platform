@@ -15,6 +15,9 @@ import com.ruoyi.manage.service.IBookService;
  * @author 曾辉
  * @date 2025-09-24
  */
+/**
+ * 图书（样例模块） 服务实现
+ */
 @Service
 public class BookServiceImpl implements IBookService {
     @Autowired

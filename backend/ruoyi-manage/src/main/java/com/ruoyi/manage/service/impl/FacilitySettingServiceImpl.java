@@ -6,6 +6,9 @@ import com.ruoyi.manage.service.IFacilitySettingService;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Autowired;
 
+/**
+ * 功能房-设置 服务实现
+ */
 @Service
 public class FacilitySettingServiceImpl implements IFacilitySettingService {
 

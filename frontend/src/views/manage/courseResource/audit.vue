@@ -1,4 +1,5 @@
 <template>
+  <!-- 专业/课程筛选 + 待审资源列表 + 操作列（查看/下载/通过/驳回） + 分页 + 详情/驳回弹窗 -->
   <div class="app-container">
     <div class="toolbar">
       <span class="hint">待审核资源</span>
@@ -76,6 +77,8 @@
 </template>
 
 <script setup name="ResourceAudit">
+// listResource/approveResource/rejectResource/getResource -> /manage/courseResource/**
+// - getList：分页拉取待审数据；approve/reject：审核通过/驳回；downloadRow：凭 token 下载
 import {ref, reactive, onMounted, getCurrentInstance} from 'vue'
 import {listResource, approveResource, rejectResource, getResource} from '@/api/manage/courseResource'
 import {getToken} from '@/utils/auth'

@@ -1,4 +1,5 @@
 <template>
+  <!-- 工具栏（发布/我的） + 筛选（类型/包含已解决/关键字） + 列表 + 详情弹窗 + 分页 -->
   <div class="app-container">
     <div class="toolbar">
       <el-button type="primary" icon="Plus" @click="goEdit">发布事物</el-button>
@@ -71,6 +72,9 @@
 </template>
 
 <script setup>
+// listLostFoundPortal/getLostFoundPortal -> /portal/lostfound/**
+
+// - getList：分页查询；openDetail：详情含图片；goEdit/goMy：跳转到发布页/我的发布
 import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {listLostFoundPortal, getLostFoundPortal} from '@/api/portal/lostfound'

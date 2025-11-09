@@ -20,7 +20,15 @@ public class PortalResourceController extends BaseController {
     @Autowired
     private ICourseResourceService service;
 
-    // 仅返回已通过资源
+    /**
+     * 门户资源列表
+     * 路径：GET /portal/resource/list
+     * 权限：已登录（isAuthenticated）
+     * 说明：仅返回已通过（已上架）资源；支持分页与条件过滤。
+     *
+     * @param query 查询条件
+     * @return 分页数据
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/list")
     public TableDataInfo list(CourseResource query) {
@@ -29,6 +37,15 @@ public class PortalResourceController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 资源详情（门户）
+     * 路径：GET /portal/resource/{id}
+     * 权限：已登录（isAuthenticated）
+     * 说明：非上架仅允许上传者本人查看。
+     *
+     * @param id 资源ID
+     * @return 资源详情
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}")
     public AjaxResult info(@PathVariable Long id) {
@@ -43,6 +60,15 @@ public class PortalResourceController extends BaseController {
         return success(r);
     }
 
+    /**
+     * 下载/打开资源（门户，302跳转）
+     * 路径：GET /portal/resource/{id}/download
+     * 权限：已登录（isAuthenticated）
+     * 说明：仅允许上架资源；自动选择外链或文件直链。
+     *
+     * @param id 资源ID
+     * @param response Http响应
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/{id}/download")
     public void download(@PathVariable Long id, HttpServletResponse response) throws IOException {
@@ -57,6 +83,19 @@ public class PortalResourceController extends BaseController {
         response.setHeader("Location", target);
     }
 
+    /**
+     * TOP 榜（门户）
+     * 路径：GET /portal/resource/top
+     * 权限：已登录（isAuthenticated）
+     * 说明：scope=global/major/course，支持 limit 与天数窗口。
+     *
+     * @param scope   范围（global/major/course）
+     * @param majorId 专业ID（可选）
+     * @param courseId 课程ID（可选）
+     * @param days    统计窗口天数（默认7）
+     * @param limit   TopN（默认10）
+     * @return 列表
+     */
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/top")
     public AjaxResult top(@RequestParam(defaultValue = "global") String scope,

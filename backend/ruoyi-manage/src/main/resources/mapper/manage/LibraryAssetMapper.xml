@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.LibraryAssetMapper">
+    <!--
+      模块：数字图书馆-资产
+      说明：
+        - 资产类型：0-文件 1-外链；列表按 bookId 查询。
+    -->
 
     <resultMap id="LibraryAssetResult" type="com.ruoyi.manage.domain.LibraryAsset">
         <result property="id" column="id"/>

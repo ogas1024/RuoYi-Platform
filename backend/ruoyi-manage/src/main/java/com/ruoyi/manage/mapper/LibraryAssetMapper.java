@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 图书资产 Mapper
+ */
 public interface LibraryAssetMapper {
     com.ruoyi.manage.domain.LibraryAsset selectById(@Param("id") Long id);
 

@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.FacilitySettingMapper">
+    <!--
+      模块：功能房-设置
+      说明：
+        - 单例配置：selectOne + upsert；包含是否需要审核与最长时长等。
+    -->
 
     <resultMap id="SettingResult" type="com.ruoyi.manage.domain.FacilitySetting">
         <id property="id" column="id"/>
@@ -34,4 +39,3 @@
     </insert>
 
 </mapper>
-

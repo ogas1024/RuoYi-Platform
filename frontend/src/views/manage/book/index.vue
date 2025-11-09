@@ -1,4 +1,5 @@
 <template>
+  <!-- 搜索筛选表单 + 工具栏 + 标签切换 + 数据表格 + 分页 + 新增/编辑弹窗 -->
   <div class="app-container">
     <el-form
         :model="queryParams"
@@ -227,6 +228,10 @@
 </template>
 
 <script setup name="Book">
+// listBook/getBook/addBook/updateBook/delBook -> /manage/book/**
+// - getList：按标签状态与查询条件分页查询
+// - submitForm：新增或修改后刷新列表
+// - handleDelete/handleUp/handleDown：删除/上架/下架
 import {listBook, getBook, delBook, addBook, updateBook} from "@/api/manage/book"
 import {listCategory} from "@/api/manage/category"
 import {ref, reactive, computed, getCurrentInstance} from "vue"

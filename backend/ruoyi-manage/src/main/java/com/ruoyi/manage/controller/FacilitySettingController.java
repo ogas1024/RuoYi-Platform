@@ -17,6 +17,14 @@ public class FacilitySettingController extends BaseController {
     @Autowired
     private IFacilitySettingService service;
 
+    /**
+     * 获取预约设置
+     * 路径：GET /manage/facility/setting/audit-required
+     * 权限：manage:facility:setting:get
+     * 说明：返回是否需要审核与最长时长（分钟）。
+     *
+     * @return { auditRequired: boolean, maxDurationMinutes: number }
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:setting:get')")
     @GetMapping("/audit-required")
     public AjaxResult get() {
@@ -27,6 +35,15 @@ public class FacilitySettingController extends BaseController {
         }});
     }
 
+    /**
+     * 保存预约设置
+     * 路径：PUT /manage/facility/setting/audit-required
+     * 权限：manage:facility:setting:edit
+     * 说明：首次保存将插入记录；含审计字段。
+     *
+     * @param body { auditRequired: boolean, maxDurationMinutes: number }
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:setting:edit')")
     @Log(title = "功能房-设置", businessType = BusinessType.UPDATE)
     @PutMapping("/audit-required")

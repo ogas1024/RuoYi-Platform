@@ -17,12 +17,29 @@ public class FacilityRankingController extends BaseController {
     @Autowired
     private IFacilityRankingService service;
 
+    /**
+     * 房间使用排行
+     * 路径：GET /manage/facility/top/room
+     * 权限：manage:facility:top:room
+     * 说明：period 支持 7d/30d 等窗口。
+     *
+     * @param period 统计窗口（默认7d）
+     * @return 排行数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:top:room')")
     @GetMapping("/room")
     public AjaxResult room(@RequestParam(defaultValue = "7d") String period) {
         return success(service.rankRooms(period));
     }
 
+    /**
+     * 用户使用排行
+     * 路径：GET /manage/facility/top/user
+     * 权限：manage:facility:top:user
+     *
+     * @param period 统计窗口（默认7d）
+     * @return 排行数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:top:user')")
     @GetMapping("/user")
     public AjaxResult user(@RequestParam(defaultValue = "7d") String period) {

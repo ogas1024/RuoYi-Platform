@@ -1,4 +1,5 @@
 <template>
+  <!-- 课程资源列表（卡片）+ 工具栏（返回/分享） + 关键词筛选 + 分页 + 分享弹窗（文件上传/外链） + 详情弹窗 -->
   <div class="app-container">
     <div class="toolbar">
       <el-button link type="primary" icon="Back" @click="$router.back()">返回</el-button>
@@ -97,6 +98,9 @@
 </template>
 
 <script setup name="ResourceList">
+// listResourcePortal/addResourcePortal/uploadOssPortal -> /portal/resource/** 与 /portal/upload/oss
+
+// - getList：分页查询；doUpload：OSS 上传并回填 URL/Hash/Size；submitForm：提交审核并刷新列表
 import {ref, reactive, onMounted, getCurrentInstance} from 'vue'
 import {useRoute} from 'vue-router'
 import {listResourcePortal, addResourcePortal} from '@/api/portal/resource'

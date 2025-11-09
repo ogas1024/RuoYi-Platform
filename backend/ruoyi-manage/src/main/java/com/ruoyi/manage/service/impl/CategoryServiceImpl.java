@@ -17,6 +17,9 @@ import com.ruoyi.manage.service.ICategoryService;
  * @author 曾辉
  * @date 2025-10-10
  */
+/**
+ * 图书类别 服务实现
+ */
 @Service
 public class CategoryServiceImpl implements ICategoryService {
     @Autowired

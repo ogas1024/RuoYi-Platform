@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.SurveyOptionMapper">
+    <!--
+      模块：问卷-选项
+      说明：
+        - 选项按题目/问卷查询；删除用于编辑替换。
+    -->
 
     <resultMap id="OptionResult" type="com.ruoyi.manage.domain.SurveyOption">
         <result property="id" column="id"/>
@@ -45,4 +50,3 @@
     </delete>
 
 </mapper>
-

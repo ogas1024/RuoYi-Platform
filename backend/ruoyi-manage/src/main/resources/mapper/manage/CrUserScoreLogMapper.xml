@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.CrUserScoreLogMapper">
+    <!--
+      模块：积分-流水日志
+      说明：
+        - insertApproveLogIfAbsent/insertBestLogIfAbsent 为幂等插入，避免重复加分。
+    -->
 
     <insert id="insertApproveLogIfAbsent">
         insert ignore into tb_cr_user_score_log(user_id, username, major_id, resource_id, event_type, delta, create_by,
@@ -17,4 +22,3 @@
     </insert>
 
 </mapper>
-

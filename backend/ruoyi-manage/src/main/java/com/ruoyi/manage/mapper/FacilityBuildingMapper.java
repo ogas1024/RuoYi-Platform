@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 功能房-楼房 Mapper
+ */
 public interface FacilityBuildingMapper {
     FacilityBuilding selectById(Long id);
 
@@ -16,4 +19,3 @@ public interface FacilityBuildingMapper {
 
     int softDeleteByIds(@Param("ids") Long[] ids);
 }
-

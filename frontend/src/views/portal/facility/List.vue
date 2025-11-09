@@ -1,4 +1,5 @@
 <template>
+  <!-- 筛选（楼房/楼层） + 列表卡片 + 跳转到房间详情页 -->
   <div class="facility-portal">
     <el-card class="mb-12">
       <el-form :inline="true" label-width="64px" class="filters">
@@ -33,6 +34,9 @@
 </template>
 
 <script setup>
+// listBuildings/listRooms -> /portal/facility/**
+
+// - loadBuildings：初次加载楼房并触发房间查询；loadRooms：根据筛选条件查询房间；goDetail：跳转详情
 import {ref, onMounted} from 'vue'
 import {listBuildings, listRooms} from '@/api/portal/facility'
 import {ElMessage} from 'element-plus'

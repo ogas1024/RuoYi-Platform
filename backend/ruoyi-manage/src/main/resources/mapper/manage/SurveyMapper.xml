@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.SurveyMapper">
+    <!--
+      模块：问卷
+      说明：
+        - 状态：0-草稿 1-已发布 2-已归档；置顶过期自动取消。
+        - 列表查询支持按用户权限过滤；范围信息在其它表。
+        - extend/pin/unpin/unpinExpired 等为元数据维护。
+    -->
 
     <resultMap id="SurveyResult" type="com.ruoyi.manage.domain.Survey">
         <result property="id" column="id"/>

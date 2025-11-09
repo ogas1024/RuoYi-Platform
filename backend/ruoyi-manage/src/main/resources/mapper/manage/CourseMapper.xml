@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.CourseMapper">
+    <!--
+      模块：课程
+      说明：
+        - 列表支持负责人范围限制（selectMyLeadCourseList）。
+    -->
 
     <resultMap id="CourseResult" type="com.ruoyi.manage.domain.Course">
         <result property="id" column="id"/>
@@ -101,4 +106,3 @@
     </select>
 
 </mapper>
-

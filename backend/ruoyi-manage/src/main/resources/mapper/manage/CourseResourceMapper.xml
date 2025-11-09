@@ -3,6 +3,14 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.CourseResourceMapper">
+    <!--
+      模块：课程资源
+      说明：
+        - 状态：0-待审 1-已上架 2-驳回 3-已下架；软删使用 del_flag='0' 过滤。
+        - baseSelect 统一关联专业/课程与“最佳”表，避免 N+1。
+        - 分页由 PageHelper 注入；字符串匹配统一使用 like concat('%', ...)。
+        - 下载TOP与占比统计涉及窗口与聚合，注意与索引配合（status, major_id, course_id, publish_time/last_download_time）。
+    -->
 
     <resultMap id="CourseResourceResult" type="com.ruoyi.manage.domain.CourseResource">
         <result property="id" column="id"/>

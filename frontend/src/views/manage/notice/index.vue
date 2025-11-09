@@ -1,4 +1,5 @@
 <template>
+  <!-- 公告筛选 + 列表 + 操作列（查看/新增/编辑/删除/发布） + 分页 + 表单弹窗 -->
   <div class="app-container">
     <el-form :inline="true" :model="query" class="mb10">
       <el-form-item label="关键词">
@@ -113,6 +114,8 @@
 </template>
 
 <script setup>
+// @/api/manage/notice -> /manage/notice/**
+// - getList：分页查询；submitForm：新增/编辑；handleDelete：删除；handlePublish：发布
 import {ref, reactive, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {listNotice, publishNotice, retractNotice, pinNotice, delNotice} from '@/api/manage/notice'

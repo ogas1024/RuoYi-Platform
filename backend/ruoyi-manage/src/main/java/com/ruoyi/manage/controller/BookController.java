@@ -99,6 +99,9 @@ public class BookController extends BaseController {
         return toAjax(bookService.deleteBookByIds(ids));
     }
 
+    /**
+     * 批量审核
+     */
     @PutMapping("/batchAudit")
     public AjaxResult batchAudit(@RequestBody BatchAduit params) {
         return toAjax(bookService.batchAuditByIds(params.getIds(), params.getStatus()));

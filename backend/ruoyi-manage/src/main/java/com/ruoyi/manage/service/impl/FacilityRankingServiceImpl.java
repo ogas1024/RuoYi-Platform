@@ -10,6 +10,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 功能房-排行榜 服务实现
+ */
 @Service
 public class FacilityRankingServiceImpl implements IFacilityRankingService {
 

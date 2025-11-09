@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.CourseResourceLogMapper">
+    <!--
+      模块：课程资源-操作日志
+      说明：
+        - 记录资源下载等行为；统计下载趋势与用户TOP榜。
+    -->
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.CourseResourceLog" useGeneratedKeys="true"
             keyProperty="id">

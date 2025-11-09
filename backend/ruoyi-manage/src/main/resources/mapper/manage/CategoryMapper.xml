@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.CategoryMapper">
+    <!--
+      模块：图书类别（示例）
+      说明：
+        - 名称唯一性由服务层校验；基础 CRUD。
+    -->
 
     <resultMap type="Category" id="CategoryResult">
         <result property="id" column="id"/>

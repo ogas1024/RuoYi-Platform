@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.CrUserScoreMapper">
+    <!--
+      模块：积分-用户积分
+      说明：
+        - upsertScore 负责累计积分及审批/最佳加分；排行支持按专业过滤。
+    -->
 
     <resultMap id="CrUserScoreResult" type="com.ruoyi.manage.domain.CrUserScore">
         <result property="id" column="id"/>
@@ -46,4 +51,3 @@
     </select>
 
 </mapper>
-

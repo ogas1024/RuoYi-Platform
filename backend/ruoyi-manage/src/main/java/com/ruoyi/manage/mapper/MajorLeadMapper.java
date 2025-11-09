@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 专业负责人映射 Mapper
+ */
 public interface MajorLeadMapper {
     MajorLead selectById(Long id);
 
@@ -25,7 +28,9 @@ public interface MajorLeadMapper {
 
     int deleteByUserId(@Param("userId") Long userId);
 
+    /** 查询用户被分配的专业列表 */
     List<Major> selectMajorsByUserId(@Param("userId") Long userId);
 
+    /** 是否存在某用户-专业的映射 */
     Integer existsUserMajor(@Param("userId") Long userId, @Param("majorId") Long majorId);
 }

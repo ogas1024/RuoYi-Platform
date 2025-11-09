@@ -1,4 +1,5 @@
 <template>
+  <!-- 搜索筛选表单 + 工具栏 + 数据表格（选择/加入购物车/查看详情） + 分页 + 详情弹窗 -->
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="图书类别" prop="categoryId">
@@ -117,6 +118,8 @@
 </template>
 
 <script setup name="Book">
+// listBook/getBook/addBook/updateBook/delBook -> /manage/book/**
+// - getList：分页查询；handleQuery/resetQuery：筛选；handleUpdate：加入购物车/编辑；handleView：查看详情
 import {listBook, getBook, delBook, addBook, updateBook} from "@/api/manage/book"
 import {listCategory} from "@/api/manage/category"
 

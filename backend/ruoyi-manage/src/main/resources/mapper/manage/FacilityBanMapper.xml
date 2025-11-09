@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.FacilityBanMapper">
+    <!--
+      模块：功能房-封禁
+      说明：
+        - 通过 status 标识禁用/解除；列表支持按用户名模糊筛选（在 SQL 中 left join 或 where like 实现）。
+        - countActive 用于业务校验申请人是否仍在封禁期。
+    -->
 
     <resultMap id="BanResult" type="com.ruoyi.manage.domain.FacilityBan">
         <id property="id" column="id"/>

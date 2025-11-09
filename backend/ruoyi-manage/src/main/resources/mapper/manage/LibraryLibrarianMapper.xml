@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.LibraryLibrarianMapper">
+    <!--
+      模块：数字图书馆-图书管理员
+      说明：
+        - 列表可按用户名/状态过滤（上层传参）；删除按用户ID批量。
+    -->
 
     <resultMap id="LibraryLibrarianResult" type="com.ruoyi.manage.domain.LibraryLibrarian">
         <result property="id" column="id"/>

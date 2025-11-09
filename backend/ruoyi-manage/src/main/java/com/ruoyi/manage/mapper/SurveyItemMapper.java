@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 问卷-题目 Mapper
+ */
 public interface SurveyItemMapper {
     List<SurveyItem> selectBySurveyId(@Param("surveyId") Long surveyId);
 
@@ -12,4 +15,3 @@ public interface SurveyItemMapper {
 
     int deleteBySurveyId(@Param("surveyId") Long surveyId);
 }
-

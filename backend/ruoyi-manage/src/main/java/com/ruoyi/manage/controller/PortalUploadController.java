@@ -67,6 +67,19 @@ public class PortalUploadController {
         POLICIES.put("resource.archive", new Policy(new HashSet<>(Arrays.asList("zip", "rar", "7z", "tar", "gz", "bz2", "xz")), 100L * 1024 * 1024, "resource", false, true));
     }
 
+    /**
+     * 门户统一上传入口（阿里云 OSS）
+     * 路径：POST /portal/upload/oss
+     * 权限：已登录（isAuthenticated）
+     * 说明：通过 scene 选择策略；未传 scene 时按兼容图片策略处理。
+     *
+     * @param file      表单文件
+     * @param scene     业务场景，如 lostfound.image/library.pdf/resource.archive 等（可选）
+     * @param dir       目标目录（可选，覆盖默认）
+     * @param publicUrl 是否返回公开URL（默认按策略）
+     * @param request   HttpServletRequest（用于兜底解析 scene）
+     * @return 上传结果（包含 URL、路径等）
+     */
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/oss")
     public AjaxResult upload(@RequestPart("file") MultipartFile file,

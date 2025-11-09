@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.LibraryLogMapper">
+    <!--
+      模块：数字图书馆-操作日志
+      说明：
+        - 记录重要操作的审计日志；当前仅 insert。
+    -->
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.LibraryLog" useGeneratedKeys="true" keyProperty="id">
         insert into tb_library_book_log(book_id, action, actor_id, actor_name, ip, ua, detail, result, create_time,

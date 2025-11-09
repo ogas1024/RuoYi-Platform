@@ -2,6 +2,9 @@ package com.ruoyi.manage.mapper;
 
 import org.apache.ibatis.annotations.Param;
 
+/**
+ * 积分-流水日志 Mapper
+ */
 public interface CrUserScoreLogMapper {
     /**
      * 插入流水（若已存在则忽略），返回受影响行数 1=首次发放，0=重复忽略
@@ -22,4 +25,3 @@ public interface CrUserScoreLogMapper {
                               @Param("operator") String operator,
                               @Param("now") java.util.Date now);
 }
-

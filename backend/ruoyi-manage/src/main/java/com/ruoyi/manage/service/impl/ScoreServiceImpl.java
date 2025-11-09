@@ -12,6 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 积分 服务实现
+ */
 @Service
 public class ScoreServiceImpl implements IScoreService {
 

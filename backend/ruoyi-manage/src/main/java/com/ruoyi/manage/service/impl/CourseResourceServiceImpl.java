@@ -24,6 +24,14 @@ import java.util.HashMap;
 
 import com.ruoyi.common.exception.ServiceException;
 
+/**
+ * 课程资源服务实现
+ * 职责：资源的增删改查、上下架与审核、最佳标记、下载计数与统计；
+ * 规则：
+ * - 新增/编辑进入待审；通过/驳回/下架/上架流转由状态字段控制；
+ * - 非管理员的专业负责人仅可看到自己负责专业的数据；
+ * - 部分写操作开启事务，保证主记录与日志/积分等一致性。
+ */
 @Service
 public class CourseResourceServiceImpl implements ICourseResourceService {
 

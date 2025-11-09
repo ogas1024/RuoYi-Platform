@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 功能房-房间 Mapper
+ */
 public interface FacilityRoomMapper {
     FacilityRoom selectById(Long id);
 
@@ -18,4 +21,3 @@ public interface FacilityRoomMapper {
 
     int updateStatus(@Param("id") Long id, @Param("status") String status);
 }
-

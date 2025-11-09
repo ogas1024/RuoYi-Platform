@@ -1,6 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.NoticeMapper">
+    <!--
+      模块：通知公告
+      说明：
+        - 状态：0-草稿 1-已发布 2-撤回；del_flag 软删。
+        - 列表查询结合用户/部门与是否管理员进行范围控制。
+        - 发布/撤回/置顶为幂等操作；阅读次数与编辑次数分开计数。
+    -->
 
     <resultMap id="NoticeResult" type="com.ruoyi.manage.domain.Notice">
         <result property="id" column="id"/>

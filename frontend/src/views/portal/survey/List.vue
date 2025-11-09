@@ -1,4 +1,5 @@
 <template>
+  <!-- 问卷列表（置顶/状态/已填写标记） + 搜索 + 分页 + 跳转填写/查看结果 -->
   <div class="portal-container">
     <h2>问卷列表</h2>
     <div style="margin-bottom:10px; display:flex; gap:8px;">
@@ -52,6 +53,9 @@
 </template>
 
 <script setup>
+// listSurvey -> /portal/survey/list
+
+// - load：分页查询；fill：根据问卷状态跳转填写/查看；goMy：查看我的填写记录
 import {ref, reactive, onMounted} from 'vue'
 import router from '@/router'
 import {listSurvey} from '@/api/portal/survey'

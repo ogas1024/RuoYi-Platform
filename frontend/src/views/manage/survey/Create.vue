@@ -1,4 +1,5 @@
 <template>
+  <!-- 问卷编辑（题目动态增删/选项编辑） + 保存按钮（草稿/发布由列表页触发） -->
   <div class="app-container">
     <el-card>
       <h3>新建问卷</h3>
@@ -57,6 +58,8 @@
 </template>
 
 <script setup>
+// getSurvey/addSurvey/updateSurvey -> /manage/survey/**
+// - load：根据 id 载入草稿；save：保存问卷草稿（不发布）；题目与选项的动态数组编辑
 import {reactive, onMounted} from 'vue'
 import {useRoute} from 'vue-router'
 import {addSurvey, getSurvey, updateSurvey, publishSurvey} from '@/api/manage/survey'

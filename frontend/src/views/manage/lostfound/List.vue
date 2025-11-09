@@ -1,4 +1,5 @@
 <template>
+  <!-- 类型/关键字筛选 + 列表 + 操作列（详情/编辑/下架/删除/标记解决） + 分页 + 详情/下架/编辑弹窗 -->
   <div class="app-container">
     <el-form :inline="true" :model="q" class="mb8">
       <el-form-item label="类型">
@@ -90,6 +91,8 @@
 </template>
 
 <script setup>
+// listLostFound/getLostFound/offlineLostFound/removeLostFound/setSolvedLostFound/updateLostFound -> /manage/lostfound/**
+// - getList：分页查询；openDetail：详情含图片；doOffline：下架；doEdit：保存编辑；remove/toggleSolved：删除/切换解决状态
 import {ref, reactive, onMounted} from 'vue'
 import {
   listLostFound,

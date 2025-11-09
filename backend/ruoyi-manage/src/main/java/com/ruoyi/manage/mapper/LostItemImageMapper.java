@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 失物招领-图片 Mapper
+ */
 public interface LostItemImageMapper {
     List<LostItemImage> listByItemId(@Param("itemId") Long itemId);
 
@@ -12,4 +15,3 @@ public interface LostItemImageMapper {
 
     int batchInsert(@Param("list") List<LostItemImage> list);
 }
-

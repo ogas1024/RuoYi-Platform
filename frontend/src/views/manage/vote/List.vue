@@ -1,4 +1,5 @@
 <template>
+  <!-- 视图切换（已发布/草稿/过期/归档）+ 列表 + 操作列（编辑/发布/延期/归档/置顶） + 分页 + 多个弹窗（详情含图表/用户作答/延期） -->
   <div class="app-container">
     <el-card>
       <div style="margin-bottom: 12px; display:flex; gap:8px; align-items:center;">
@@ -158,6 +159,9 @@
 </template>
 
 <script setup>
+// listVote/getVote/addVote/publishVote/archiveVote/extendVote/pinVote/listVoteSubmittedUsers/getVoteUserAnswers -> /manage/vote/**
+
+// - load：根据视图设置查询并分页；openDetail：拉取详情与提交用户并渲染图表；confirmExtend：延期；doPublish：发布
 import {ref, reactive, onMounted, watch, nextTick, onBeforeUnmount} from 'vue'
 import {useRoute} from 'vue-router'
 import {

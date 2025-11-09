@@ -17,16 +17,21 @@ import com.ruoyi.common.core.domain.BaseEntity;
 public class Shops extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
-    /**
-     * 对应Sys_User表的User_id
-     */
+    /** 对应 sys_user.user_id */
     private Long id;
+    /** 店铺名称 */
     private String shopName;
+    /** 联系人 */
     private String contactPerson;
+    /** 类别ID */
     private Long categoryId;
+    /** 联系电话 */
     private String contactPhone;
+    /** 类别名称（冗余） */
     private String categoryName;
 
+    /** 绑定的登录账号（用于创建卖家用户） */
     private String userName;
+    /** 初始密码（提交时传入，服务层会加密） */
     private String password;
 }

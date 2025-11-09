@@ -14,6 +14,9 @@ import com.ruoyi.manage.service.IOrdersService;
  * @author 曾辉
  * @date 2025-10-06
  */
+/**
+ * 订单 服务实现
+ */
 @Service
 public class OrdersServiceImpl implements IOrdersService {
     @Autowired

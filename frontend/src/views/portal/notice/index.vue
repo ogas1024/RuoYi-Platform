@@ -1,4 +1,5 @@
 <template>
+  <!-- 门户公告列表 + 搜索 + 分页 + 跳转详情/外链 -->
   <div class="app-container">
     <el-form :inline="true" :model="query" class="mb10">
       <el-form-item label="关键词">
@@ -96,6 +97,8 @@
 </template>
 
 <script setup>
+// 见 @/api/portal/notice -> /portal/notice/**
+getList：分页查询；openDetail/openLink：查看详情或外链
 import {ref, reactive, onMounted} from 'vue'
 import {listNotice, getNotice} from '@/api/portal/notice'
 

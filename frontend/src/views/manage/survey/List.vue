@@ -1,4 +1,5 @@
 <template>
+  <!-- 视图切换（已发布/草稿/过期/归档）+ 列表 + 操作列（编辑/发布/延期/归档/置顶/AI汇总） + 分页 + 多个弹窗（创建/详情/用户答卷/AI汇总/延期） -->
   <div class="app-container">
     <el-card>
       <div style="margin-bottom: 12px; display:flex; gap:8px; align-items:center;">
@@ -243,6 +244,9 @@
 </template>
 
 <script setup>
+// listSurvey/getSurvey/addSurvey/publishSurvey/archiveSurvey/extendSurvey/pinSurvey/listSubmittedUsers/getUserAnswers/aiSummary -> /manage/survey/**
+
+// - load：根据视图设置查询条件并分页；save：创建问卷并提交题目；openDetail：并行拉取详情和提交用户列表；genAiNow：生成AI汇总
 import {ref, reactive, onMounted, watch} from 'vue'
 import {useRoute} from 'vue-router'
 import {

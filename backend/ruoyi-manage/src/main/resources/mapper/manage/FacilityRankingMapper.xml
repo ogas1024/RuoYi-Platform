@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.FacilityRankingMapper">
+    <!--
+      模块：功能房-排行榜
+      说明：
+        - 统计窗口：from/to 包含边界；分钟数按交集区间计算。
+        - 仅统计有效状态（已批准/进行中/已结束）且未删除的预约。
+    -->
 
     <select id="rankRooms" resultType="com.ruoyi.manage.vo.RoomRankVO">
         select b.room_id as roomId,

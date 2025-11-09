@@ -1,4 +1,5 @@
 <template>
+  <!-- 图书详情（封面/信息/收藏） + 下载默认/指定资产 + 外链打开 -->
   <div class="app-container" v-loading="loading">
     <el-button link type="primary" icon="Back" @click="$router.back()">返回</el-button>
     <div class="detail">
@@ -37,6 +38,8 @@
 </template>
 
 <script setup>
+// getLibraryPortal/favoriteLibraryPortal -> /portal/library/**；下载：/portal/library/{id}/download
+fetch：拉取详情与资产；download：拼接 token 下载；toggleFav：收藏/取消收藏
 import {ref, onMounted, computed} from 'vue'
 import {openExternal} from '@/utils/url'
 import {useRoute} from 'vue-router'

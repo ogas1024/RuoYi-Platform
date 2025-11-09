@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.FacilityBookingUserMapper">
+    <!--
+      模块：功能房-预约参与人
+      说明：
+        - 参与人采用中间表维护；增删在服务层配合预约事务。
+    -->
 
     <resultMap id="BookingUserResult" type="com.ruoyi.manage.domain.FacilityBookingUser">
         <id property="id" column="id"/>
@@ -35,4 +40,3 @@
     </select>
 
 </mapper>
-

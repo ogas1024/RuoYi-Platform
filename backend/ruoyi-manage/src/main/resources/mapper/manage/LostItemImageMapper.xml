@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.LostItemImageMapper">
+    <!--
+      模块：失物招领-图片
+      说明：
+        - 列表按 itemId 查询；删除采用软删；批量插入用于编辑替换。
+    -->
 
     <resultMap id="ImageResult" type="com.ruoyi.manage.domain.LostItemImage">
         <result property="id" column="id"/>
@@ -38,4 +43,3 @@
     </insert>
 
 </mapper>
-

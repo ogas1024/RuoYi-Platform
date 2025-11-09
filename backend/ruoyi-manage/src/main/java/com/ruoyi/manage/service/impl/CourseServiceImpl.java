@@ -11,6 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * 课程 服务实现
+ */
 @Service
 public class CourseServiceImpl implements ICourseService {
 

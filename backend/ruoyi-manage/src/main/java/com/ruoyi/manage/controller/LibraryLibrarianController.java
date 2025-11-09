@@ -23,6 +23,14 @@ public class LibraryLibrarianController extends BaseController {
     @Autowired
     private SysLinkageMapper sysLinkageMapper;
 
+    /**
+     * 图书管理员列表
+     * 路径：GET /manage/library/librarian/list
+     * 权限：manage:libraryLibrarian:list
+     *
+     * @param query 查询条件
+     * @return 分页数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:libraryLibrarian:list')")
     @GetMapping("/list")
     public TableDataInfo list(LibraryLibrarian query) {
@@ -31,6 +39,15 @@ public class LibraryLibrarianController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 任命图书管理员
+     * 路径：POST /manage/library/librarian
+     * 权限：manage:libraryLibrarian:add
+     * 说明：支持通过用户名解析 userId。
+     *
+     * @param body { userId | username }
+     * @return 操作结果
+     */
     @Log(title = "图书管理员", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('manage:libraryLibrarian:add')")
     @PostMapping
@@ -55,6 +72,14 @@ public class LibraryLibrarianController extends BaseController {
         return toAjax(service.appoint(userId, getUsername()));
     }
 
+    /**
+     * 解除图书管理员
+     * 路径：DELETE /manage/library/librarian/{userIds}
+     * 权限：manage:libraryLibrarian:remove
+     *
+     * @param userIds 用户ID数组
+     * @return 操作结果
+     */
     @Log(title = "图书管理员", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('manage:libraryLibrarian:remove')")
     @DeleteMapping("/{userIds}")

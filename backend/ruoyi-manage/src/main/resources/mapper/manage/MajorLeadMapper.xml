@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.MajorLeadMapper">
+    <!--
+      模块：专业负责人映射
+      说明：
+        - 用户-专业的多对多映射；支持按用户或专业维度的增删查。
+    -->
 
     <resultMap id="MajorLeadResult" type="com.ruoyi.manage.domain.MajorLead">
         <result property="id" column="id"/>

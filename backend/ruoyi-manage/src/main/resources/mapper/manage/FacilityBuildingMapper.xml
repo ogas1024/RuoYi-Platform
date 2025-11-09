@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.FacilityBuildingMapper">
+    <!--
+      模块：功能房-楼房
+      说明：
+        - 软删：softDeleteByIds 使用 del_flag；列表支持按名称/状态过滤（由上层传参）。
+    -->
 
     <resultMap id="BuildingResult" type="com.ruoyi.manage.domain.FacilityBuilding">
         <id property="id" column="id"/>
@@ -59,4 +64,3 @@
     </update>
 
 </mapper>
-

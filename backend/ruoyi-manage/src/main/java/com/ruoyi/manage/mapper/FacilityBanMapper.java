@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 功能房-封禁 Mapper
+ */
 public interface FacilityBanMapper {
     int insert(FacilityBan data);
 

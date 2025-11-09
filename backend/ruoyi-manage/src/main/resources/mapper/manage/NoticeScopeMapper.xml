@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.NoticeScopeMapper">
+    <!--
+      模块：通知-可见范围
+      说明：
+        - 与公告一对多；支持用户/部门等范围记录，详情页聚合返回。
+    -->
 
     <resultMap id="ScopeResult" type="com.ruoyi.manage.domain.NoticeScope">
         <result property="id" column="id"/>
@@ -43,4 +48,3 @@
     </select>
 
 </mapper>
-

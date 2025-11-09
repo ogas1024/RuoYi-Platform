@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.OrdersMapper">
+    <!--
+      模块：订单（示例）
+      说明：
+        - 基础 CRUD，遵循 RuoYi 生成器结构；分页由 PageHelper 注入。
+    -->
 
     <resultMap type="Orders" id="OrdersResult">
         <result property="id" column="id"/>

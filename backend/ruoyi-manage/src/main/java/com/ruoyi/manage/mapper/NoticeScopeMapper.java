@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 通知-可见范围 Mapper
+ */
 public interface NoticeScopeMapper {
     int insert(NoticeScope data);
 
@@ -12,4 +15,3 @@ public interface NoticeScopeMapper {
 
     List<NoticeScope> selectByNoticeId(@Param("noticeId") Long noticeId);
 }
-

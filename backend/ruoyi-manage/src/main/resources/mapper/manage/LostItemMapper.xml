@@ -1,6 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.LostItemMapper">
+    <!--
+      模块：失物招领
+      说明：
+        - 状态：1-待审 2-已发布 3-驳回 4-已下架；solved_flag 标记是否已解决。
+        - 软删：del_flag；门户与管理端查询均需过滤。
+        - 列表查询支持多条件模糊；排序优先按 publish_time 再按 id。
+        - 编辑图片采用先删后插策略，由服务层事务保证一致性。
+    -->
 
     <resultMap id="LostItemResult" type="com.ruoyi.manage.domain.LostItem">
         <result property="id" column="id"/>

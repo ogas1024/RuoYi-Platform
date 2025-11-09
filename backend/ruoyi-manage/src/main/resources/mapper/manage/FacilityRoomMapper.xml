@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.FacilityRoomMapper">
+    <!--
+      模块：功能房-房间
+      说明：
+        - 软删：softDeleteByIds；启用/禁用通过 updateStatus 实现。
+        - 列表按楼房/楼层/状态过滤，分页由 PageHelper 注入。
+    -->
 
     <resultMap id="RoomResult" type="com.ruoyi.manage.domain.FacilityRoom">
         <id property="id" column="id"/>
@@ -77,4 +83,3 @@
     </update>
 
 </mapper>
-

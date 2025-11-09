@@ -5,29 +5,69 @@ import com.ruoyi.manage.domain.Survey;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 问卷 服务接口
+ */
 public interface ISurveyService {
     // 管理侧
+    /**
+     * 列表查询
+     */
     List<Survey> list(Survey query);
 
+    /**
+     * 详情
+     * @param id 问卷ID
+     * @param withScopes 是否包含可见范围信息
+     */
     Survey detail(Long id, boolean withScopes);
 
+    /**
+     * 新增问卷
+     */
     int add(Survey survey);
 
+    /**
+     * 归档
+     */
     int archive(Long id);
 
+    /**
+     * 延长截止时间
+     */
     int extend(Long id, java.util.Date newDeadline);
 
+    /**
+     * 置顶/取消置顶
+     */
     int pin(Long id, boolean pinned);
 
+    /**
+     * 编辑
+     */
     int edit(com.ruoyi.manage.domain.Survey survey);
 
+    /**
+     * 发布
+     */
     int publish(Long id);
 
     // 门户
+    /**
+     * 门户列表
+     * @param includeExpired 是否包含已过期
+     */
     List<Survey> portalList(Survey query, boolean includeExpired);
 
+    /**
+     * 加载我的回答（按题目ID映射）
+     */
     Map<Long, Object> loadMyAnswers(Long surveyId, Long userId);
 
+    /**
+     * 提交问卷
+     * @param answers List<{ questionId, answer(s) }> 格式
+     */
     int submit(Long surveyId, Long userId, java.util.List<Map<String, Object>> answers);
 
     /**

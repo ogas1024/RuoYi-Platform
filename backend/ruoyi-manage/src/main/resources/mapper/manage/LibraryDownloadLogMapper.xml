@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.LibraryDownloadLogMapper">
+    <!--
+      模块：数字图书馆-下载日志
+      说明：
+        - 仅统计 result='0' 的成功记录；聚合按天返回 day/count。
+    -->
 
     <insert id="insert" parameterType="com.ruoyi.manage.domain.LibraryDownloadLog" useGeneratedKeys="true"
             keyProperty="id">

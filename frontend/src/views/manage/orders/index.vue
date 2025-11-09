@@ -1,4 +1,5 @@
 <template>
+  <!-- 多条件筛选 + 工具栏（新增/修改/删除/导出） + 数据表格 + 分页 + 新增/编辑弹窗 -->
   <div class="app-container">
     <el-form :model="queryParams" ref="queryRef" :inline="true" v-show="showSearch" label-width="68px">
       <el-form-item label="订单编号" prop="orderNumber">
@@ -187,6 +188,8 @@
 </template>
 
 <script setup name="Orders">
+// listOrders/getOrders/addOrders/updateOrders/delOrders -> /manage/orders/**
+// - getList：分页查询；submitForm：新增或修改；handleDelete：单条/批量删除；工具栏按钮受 v-hasPermi 权限控制
 import {listOrders, getOrders, delOrders, addOrders, updateOrders} from "@/api/manage/orders"
 
 const {proxy} = getCurrentInstance()

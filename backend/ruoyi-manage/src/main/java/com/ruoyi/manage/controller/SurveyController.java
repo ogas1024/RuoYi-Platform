@@ -22,6 +22,15 @@ public class SurveyController extends BaseController {
     @Autowired
     private ISurveyService service;
 
+    /**
+     * 列表查询
+     * 路径：GET /manage/survey/list
+     * 权限：manage:survey:list
+     * 说明：支持按标题/状态/时间等条件查询并分页。
+     *
+     * @param query 查询条件
+     * @return 分页数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:survey:list')")
     @GetMapping("/list")
     public TableDataInfo list(Survey query) {
@@ -30,6 +39,15 @@ public class SurveyController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 详情（含基础统计）
+     * 路径：GET /manage/survey/{id}
+     * 权限：manage:survey:query
+     * 说明：返回问卷详情与统计数据（选项计数等）。
+     *
+     * @param id 问卷ID
+     * @return 问卷详情
+     */
     @PreAuthorize("@ss.hasPermi('manage:survey:query')")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable Long id) {
@@ -63,6 +81,15 @@ public class SurveyController extends BaseController {
         }
     }
 
+    /**
+     * 新增问卷
+     * 路径：POST /manage/survey
+     * 权限：manage:survey:add
+     * 说明：支持一次性提交题目与选项，后续可编辑。
+     *
+     * @param data 问卷实体
+     * @return 新建ID
+     */
     @Log(title = "问卷", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('manage:survey:add')")
     @PostMapping
@@ -76,6 +103,15 @@ public class SurveyController extends BaseController {
         return error("保存失败");
     }
 
+    /**
+     * 编辑问卷
+     * 路径：PUT /manage/survey
+     * 权限：manage:survey:edit
+     * 说明：未发布可编辑基础信息与题目；发布后允许有限字段修改（由服务层校验）。
+     *
+     * @param data 问卷实体
+     * @return 操作结果
+     */
     @Log(title = "问卷", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('manage:survey:edit')")
     @PutMapping
@@ -89,6 +125,15 @@ public class SurveyController extends BaseController {
         }
     }
 
+    /**
+     * 归档问卷
+     * 路径：PUT /manage/survey/{id}/archive
+     * 权限：manage:survey:archive
+     * 说明：归档后不可再提交。
+     *
+     * @param id 问卷ID
+     * @return 操作结果
+     */
     @Log(title = "问卷", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('manage:survey:archive')")
     @PutMapping("/{id}/archive")
@@ -98,6 +143,16 @@ public class SurveyController extends BaseController {
         return toAjax(n);
     }
 
+    /**
+     * 延长截止时间
+     * 路径：PUT /manage/survey/{id}/extend
+     * 权限：manage:survey:extend
+     * 说明：时间格式 yyyy-MM-dd HH:mm:ss。
+     *
+     * @param id   问卷ID
+     * @param body { deadline: string }
+     * @return 操作结果/错误提示
+     */
     @Log(title = "问卷", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('manage:survey:extend')")
     @PutMapping("/{id}/extend")
@@ -113,6 +168,16 @@ public class SurveyController extends BaseController {
         }
     }
 
+    /**
+     * 置顶/取消置顶
+     * 路径：PUT /manage/survey/{id}/pin
+     * 权限：manage:survey:pin
+     * 说明：仅“已发布”的问卷可置顶。
+     *
+     * @param id   问卷ID
+     * @param body { pinned: true/false }
+     * @return 操作结果/冲突码
+     */
     @Log(title = "问卷", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('manage:survey:pin')")
     @PutMapping("/{id}/pin")
@@ -129,6 +194,15 @@ public class SurveyController extends BaseController {
         return toAjax(n);
     }
 
+    /**
+     * 发布
+     * 路径：PUT /manage/survey/{id}/publish
+     * 权限：manage:survey:publish
+     * 说明：仅草稿可发布。
+     *
+     * @param id 问卷ID
+     * @return 操作结果
+     */
     @Log(title = "问卷", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('manage:survey:publish')")
     @PutMapping("/{id}/publish")

@@ -21,6 +21,14 @@ import com.ruoyi.common.utils.SecurityUtils;
 import com.ruoyi.common.utils.ServletUtils;
 import com.ruoyi.common.utils.ip.IpUtils;
 
+/**
+ * 数字图书馆服务实现
+ * 职责：图书及资产的增删改查、上下架与审核、收藏与下载日志、Top榜与趋势统计。
+ * 规则：
+ * - ISBN13 统一校验与标准化；
+ * - 门户默认仅返回上架数据；
+ * - 写操作涉及多表的采用事务保证一致性。
+ */
 @Service
 public class LibraryServiceImpl implements ILibraryService {
 

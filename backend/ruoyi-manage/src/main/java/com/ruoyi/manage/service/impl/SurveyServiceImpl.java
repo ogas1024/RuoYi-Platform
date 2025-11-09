@@ -14,6 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.util.*;
 
+/**
+ * 问卷服务实现
+ * 职责：问卷定义/范围/题目与选项、发布与归档、提交与统计、置顶与过期处理、AI 总结等。
+ * 说明：新增/编辑/提交涉及多表写入，使用事务保证一致性。
+ */
 @Service
 public class SurveyServiceImpl implements ISurveyService {
 

@@ -5,6 +5,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 通知-附件 Mapper
+ */
 public interface NoticeAttachmentMapper {
     int insert(NoticeAttachment data);
 
@@ -12,4 +15,3 @@ public interface NoticeAttachmentMapper {
 
     List<NoticeAttachment> selectByNoticeId(@Param("noticeId") Long noticeId);
 }
-

@@ -1,4 +1,5 @@
 <template>
+  <!-- 投票列表（置顶/状态） + 搜索 + 分页 + 跳转参与/查看结果 -->
   <div class="portal-container">
     <h2>投票列表</h2>
     <div style="margin-bottom:10px; display:flex; gap:8px;">
@@ -39,6 +40,9 @@
 </template>
 
 <script setup>
+// listVote -> /portal/vote/list
+
+// - load：分页查询；fill：路由跳转；goMy：查看我的投票；isExpired：前端过期判断用于 UI 展示
 import {ref, reactive, onMounted} from 'vue'
 import router from '@/router'
 import {listVote} from '@/api/portal/vote'

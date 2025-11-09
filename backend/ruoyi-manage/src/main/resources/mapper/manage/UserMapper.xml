@@ -3,6 +3,11 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ruoyi.manage.mapper.UserMapper">
+    <!--
+      模块：卖家用户（示例）
+      说明：
+        - 仅演示性查询/删除；新增逻辑在服务层通过 SysUser 系统接口完成。
+    -->
 
     <resultMap type="User" id="UserResult">
         <id property="userId" column="user_id"/>

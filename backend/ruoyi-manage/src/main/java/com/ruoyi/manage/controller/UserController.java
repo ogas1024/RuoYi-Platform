@@ -25,6 +25,15 @@ public class UserController extends BaseController {
     @Autowired
     private ISysUserService sysUserService;
 
+    /**
+     * 用户列表（卖家管理）
+     * 路径：GET /manage/user/list
+     * 权限：按业务自定义（如 manage:user:list）
+     * 说明：仅查询当前创建者的用户。
+     *
+     * @param user 查询条件
+     * @return 分页数据
+     */
     @GetMapping("/list")
     public TableDataInfo list(User user) {
         startPage();
@@ -33,6 +42,15 @@ public class UserController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 新增用户（卖家）
+     * 路径：POST /manage/user
+     * 权限：按业务自定义（如 manage:user:add）
+     * 说明：校验账号唯一，密码加密存储。
+     *
+     * @param user 用户实体
+     * @return 操作结果
+     */
     @PostMapping
     public AjaxResult add(@RequestBody User user) {
         if (!userService.checkUserNameUnique(user.getUserName(), user.getUserId())) {

@@ -1,4 +1,5 @@
 <template>
+  <!-- 关键词筛选 + 已通过图书列表 + 操作列（查看/下架） + 分页 + 详情/下架原因弹窗 -->
   <div class="app-container">
     <el-form :inline="true" :model="queryParams" class="mb8">
       <el-form-item label="关键字">
@@ -84,6 +85,8 @@
 </template>
 
 <script setup>
+// listLibrary/getLibrary/listLibraryAssets/offlineLibrary -> /manage/library/**
+// - getList：分页查询；openDetail：查看详情与资产清单；submitOffline：提交下架并刷新
 import {ref, onMounted, reactive} from 'vue'
 import {listLibrary, offlineLibrary, getLibrary, listLibraryAssets} from '@/api/manage/library'
 import {openExternal} from '@/utils/url'

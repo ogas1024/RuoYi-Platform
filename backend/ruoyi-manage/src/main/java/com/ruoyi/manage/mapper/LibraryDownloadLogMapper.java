@@ -7,6 +7,9 @@ import org.apache.ibatis.annotations.Param;
 import java.util.Date;
 import java.util.List;
 
+/**
+ * 图书下载日志 Mapper
+ */
 public interface LibraryDownloadLogMapper {
     int insert(LibraryDownloadLog log);
 
@@ -21,5 +24,5 @@ public interface LibraryDownloadLogMapper {
     /**
      * 下载用户TOP榜（按成功下载次数统计）
      */
-    java.util.List<com.ruoyi.manage.vo.TopUserVO> selectTopDownloadUsers(@Param("limit") Integer limit);
+    List<com.ruoyi.manage.vo.TopUserVO> selectTopDownloadUsers(@Param("limit") Integer limit);
 }

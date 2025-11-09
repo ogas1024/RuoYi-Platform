@@ -26,6 +26,15 @@ public class LibraryController extends BaseController {
     @Autowired
     private ILibraryService service;
 
+    /**
+     * 列表查询
+     * 路径：GET /manage/library/list
+     * 权限：manage:library:list
+     * 说明：管理端可查看所有状态，支持分页与条件过滤。
+     *
+     * @param query 查询条件
+     * @return 分页数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:library:list')")
     @GetMapping("/list")
     public TableDataInfo list(Library query) {
@@ -34,6 +43,14 @@ public class LibraryController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 详情
+     * 路径：GET /manage/library/{id}
+     * 权限：manage:library:get
+     *
+     * @param id 图书ID
+     * @return 详情
+     */
     @PreAuthorize("@ss.hasPermi('manage:library:get')")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable Long id) {
@@ -50,6 +67,15 @@ public class LibraryController extends BaseController {
         return success(assets);
     }
 
+    /**
+     * 新增图书
+     * 路径：POST /manage/library
+     * 权限：manage:library:add
+     * 说明：自动补齐上传者与审计字段。
+     *
+     * @param data 图书实体
+     * @return 操作结果
+     */
     @Log(title = "数字图书", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('manage:library:add')")
     @PostMapping
@@ -60,6 +86,14 @@ public class LibraryController extends BaseController {
         return toAjax(service.insert(data));
     }
 
+    /**
+     * 编辑图书
+     * 路径：PUT /manage/library
+     * 权限：manage:library:edit
+     *
+     * @param data 图书实体
+     * @return 操作结果
+     */
     @Log(title = "数字图书", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('manage:library:edit')")
     @PutMapping
@@ -68,6 +102,15 @@ public class LibraryController extends BaseController {
         return toAjax(service.update(data));
     }
 
+    /**
+     * 删除图书（软删）
+     * 路径：DELETE /manage/library/{ids}
+     * 权限：manage:library:remove
+     * 说明：管理员可删除任意；普通用户仅能删除本人记录（由服务层校验）。
+     *
+     * @param ids ID数组
+     * @return 操作结果
+     */
     @Log(title = "数字图书", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('manage:library:remove')")
     @DeleteMapping("/{ids}")
@@ -76,12 +119,29 @@ public class LibraryController extends BaseController {
         return toAjax(service.deleteByIds(ids, SecurityUtils.getUserId(), isAdmin));
     }
 
+    /**
+     * 审核通过
+     * 路径：PUT /manage/library/{id}/approve
+     * 权限：manage:library:approve
+     *
+     * @param id 图书ID
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:library:approve')")
     @PutMapping("/{id}/approve")
     public AjaxResult approve(@PathVariable Long id) {
         return toAjax(service.approve(id, getUsername()));
     }
 
+    /**
+     * 审核驳回
+     * 路径：PUT /manage/library/{id}/reject
+     * 权限：manage:library:reject
+     *
+     * @param id   图书ID
+     * @param body { reason: string }
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:library:reject')")
     @PutMapping("/{id}/reject")
     public AjaxResult reject(@PathVariable Long id, @RequestBody Map<String, String> body) {
@@ -89,6 +149,15 @@ public class LibraryController extends BaseController {
         return toAjax(service.reject(id, getUsername(), reason));
     }
 
+    /**
+     * 下架
+     * 路径：PUT /manage/library/{id}/offline
+     * 权限：manage:library:offline
+     *
+     * @param id   图书ID
+     * @param body { reason: string }（可选）
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:library:offline')")
     @PutMapping("/{id}/offline")
     public AjaxResult offline(@PathVariable Long id, @RequestBody(required = false) Map<String, String> body) {
@@ -96,6 +165,14 @@ public class LibraryController extends BaseController {
         return toAjax(service.offline(id, getUsername(), reason));
     }
 
+    /**
+     * 提交上架（转为待审）
+     * 路径：PUT /manage/library/{id}/online
+     * 权限：manage:library:online
+     *
+     * @param id 图书ID
+     * @return 操作结果
+     */
     @PreAuthorize("@ss.hasPermi('manage:library:online')")
     @PutMapping("/{id}/online")
     public AjaxResult online(@PathVariable Long id) {
@@ -105,6 +182,16 @@ public class LibraryController extends BaseController {
     /**
      * 管理端：下载/打开资产
      * 说明：与门户不同，管理端用于审核与回溯，不限制状态；需具备 manage:library:download 权限。
+     */
+    /**
+     * 管理端下载/打开资产（302跳转）
+     * 路径：GET /manage/library/{id}/download[?assetId=]
+     * 权限：manage:library:download
+     * 说明：用于审核与回溯，不限制图书状态。
+     *
+     * @param id      图书ID
+     * @param assetId 资产ID（可选）
+     * @param response Http响应
      */
     @PreAuthorize("@ss.hasPermi('manage:library:download')")
     @GetMapping("/{id}/download")
@@ -146,6 +233,15 @@ public class LibraryController extends BaseController {
         response.setHeader("Location", url);
     }
 
+    /**
+     * 硬删除（预留）
+     * 路径：DELETE /manage/library/{ids}/hard
+     * 权限：manage:library:hardRemove
+     * 说明：当前未实现，后续将包含 OSS 删除。
+     *
+     * @param ids ID数组
+     * @return 暂未实现提示
+     */
     @PreAuthorize("@ss.hasPermi('manage:library:hardRemove')")
     @DeleteMapping("/{ids}/hard")
     public AjaxResult hardRemove(@PathVariable Long[] ids) {

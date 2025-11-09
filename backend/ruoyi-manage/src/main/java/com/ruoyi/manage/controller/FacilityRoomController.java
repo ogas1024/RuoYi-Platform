@@ -24,6 +24,17 @@ public class FacilityRoomController extends BaseController {
     @Autowired
     private IFacilityBookingService bookingService;
 
+    /**
+     * 房间列表
+     * 路径：GET /manage/facility/room/list
+     * 权限：manage:facility:room:list
+     * 说明：管理端默认不过滤状态；若传入 status 则按传入值过滤。
+     *
+     * @param buildingId 楼房ID（必填）
+     * @param floorNo    楼层（可选）
+     * @param status     状态筛选（可选）
+     * @return 分页数据
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:room:list')")
     @GetMapping("/list")
     public TableDataInfo list(@RequestParam Long buildingId,
@@ -43,12 +54,30 @@ public class FacilityRoomController extends BaseController {
         return getDataTable(list);
     }
 
+    /**
+     * 房间详情
+     * 路径：GET /manage/facility/room/{id}
+     * 权限：manage:facility:room:get
+     *
+     * @param id 房间ID
+     * @return 详情
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:room:get')")
     @GetMapping("/{id}")
     public AjaxResult getInfo(@PathVariable Long id) {
         return success(service.selectById(id));
     }
 
+    /**
+     * 房间时间轴
+     * 路径：GET /manage/facility/room/{id}/timeline
+     * 权限：manage:facility:room:timeline
+     *
+     * @param id   房间ID
+     * @param from 起始时间（可选）
+     * @param to   截止时间（可选）
+     * @return { roomId, range:{from,to}, segments }
+     */
     @PreAuthorize("@ss.hasPermi('manage:facility:room:timeline')")
     @GetMapping("/{id}/timeline")
     public AjaxResult timeline(@PathVariable Long id,
@@ -66,6 +95,15 @@ public class FacilityRoomController extends BaseController {
     }
 
     // 管理端 CRUD
+    /**
+     * 新增房间
+     * 路径：POST /manage/facility/room
+     * 权限：manage:facility:room:add
+     * 说明：默认 status=0 启用。
+     *
+     * @param data 实体
+     * @return 操作结果
+     */
     @Log(title = "功能房-房间", businessType = BusinessType.INSERT)
     @PreAuthorize("@ss.hasPermi('manage:facility:room:add')")
     @PostMapping
@@ -77,6 +115,14 @@ public class FacilityRoomController extends BaseController {
         return toAjax(service.insert(data));
     }
 
+    /**
+     * 编辑房间
+     * 路径：PUT /manage/facility/room
+     * 权限：manage:facility:room:edit
+     *
+     * @param data 实体
+     * @return 操作结果
+     */
     @Log(title = "功能房-房间", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('manage:facility:room:edit')")
     @PutMapping
@@ -85,6 +131,15 @@ public class FacilityRoomController extends BaseController {
         return toAjax(service.update(data));
     }
 
+    /**
+     * 启用/禁用房间
+     * 路径：PUT /manage/facility/room/{id}/enable?enable=true|false
+     * 权限：manage:facility:room:enable
+     *
+     * @param id     房间ID
+     * @param enable 是否启用
+     * @return 操作结果
+     */
     @Log(title = "功能房-房间启禁", businessType = BusinessType.UPDATE)
     @PreAuthorize("@ss.hasPermi('manage:facility:room:enable')")
     @PutMapping("/{id}/enable")
@@ -92,6 +147,14 @@ public class FacilityRoomController extends BaseController {
         return toAjax(service.enable(id, Boolean.TRUE.equals(enable)));
     }
 
+    /**
+     * 删除房间
+     * 路径：DELETE /manage/facility/room/{ids}
+     * 权限：manage:facility:room:remove
+     *
+     * @param ids ID数组
+     * @return 操作结果
+     */
     @Log(title = "功能房-房间", businessType = BusinessType.DELETE)
     @PreAuthorize("@ss.hasPermi('manage:facility:room:remove')")
     @DeleteMapping("/{ids}")
