@@ -82,4 +82,13 @@
         <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
     </update>
 
+    <!-- 统计指定楼房ID集合下未删除的房间数量 -->
+    <select id="countByBuildingIds" resultType="int">
+        select count(1)
+        from tb_facility_room
+        where del_flag = '0'
+          and building_id in
+          <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
 </mapper>
