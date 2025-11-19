@@ -1,0 +1,88 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: ruoyi-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-ruoyi_root}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-ruoyi}
+      MYSQL_USER: ${MYSQL_USER:-ruoyi}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-ruoyi123}
+      TZ: ${TZ:-Asia/Shanghai}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p\"$MYSQL_ROOT_PASSWORD\" || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: ruoyi-redis
+    restart: unless-stopped
+    command:
+      - --appendonly
+      - "yes"
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+    volumes:
+      - ./data/redis:/data
+    ports:
+      - "6379:6379"
+
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: ruoyi-backend
+    restart: unless-stopped
+    environment:
+      TZ: ${TZ:-Asia/Shanghai}
+      SPRING_PROFILES_ACTIVE: druid
+      SPRING_DATASOURCE_DRUID_MASTER_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-ruoyi}?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&useSSL=false&serverTimezone=GMT%2B8&allowMultiQueries=true&allowPublicKeyRetrieval=true
+      SPRING_DATASOURCE_DRUID_MASTER_USERNAME: ${MYSQL_USER:-ruoyi}
+      SPRING_DATASOURCE_DRUID_MASTER_PASSWORD: ${MYSQL_PASSWORD:-ruoyi123}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+      SPRING_REDIS_DATABASE: 0
+      SPRING_REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      RUOYI_PROFILE: /data/upload
+      # OSS 配置（可选）
+      ALIYUN_OSS_ENABLED: ${ALIYUN_OSS_ENABLED:-false}
+      ALIYUN_OSS_ENDPOINT: ${ALIYUN_OSS_ENDPOINT:-}
+      ALIYUN_OSS_ACCESS_KEY_ID: ${ALIYUN_OSS_ACCESS_KEY_ID:-}
+      ALIYUN_OSS_ACCESS_KEY_SECRET: ${ALIYUN_OSS_ACCESS_KEY_SECRET:-}
+      ALIYUN_OSS_BUCKET: ${ALIYUN_OSS_BUCKET:-}
+      ALIYUN_OSS_CUSTOM_DOMAIN: ${ALIYUN_OSS_CUSTOM_DOMAIN:-}
+      ALIYUN_OSS_BASE_PATH: ${ALIYUN_OSS_BASE_PATH:-uploads}
+      # 智谱 AI，用于问卷 AI 汇总
+      ZAI_API_KEY: ${ZAI_API_KEY:-}
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - ./logs:/app/logs
+      - ./data/upload:/data/upload
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    container_name: ruoyi-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"

@@ -105,6 +105,7 @@ import {ref, reactive, onMounted, getCurrentInstance} from 'vue'
 import {useRoute} from 'vue-router'
 import {listResourcePortal, addResourcePortal} from '@/api/portal/resource'
 import {uploadOssPortal} from '@/api/portal/upload'
+import {getToken} from '@/utils/auth'
 
 const route = useRoute()
 const majorId = Number(route.query.majorId)
@@ -215,7 +216,10 @@ const submitForm = () => {
 }
 
 const handleDownload = (row) => {
-  window.open(`${import.meta.env.VITE_APP_BASE_API}/portal/resource/${row.id}/download`, '_blank')
+  const base = import.meta.env.VITE_APP_BASE_API || ''
+  const token = getToken()
+  const url = `${base}/portal/resource/${row.id}/download${token ? `?token=${encodeURIComponent(token)}` : ''}`
+  window.open(url, '_blank')
 }
 
 const openDetail = (row) => {

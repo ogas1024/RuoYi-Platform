@@ -215,7 +215,7 @@
 </template>
 
 <script setup name="Book">
-import {listBook, updateBook, batchAuditBook} from "@/api/manage/library"
+import {listBook, updateBook} from "@/api/manage/book"
 import {listCategory} from "@/api/manage/category"
 import {ref, reactive, getCurrentInstance} from "vue"
 import {delOrders} from "@/api/manage/orders.js";
@@ -307,12 +307,16 @@ function handleAudit(row, status) {
 
 function handleBatchAudit(status) {
   const _ids = ids.value
-  batchAuditBook(_ids, status).then(() => {
-    proxy.$modal.msgSuccess("审核成功")
-    getList()
-  }).catch(() => {
-    proxy.$modal.msgError("审核失败")
-  })
+  // 先简单串行调用单条审核（后端暂无批量接口），后续可按需扩展为 /manage/book/batchAudit
+  const proms = _ids.map(id => updateBook({id, status}))
+  Promise.all(proms)
+      .then(() => {
+        proxy.$modal.msgSuccess("审核成功")
+        getList()
+      })
+      .catch(() => {
+        proxy.$modal.msgError("审核失败")
+      })
 }
 
 // 初始化加载

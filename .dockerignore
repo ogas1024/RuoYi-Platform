@@ -1,0 +1,16 @@
+frontend/node_modules
+backend/ruoyi-admin/target
+backend/ruoyi-manage/target
+backend/ruoyi-system/target
+backend/ruoyi-framework/target
+backend/ruoyi-quartz/target
+backend/ruoyi-generator/target
+backend/ruoyi-common/target
+
+.git
+.gitignore
+.idea
+.vscode
+logs
+data
+node_modules

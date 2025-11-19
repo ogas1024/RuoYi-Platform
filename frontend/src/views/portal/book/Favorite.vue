@@ -22,7 +22,7 @@
 
 <script setup>
 // listFavoriteLibraryPortal -> /portal/library/favorite/list
-getList：分页查询；openDetail：路由跳转到详情页
+// getList：分页查询；openDetail：路由跳转到详情页
 import {ref, onMounted} from 'vue'
 import {useRouter} from 'vue-router'
 import {listFavoriteLibraryPortal} from '@/api/portal/library'

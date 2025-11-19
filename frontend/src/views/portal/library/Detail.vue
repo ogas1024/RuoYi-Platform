@@ -39,7 +39,7 @@
 
 <script setup>
 // getLibraryPortal/favoriteLibraryPortal -> /portal/library/**；下载：/portal/library/{id}/download
-fetch：拉取详情与资产；download：拼接 token 下载；toggleFav：收藏/取消收藏
+// fetch：拉取详情与资产；download：拼接 token 下载；toggleFav：收藏/取消收藏
 import {ref, onMounted, computed} from 'vue'
 import {openExternal} from '@/utils/url'
 import {useRoute} from 'vue-router'
