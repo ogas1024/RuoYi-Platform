@@ -50,6 +50,9 @@ nbdist/
 .gradle
 build/
 
+# 允许前端工具页面目录被跟踪（避免忽略 src/views/tool/build）
+!/frontend/src/views/tool/build/
+
 # Maven
 target/
 
