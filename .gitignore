@@ -229,3 +229,4 @@ data/
 .*
 !.dockerignore
 !.env.example
+!.github/

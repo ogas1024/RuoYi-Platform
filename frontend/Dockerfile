@@ -2,13 +2,19 @@ FROM node:20-alpine AS build
 
 WORKDIR /app
 
+# 安装并使用 pnpm（比 npm 快 2-3 倍）
+RUN npm install -g pnpm@latest --registry=https://registry.npmmirror.com
+
+# 提升 Node 构建阶段可用堆内存，避免大型 Vite 打包在低内存宿主机上 OOM
+ENV NODE_OPTIONS="--max-old-space-size=2048"
+
 COPY frontend/package*.json ./
-# 使用 npm install 而非 npm ci，避免因锁文件与 package.json 轻微不一致导致构建失败。
-RUN npm install --registry=https://registry.npmmirror.com
+# 使用 pnpm install 替代 npm install，更快且更省空间
+RUN pnpm install --registry=https://registry.npmmirror.com
 
 COPY frontend ./
 
-RUN npm run build:prod
+RUN pnpm run build:prod
 
 FROM nginx:1.27-alpine
 
