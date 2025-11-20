@@ -65,7 +65,7 @@ const fetch = async () => {
 }
 
 const download = (assetId) => {
-  const base = import.meta.env.VITE_APP_BASE_API || ''
+  const base = import.meta.env.VITE_APP_BASE_API || '/prod-api'
   const sep = assetId ? `?assetId=${assetId}` : ''
   const url = `${base}/portal/library/${book.value.id}/download${sep}${sep ? '&' : '?'}token=${encodeURIComponent(getToken() || '')}`
   window.open(url, '_blank')

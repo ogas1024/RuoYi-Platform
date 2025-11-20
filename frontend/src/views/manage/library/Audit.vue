@@ -121,7 +121,7 @@ const openDetail = async (row) => {
 import {getToken} from '@/utils/auth'
 
 const downloadAsset = (bookId, assetId) => {
-  const base = import.meta.env.VITE_APP_BASE_API || ''
+  const base = import.meta.env.VITE_APP_BASE_API || '/prod-api'
   const url = `${base}/manage/library/${bookId}/download?assetId=${assetId}&token=${encodeURIComponent(getToken() || '')}`
   window.open(url, '_blank')
 }

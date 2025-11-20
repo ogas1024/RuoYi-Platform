@@ -86,7 +86,7 @@ const openDetail = (item) => {
 import {getToken} from '@/utils/auth'
 
 const downloadDefault = (item) => {
-  const base = import.meta.env.VITE_APP_BASE_API || ''
+  const base = import.meta.env.VITE_APP_BASE_API || '/prod-api'
   const url = `${base}/portal/library/${item.id}/download?token=${encodeURIComponent(getToken() || '')}`
   window.open(url, '_blank')
 }

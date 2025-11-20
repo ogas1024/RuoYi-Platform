@@ -216,7 +216,7 @@ const submitForm = () => {
 }
 
 const handleDownload = (row) => {
-  const base = import.meta.env.VITE_APP_BASE_API || ''
+  const base = import.meta.env.VITE_APP_BASE_API || '/prod-api'
   const token = getToken()
   const url = `${base}/portal/resource/${row.id}/download${token ? `?token=${encodeURIComponent(token)}` : ''}`
   window.open(url, '_blank')
