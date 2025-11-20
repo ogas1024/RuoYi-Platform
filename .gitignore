@@ -230,3 +230,6 @@ data/
 !.dockerignore
 !.env.example
 !.github/
+!frontend/.env.development
+!frontend/.env.production
+!frontend/.env.staging
