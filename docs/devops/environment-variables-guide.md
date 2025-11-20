@@ -35,7 +35,7 @@
 | **生命周期** | 构建阶段 | 运行阶段 |
 | **存储位置** | GitHub 服务器 | 服务器本地文件 |
 | **配置方式** | GitHub 网站设置 | 文本文件 |
-| **访问方式** | `${{ secrets.XXX }}` | `docker-compose` 自动读取 |
+| **访问方式** | `${{ secrets.XXX }}` | `docker compose` 自动读取 |
 | **主要用途** | 认证、密钥、凭据 | 应用配置、数据库参数 |
 | **常见变量** | DOCKER_HUB_TOKEN, SSH_KEY | MYSQL_PASSWORD, TZ |
 | **安全性** | ⭐⭐⭐⭐⭐ 加密存储 | ⭐⭐⭐ 明文文件，需 `.gitignore` |
@@ -170,9 +170,9 @@ GitHub Actions
   └─▶ SSH 连接到服务器 (使用 SERVER_SSH_KEY)
        │
        ├─▶ cd /home/ogas/Code/Web/RuoYi-Platform
-       ├─▶ git pull origin main
-       ├─▶ docker-compose pull
-       ├─▶ docker-compose up -d
+       ├─▶ git fetch origin main && git checkout main && git pull origin main
+       ├─▶ docker compose pull
+       ├─▶ docker compose up -d
        └─▶ docker image prune -af (清理旧镜像)
             │
             ▼ 使用 .env 文件配置：
@@ -281,7 +281,7 @@ GitHub Secrets  →  给 GitHub 用的   →  推送/部署
 
 .env 文件        →  给 Docker 用的  →  运行容器
       ↓                    ↓                    ↓
-   应用配置           docker-compose      应用运行
+   应用配置           docker compose      应用运行
 ```
 
 ---
@@ -305,8 +305,7 @@ GitHub Secrets  →  给 GitHub 用的   →  推送/部署
 
 - 详细配置步骤：`docs/github-secrets-setup.md`
 - 完整部署指南：`docs/github-actions-deployment.md`
-- Docker 部署说明：`docs/docker-deployment.md`
 
 ---
 
-**配置完成这两个系统后，就可以在弱配置的云服务器上享受快速的部署体验了！** 🚀
+**配置完成这两个系统后，就可以在弱配置的云服务器上享受快速的部署体验了！**

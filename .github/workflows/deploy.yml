@@ -11,19 +11,23 @@ on:
   workflow_dispatch:
     inputs:
       deploy:
-        description: 'Deploy to server after build'
+        description: '构建镜像后部署到服务器'
         required: false
         default: false
         type: boolean
 
 env:
-  # 修改为 Docker Hub 或其他镜像仓库的用户名和镜像名
+  # 镜像命名空间：<用户名>/ruoyi-frontend / ruoyi-backend
   DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USERNAME }}
   FRONTEND_IMAGE_NAME: ${{ secrets.DOCKER_HUB_USERNAME }}/ruoyi-frontend
   BACKEND_IMAGE_NAME: ${{ secrets.DOCKER_HUB_USERNAME }}/ruoyi-backend
 
+concurrency:
+  group: build-and-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  # 构建并推送前端镜像
+  # 构建（并在非 PR 场景推送）前端镜像
   build-frontend:
     runs-on: ubuntu-latest
     permissions:
@@ -37,12 +41,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
-
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -54,19 +52,26 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push frontend
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build frontend image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./frontend/Dockerfile
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
-  # 构建并推送后端镜像
+  # 构建（并在非 PR 场景推送）后端镜像
   build-backend:
     runs-on: ubuntu-latest
     permissions:
@@ -77,25 +82,8 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up JDK 8
-        uses: actions/setup-java@v4
-        with:
-          java-version: '8'
-          distribution: 'temurin'
-          cache: 'maven'
-
-      - name: Build backend JAR
-        working-directory: ./backend
-        run: mvn clean package -DskipTests
-
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_HUB_USERNAME }}
-          password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
       - name: Extract metadata
         id: meta
@@ -108,19 +96,26 @@ jobs:
             type=sha,prefix={{branch}}-
             type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build and push backend
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+
+      - name: Build backend image
         uses: docker/build-push-action@v5
         with:
           context: .
           file: ./backend/Dockerfile
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
           platforms: linux/amd64,linux/arm64
 
-  # 部署到服务器（可选）
+  # 部署到服务器（仅在手动触发且勾选 deploy 时执行）
   deploy:
     runs-on: ubuntu-latest
     needs: [build-frontend, build-backend]
@@ -130,7 +125,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Deploy to server
+      - name: Deploy to server (docker compose + 预构建镜像)
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
@@ -138,12 +133,17 @@ jobs:
           key: ${{ secrets.SERVER_SSH_KEY }}
           port: ${{ secrets.SERVER_PORT || '22' }}
           script: |
+            set -e
             cd /home/ogas/Code/Web/RuoYi-Platform
-            # 拉取最新代码
+
+            # 拉取最新代码（默认 main）
+            git fetch origin main
+            git checkout main
             git pull origin main
-            # 拉取最新镜像
-            docker-compose pull
-            # 重新部署
-            docker-compose up -d
-            # 清理旧镜像
+
+            # 使用预构建镜像更新服务（一次性拉取并启动前后端+数据库）
+            docker compose pull
+            docker compose up -d
+
+            # 清理旧镜像（仅清理悬挂镜像）
             docker image prune -af
