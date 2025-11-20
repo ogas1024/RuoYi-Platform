@@ -92,7 +92,7 @@ git push origin main
   │     ├─▶ Login to Docker Hub (非 PR 场景)
   │     └─▶ Build and push frontend image
   │            - Dockerfile: ./frontend/Dockerfile（内部使用 pnpm + Vite）
-  │            - 架构: linux/amd64, linux/arm64
+  │            - 架构: linux/amd64
   │            - 缓存: GitHub Actions GHA 层缓存
   │
   └─▶ 后端 Job: build-backend
@@ -102,7 +102,7 @@ git push origin main
         ├─▶ Login to Docker Hub (非 PR 场景)
         └─▶ Build and push backend image
                - Dockerfile: ./backend/Dockerfile（内部多阶段 + Maven 构建）
-               - 架构: linux/amd64, linux/arm64
+               - 架构: linux/amd64
                - 缓存: GitHub Actions GHA 层缓存
 
 部署阶段 (仅在手动触发且勾选 deploy 时执行):

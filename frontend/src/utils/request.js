@@ -15,7 +15,8 @@ axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8'
 // 创建axios实例
 const service = axios.create({
     // axios中请求配置有baseURL选项，表示请求URL公共部分
-    baseURL: import.meta.env.VITE_APP_BASE_API,
+    // 生产构建时优先使用环境变量，缺失时兜底为 /prod-api，保证走 Nginx 反向代理到后端
+    baseURL: import.meta.env.VITE_APP_BASE_API || '/prod-api',
     // 超时
     timeout: 10000
 })

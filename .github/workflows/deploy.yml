@@ -69,7 +69,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
 
   # 构建（并在非 PR 场景推送）后端镜像
   build-backend:
@@ -113,7 +113,7 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          platforms: linux/amd64,linux/arm64
+          platforms: linux/amd64
 
   # 部署到服务器（仅在手动触发且勾选 deploy 时执行）
   deploy:
